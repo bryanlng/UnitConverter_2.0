@@ -1,0 +1,70 @@
+<resources>
+    <string name="app_name">UnitConverter2.0</string>
+    <string name="drawer_open">Open Drawer</string>
+    <string name="drawer_close">Close Drawer</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="fragmentTitles">
+        <item>General Unit Converter</item>
+        <item>Date Calculator</item>
+    </string-array>
+    <string name="display">a;lkdjfalksdjfl;adsjflk;js</string>
+    <string name="category_prompt">Choose a category</string>
+    <string-array name="categories">
+        <item>Weight</item>
+        <item>Volume</item>
+        <item>Distance</item>
+        <item>Temperature</item>
+        <item>Programming</item>
+    </string-array>
+    <string name="optionsHint">Type in a value</string>
+    <string-array name="weight">
+        <item>Kilogram</item>
+        <item>Gram</item>
+        <item>Milligram</item>
+        <item>Microgram</item>
+        <item>Metric ton</item>
+        <item>US Ton</item>
+        <item>Pound</item>
+        <item>Ounce</item>
+        <item>Stone</item>
+    </string-array>
+    <string-array name="volume">
+        <item>US gallon</item>
+        <item>US quart</item>
+        <item>US pint</item>
+        <item>US cup</item>
+        <item>US fluid ounce</item>
+        <item>US tbsp</item>
+        <item>US tsp</item>
+        <item>US Ton</item>
+        <item>Liters</item>
+        <item>mL</item>
+    </string-array>
+    <string-array name="distance">
+        <item>Mile</item>
+        <item>Yard</item>
+        <item>Feet</item>
+        <item>Inch</item>
+        <item>Kilometer</item>
+        <item>Meter</item>
+        <item>Centimeter</item>
+        <item>Millimeter</item>
+        <item>Micrometer</item>
+        <item>Nanometer</item>
+        <item>Knots</item>
+    </string-array>
+    <string-array name="temperature">
+        <item>Fahrenheit</item>
+        <item>Celsius</item>
+        <item>Kelvin</item>
+    </string-array>
+    <string-array name="programming">
+        <item>Binary</item>
+        <item>Hex</item>
+        <item>Decimal</item>
+    </string-array>
+    <string name="clear">Clear</string>
+    <string name="compute">Compute</string>
+    <string name="same_category">Same category, please choose a different category</string>
+    <string name="incorrect_format">Incorrect format</string>
+</resources>
