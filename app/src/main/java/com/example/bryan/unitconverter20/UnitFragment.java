@@ -382,7 +382,7 @@ public class UnitFragment extends Fragment {
                                     break;
                                 case "US cup":       // US cup --> mL
                                     Double cup = Double.parseDouble(optionA);
-                                    middlemanValue = cup *240;
+                                    middlemanValue = cup *236.588;
                                     break;
                                 case "US fluid ounce":  // US fluid ounce --> mL
                                     Double fl= Double.parseDouble(optionA);
@@ -414,7 +414,7 @@ public class UnitFragment extends Fragment {
                                     middlemanValue /= 473.176;
                                     break;
                                 case "US cup":       //  mL --> US cup
-                                    middlemanValue /= 240;
+                                    middlemanValue /= 236.588;
                                     break;
                                 case "US fluid ounce":  //  mL --> S fluid ounce L
                                     middlemanValue /= 29.5735;
