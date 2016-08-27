@@ -46,6 +46,8 @@ public class UnitFragment extends Fragment {
     private String currentOptionB = "";
     private String currentOptionBText = "";
 
+    private boolean onlyUSTimeZones = false;
+
     public UnitFragment(){
     }
 
@@ -63,7 +65,7 @@ public class UnitFragment extends Fragment {
         /******************************************Instantiate UI elements of the View************************************************/
         /****Default showing = Category = Weight, EditTexts have value 0, Option A = kg, Option B = lb*******************************/
         //TextView to display the result
-        displayMessage = (TextView)rootView.findViewById(R.id.result_display);
+//        displayMessage = (TextView) .findViewById(R.id.result_display);
 
         //Category, optionA, optionB spinners
         category = (Spinner)rootView.findViewById(R.id.category);

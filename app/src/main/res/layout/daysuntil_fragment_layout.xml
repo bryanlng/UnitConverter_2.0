@@ -1,10 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:weightSum="1">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/days_text"
-        android:text="LADLKFJAL;KDFJAL;JDFA"
+        android:id="@+id/from"
+        android:textSize="20dp"
+        android:text="@string/from"
         />
-</LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/starting_day"
+        android:text="@string/starting_day"
+        android:textSize="44dp"
+        android:textColor="#000000"
+        android:layout_below="@+id/from"
+        android:layout_toEndOf="@+id/to" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/to"
+        android:textSize="20dp"
+        android:text="@string/to"
+        android:layout_below="@id/starting_day"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ending_day"
+        android:text="@string/ending_day"
+        android:textSize="44dp"
+        android:textColor="#000000"
+        android:layout_below="@+id/to"
+        android:layout_toEndOf="@+id/to" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkBox"
+        android:text="@string/checkbox"
+        android:layout_below="@+id/ending_day"
+        android:layout_alignStart="@+id/ending_day" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/result_text"
+        android:text="@string/result_text"
+        android:textSize="44dp"
+        android:textColor="#000000"
+        android:layout_below="@+id/checkBox"
+        android:layout_alignStart="@+id/checkBox" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/result_text_details"
+        android:text="@string/result_text_details"
+        android:textSize="20dp"
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/result_text" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/calendar_icon_white_tenth"
+        android:background="#ffffff"
+        android:id="@+id/calendar1"
+        android:layout_below="@+id/from"
+        android:layout_alignEnd="@+id/checkBox" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/calendar_icon_white_tenth"
+        android:background="#ffffff"
+        android:id="@+id/calendar2"
+        android:layout_alignTop="@+id/ending_day"
+        android:layout_alignEnd="@+id/checkBox" />
+
+
+</RelativeLayout>

@@ -67,4 +67,11 @@
     <string name="compute">Compute</string>
     <string name="same_category">Same category, please choose a different category</string>
     <string name="incorrect_format">Incorrect format</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="starting_day">02/02/0000</string>
+    <string name="ending_day">02/02/0000</string>
+    <string name="checkbox">Include end date in calculation (1 day is added)</string>
+    <string name="result_text">dfdf</string>
+    <string name="result_text_details">dfdf</string>
 </resources>
