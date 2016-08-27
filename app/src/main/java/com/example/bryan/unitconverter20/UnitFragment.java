@@ -602,6 +602,7 @@ public class UnitFragment extends Fragment {
         Returns true if good format, false if bad format
      */
     public boolean checkFormat(boolean isProgramming, String programmingInput, String programmingOutput ){
+        boolean isNegative = false;
         boolean isGoodFormat = true;
         if(isProgramming){
             //Have to check both optionA's text and optionB's text
@@ -616,15 +617,30 @@ public class UnitFragment extends Fragment {
                     boolean containsBadCharacter = false;
                     while(i < optionAcheck.length() && !containsBadCharacter){
                         int ascii = (int)optionAcheck.charAt(i);
-                        if(ascii >= 48 && ascii <= 57 || ascii == 46){
-                            //if it's in range
-                            Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
+                        if(i == 0){
+                            //checking for a "-" at the beginning. This is the only time where - is acceptable
+                            if(ascii >= 48 && ascii <= 57 || ascii == 46 || ascii == 45){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
+                            }
+
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range");
+                                containsBadCharacter = true;
+                            }
+                        }
+                        else{
+                            if(ascii >= 48 && ascii <= 57 || ascii == 46){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
+                            }
+
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range");
+                                containsBadCharacter = true;
+                            }
                         }
 
-                        else{
-                            Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range");
-                            containsBadCharacter = true;
-                        }
 
                         i++;
                     }
@@ -637,14 +653,28 @@ public class UnitFragment extends Fragment {
                     boolean containsBadCharacter = false;
                     while(i < optionAcheck.length() && !containsBadCharacter){
                         int ascii = (int)optionAcheck.charAt(i);
-                        if(ascii == 48 || ascii <= 49 || ascii == 46){
-                            //if it's in range
-                            Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
-                        }
+                        if(i == 0){
+                            //checking for a "-" at the beginning. This is the only time where - is acceptable
+                            if(ascii == 48 || ascii <= 49 || ascii == 46 || ascii == 45){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
+                            }
 
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range");
+                                containsBadCharacter = true;
+                            }
+                        }
                         else{
-                            Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range");
-                            containsBadCharacter = true;
+                            if(ascii == 48 || ascii <= 49 || ascii == 46){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
+                            }
+
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range");
+                                containsBadCharacter = true;
+                            }
                         }
 
                         i++;
@@ -660,14 +690,28 @@ public class UnitFragment extends Fragment {
                     while(i < optionAcheck.length() && !containsBadCharacter){
                         int ascii = (int)optionAcheck.charAt(i);
                         //if ascii is either #, A-F, a-f, or .
-                        if((ascii >= 48 && ascii <= 57) || (ascii >= 65 && ascii <= 70) || (ascii >= 97 && ascii <= 102) || ascii == 46){
-                            //if it's in range
-                            Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
-                        }
+                        if(i == 0){
+                            //checking for a "-" at the beginning. This is the only time where - is acceptable
+                            if((ascii >= 48 && ascii <= 57) || (ascii >= 65 && ascii <= 70) || (ascii >= 97 && ascii <= 102) || ascii == 46 || ascii == 45){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
+                            }
 
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range, ascii: " + ascii);
+                                containsBadCharacter = true;
+                            }
+                        }
                         else{
-                            Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range, ascii: " + ascii);
-                            containsBadCharacter = true;
+                            if((ascii >= 48 && ascii <= 57) || (ascii >= 65 && ascii <= 70) || (ascii >= 97 && ascii <= 102) || ascii == 46){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
+                            }
+
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range, ascii: " + ascii);
+                                containsBadCharacter = true;
+                            }
                         }
 
                         i++;
@@ -688,14 +732,28 @@ public class UnitFragment extends Fragment {
                     boolean containsBadCharacter = false;
                     while(i < optionBcheck.length() && !containsBadCharacter){
                         int ascii = (int)optionBcheck.charAt(i);
-                        if(ascii >= 48 && ascii <= 57 || ascii == 46){
-                            //if it's in range
-                            Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is in range");
-                        }
+                        if(i == 0){
+                            //checking for a "-" at the beginning. This is the only time where - is acceptable
+                            if(ascii >= 48 && ascii <= 57 || ascii == 46 || ascii == 45){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is in range");
+                            }
 
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is NOT in range");
+                                containsBadCharacter = true;
+                            }
+                        }
                         else{
-                            Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is NOT in range");
-                            containsBadCharacter = true;
+                            if(ascii >= 48 && ascii <= 57 || ascii == 46){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is in range");
+                            }
+
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is NOT in range");
+                                containsBadCharacter = true;
+                            }
                         }
 
                         i++;
@@ -709,15 +767,30 @@ public class UnitFragment extends Fragment {
                     boolean containsBadCharacter = false;
                     while(i < optionBcheck.length() && !containsBadCharacter){
                         int ascii = (int)optionBcheck.charAt(i);
-                        if(ascii == 48 || ascii <= 49 || ascii == 46){
-                            //if it's in range
-                            Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is in range");
+                        if(i == 0){
+                            //checking for a "-" at the beginning. This is the only time where - is acceptable
+                            if(ascii == 48 || ascii <= 49 || ascii == 46 || ascii == 45){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is in range");
+                            }
+
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is NOT in range");
+                                containsBadCharacter = true;
+                            }
+                        }
+                        else{
+                            if(ascii == 48 || ascii <= 49 || ascii == 46){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is in range");
+                            }
+
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is NOT in range");
+                                containsBadCharacter = true;
+                            }
                         }
 
-                        else{
-                            Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is NOT in range");
-                            containsBadCharacter = true;
-                        }
 
                         i++;
                     }
@@ -732,15 +805,30 @@ public class UnitFragment extends Fragment {
                     while(i < optionBcheck.length() && !containsBadCharacter){
                         //if ascii is either #, A-F, a-f, or .
                         int ascii = (int)optionBcheck.charAt(i);
-                        if((ascii >= 48 && ascii <= 57) || (ascii >= 65 && ascii <= 70) || (ascii >= 97 && ascii <= 102) || ascii == 46){
-                            //if it's in range
-                            Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is in range");
+                        if(i == 0){
+                            //checking for a "-" at the beginning. This is the only time where - is acceptable
+                            if((ascii >= 48 && ascii <= 57) || (ascii >= 65 && ascii <= 70) || (ascii >= 97 && ascii <= 102) || ascii == 46 || ascii == 45){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is in range");
+                            }
+
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is NOT in range, ascii: " + ascii);
+                                containsBadCharacter = true;
+                            }
+                        }
+                        else{
+                            if((ascii >= 48 && ascii <= 57) || (ascii >= 65 && ascii <= 70) || (ascii >= 97 && ascii <= 102) || ascii == 46){
+                                //if it's in range
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is in range");
+                            }
+
+                            else{
+                                Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is NOT in range, ascii: " + ascii);
+                                containsBadCharacter = true;
+                            }
                         }
 
-                        else{
-                            Log.i(TAG, "checkFormat: " + optionBcheck.charAt(i) + " is NOT in range, ascii: " + ascii);
-                            containsBadCharacter = true;
-                        }
 
                         i++;
                     }
@@ -770,15 +858,30 @@ public class UnitFragment extends Fragment {
                 boolean containsBadCharacter = false;
                 while(i < optionAcheck.length() && !containsBadCharacter){
                     int ascii = (int)optionAcheck.charAt(i);
-                    if((ascii >= 48 && ascii <= 57) || ascii == 46){
-                        //if it's in range
-                        Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
+                    if(i == 0){
+                        //checking for a "-" at the beginning. This is the only time where - is acceptable
+                        if((ascii >= 48 && ascii <= 57) || ascii == 46 || ascii == 45){
+                            //if it's in range
+                            Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
+                        }
+
+                        else{
+                            Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range, ascii: " + ascii);
+                            containsBadCharacter = true;
+                        }
+                    }
+                    else{
+                        if((ascii >= 48 && ascii <= 57) || ascii == 46){
+                            //if it's in range
+                            Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
+                        }
+
+                        else{
+                            Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range, ascii: " + ascii);
+                            containsBadCharacter = true;
+                        }
                     }
 
-                    else{
-                        Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is NOT in range, ascii: " + ascii);
-                        containsBadCharacter = true;
-                    }
 
                     i++;
                 }
@@ -795,15 +898,30 @@ public class UnitFragment extends Fragment {
                 boolean containsBadCharacter2 = false;
                 while(k < optionBcheck.length() && !containsBadCharacter2){
                     int ascii = (int)optionBcheck.charAt(k);
-                    if((ascii >= 48 && ascii <= 57) || ascii == 46){
-                        //if it's in range
-                        Log.i(TAG, "checkFormat: " + optionBcheck.charAt(k) + " is in range");
+                    if(k == 0){
+                        //checking for a "-" at the beginning. This is the only time where - is acceptable
+                        if((ascii >= 48 && ascii <= 57) || ascii == 46 || ascii == 45){
+                            //if it's in range
+                            Log.i(TAG, "checkFormat: " + optionBcheck.charAt(k) + " is in range");
+                        }
+
+                        else{
+                            Log.i(TAG, "checkFormat: " + optionBcheck.charAt(k) + " is NOT in range, ascii: " + ascii);
+                            containsBadCharacter2 = true;
+                        }
+                    }
+                    else{
+                        if((ascii >= 48 && ascii <= 57) || ascii == 46){
+                            //if it's in range
+                            Log.i(TAG, "checkFormat: " + optionBcheck.charAt(k) + " is in range");
+                        }
+
+                        else{
+                            Log.i(TAG, "checkFormat: " + optionBcheck.charAt(k) + " is NOT in range, ascii: " + ascii);
+                            containsBadCharacter2 = true;
+                        }
                     }
 
-                    else{
-                        Log.i(TAG, "checkFormat: " + optionBcheck.charAt(k) + " is NOT in range, ascii: " + ascii);
-                        containsBadCharacter2 = true;
-                    }
 
                     k++;
                 }

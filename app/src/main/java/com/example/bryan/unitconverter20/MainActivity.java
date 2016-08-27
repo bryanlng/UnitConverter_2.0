@@ -3,6 +3,7 @@ package com.example.bryan.unitconverter20;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.res.Configuration;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -55,6 +56,8 @@ public class MainActivity extends ActionBarActivity {
 
 //        // set a custom shadow that overlays the main content when the drawer opens
 //        mDrawerlayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+          //Disable drawer layout shadow
+//        mDrawerlayout.setScrimColor(getResources().getColor(android.R.color.transparent));
 
         //Set the adapter for the ListVIew, which will be an ArrayAdapter
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
