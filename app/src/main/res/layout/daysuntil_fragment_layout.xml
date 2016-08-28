@@ -14,10 +14,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/starting_day"
         android:text="@string/starting_day"
-        android:textSize="44dp"
+        android:textSize="33dp"
         android:textColor="#000000"
         android:layout_below="@+id/from"
-        android:layout_toEndOf="@+id/to" />
+        android:layout_toEndOf="@+id/to"
+        android:clickable="true"
+        />
 
 
     <TextView
@@ -33,10 +35,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/ending_day"
         android:text="@string/ending_day"
-        android:textSize="44dp"
+        android:textSize="33dp"
         android:textColor="#000000"
         android:layout_below="@+id/to"
-        android:layout_toEndOf="@+id/to" />
+        android:layout_toEndOf="@+id/to"
+        android:clickable="true"
+        />
 
     <CheckBox
         android:layout_width="wrap_content"
@@ -45,23 +49,30 @@
         android:text="@string/checkbox"
         android:layout_below="@+id/ending_day"
         android:layout_alignStart="@+id/ending_day" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/calculate_duration"
+        android:text="@string/calculate_duration"
+        android:layout_below="@+id/checkBox"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/result_text"
         android:text="@string/result_text"
-        android:textSize="44dp"
+        android:textSize="24dp"
         android:textColor="#000000"
-        android:layout_below="@+id/checkBox"
+        android:layout_below="@+id/calculate_duration"
         android:layout_alignStart="@+id/checkBox" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/result_text_details"
         android:text="@string/result_text_details"
-        android:textSize="20dp"
-        android:layout_centerVertical="true"
+        android:textSize="18dp"
+        android:layout_below="@+id/result_text"
         android:layout_alignStart="@+id/result_text" />
 
     <ImageButton
@@ -70,8 +81,10 @@
         android:src="@drawable/calendar_icon_white_tenth"
         android:background="#ffffff"
         android:id="@+id/calendar1"
-        android:layout_below="@+id/from"
-        android:layout_alignEnd="@+id/checkBox" />
+        android:layout_alignTop="@+id/starting_day"
+        android:layout_alignBottom="@+id/starting_day"
+        android:layout_alignEnd="@+id/calendar2"
+        />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -80,7 +93,11 @@
         android:background="#ffffff"
         android:id="@+id/calendar2"
         android:layout_alignTop="@+id/ending_day"
-        android:layout_alignEnd="@+id/checkBox" />
+        android:layout_toEndOf="@+id/ending_day"
+        android:layout_alignBottom="@+id/ending_day"
+        />
+
+
 
 
 </RelativeLayout>

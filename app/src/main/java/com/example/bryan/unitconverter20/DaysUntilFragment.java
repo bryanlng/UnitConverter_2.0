@@ -36,16 +36,54 @@ public class DaysUntilFragment extends Fragment {
 
         //Set elements from xml layout file
         from = (TextView)rootView.findViewById(R.id.from);
-        starting_day = (TextView)rootView.findViewById(R.id.starting_day);  //Need to set this text to be the current day, by default
+        starting_day = (TextView)rootView.findViewById(R.id.starting_day);  //Need to set this text to be the current day, by default;
+        starting_day.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Open up a new Menu, which has Spinners for Day, Month, Year and a save a button
+                //Once user presses save button ==> exit menu and save the date
+
+            }
+        });
+
         calendar1 = (ImageButton)rootView.findViewById(R.id.calendar1);
+        calendar1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Open up a new menu with a CalendarView inside it. Also have a save button
+                //Once user presses save button ==> exit menu and save the date
+            }
+        });
+
         to = (TextView)rootView.findViewById(R.id.to);
+
         ending_day = (TextView)rootView.findViewById(R.id.ending_day);   //Need to set this text to be the current day, by default
+        ending_day.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Open up a new Menu, which has Spinners for Day, Month, Year and a save a button
+                //Once user presses save button ==> exit menu and save the date
+
+            }
+        });
         calendar2 = (ImageButton)rootView.findViewById(R.id.calendar2);
-        checkBox = (CheckBox)rootView.findViewById(R.id.checkbox);
-        result_text = (TextView)rootView.findViewById(R.id.result_text);   //Need to set this text to be the BLANK by default
+        calendar2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Open up a new menu with a CalendarView inside it. Also have a save button
+                //Once user presses save button ==> exit menu and save the date
+            }
+        });
+
+        checkBox = (CheckBox)rootView.findViewById(R.id.checkbox);  //If checked, include ending day ==> +1 day
+
+
+        result_text = (TextView)rootView.findViewById(R.id.result_text);   //Need to set this text to be the BLANK by default. Also, create some method to set the text in the correct format
 //        result_text.setText("");
         result_text_details = (TextView)rootView.findViewById(R.id.result_text_details); //Need to set this text to be the BLANK by default
 //        result_text_details.setText("");
+
+
         return rootView;
 //        return inflater.inflate(R.layout.daysuntil_fragment_layout, container, false);
     }
