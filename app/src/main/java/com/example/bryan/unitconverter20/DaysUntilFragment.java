@@ -58,8 +58,12 @@ public class DaysUntilFragment extends Fragment {
         dateFormatter = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
 
         //Instantiate Calendar instances first so we can set the texts of startingDay and endingDay to be the current day
+        //Also, make endingDate be a clone() of startingDate so that their millisecond values will be exactly the same
         //starting day
         startingDate = Calendar.getInstance();
+        endingDate = (Calendar)startingDate.clone();
+//        endingDate = Calendar.getInstance();
+
 
         //Set elements from xml layout file
         from = (TextView)rootView.findViewById(R.id.from);
@@ -112,11 +116,18 @@ public class DaysUntilFragment extends Fragment {
 
         //need to use rootView.getContext() instead of getActivity().getApplicationContext()
         calendar1datePickerDialog = new DatePickerDialog(rootView.getContext(), new DatePickerDialog.OnDateSetListener() {
+            /*
+                set Calendar object endingDate to be the new data
+             */
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                Calendar newDate = Calendar.getInstance();
-                newDate.set(year, monthOfYear, dayOfMonth);
-                starting_day.setText(dateFormatter.format(newDate.getTime()));
+//                Calendar newDate = Calendar.getInstance();
+//                newDate.set(year, monthOfYear, dayOfMonth);
+//                starting_day.setText(dateFormatter.format(newDate.getTime()));
+                startingDate.set(year, monthOfYear, dayOfMonth);
+                starting_day.setText(dateFormatter.format(startingDate.getTime()));
+                Log.i(TAG, "New date on startingDay: " + dateFormatter.format(startingDate.getTime()));
+                Log.i(TAG, "New date on startingDay, in milliseconds: " + startingDate.getTimeInMillis());
             }
         }, startingDate.get(Calendar.YEAR), startingDate.get(Calendar.MONTH), startingDate.get(Calendar.DAY_OF_MONTH));
 
@@ -135,7 +146,7 @@ public class DaysUntilFragment extends Fragment {
             }
         });
 
-        endingDate = Calendar.getInstance();
+
         to = (TextView)rootView.findViewById(R.id.to);
 
         ending_day = (TextView)rootView.findViewById(R.id.ending_day);   //Need to set this text to be the current day, by default
@@ -152,11 +163,18 @@ public class DaysUntilFragment extends Fragment {
         //ending day
         //need to use rootView.getContext() instead of getActivity().getApplicationContext()
         calendar2datePickerDialog = new DatePickerDialog(rootView.getContext(), new DatePickerDialog.OnDateSetListener() {
+            /*
+                set Calendar object endingDate to be the new data
+             */
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                Calendar newDate = Calendar.getInstance();
-                newDate.set(year, monthOfYear, dayOfMonth);
-                ending_day.setText(dateFormatter.format(newDate.getTime()));
+//                Calendar newDate = Calendar.getInstance();
+//                newDate.set(year, monthOfYear, dayOfMonth);
+//                ending_day.setText(dateFormatter.format(newDate.getTime()));
+                endingDate.set(year, monthOfYear, dayOfMonth);
+                ending_day.setText(dateFormatter.format(endingDate.getTime()));
+                Log.i(TAG, "New date on ending_day: " + dateFormatter.format(endingDate.getTime()));
+                Log.i(TAG, "New date on ending_day, in milliseconds: " + endingDate.getTimeInMillis());
             }
         }, endingDate.get(Calendar.YEAR), endingDate.get(Calendar.MONTH), endingDate.get(Calendar.DAY_OF_MONTH));
 
@@ -174,7 +192,7 @@ public class DaysUntilFragment extends Fragment {
             }
         });
 
-        checkBox = (CheckBox)rootView.findViewById(R.id.checkbox);  //If checked, include ending day ==> +1 day
+        checkBox = (CheckBox)rootView.findViewById(R.id.checkBox);  //If checked, include ending day ==> +1 day
         checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -197,14 +215,22 @@ public class DaysUntilFragment extends Fragment {
         compute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i(TAG, "Compute button pressed");
                 //Precondition: Both dates are valid here
                 /* Cases
                     1. Same date
                     2. Starting date is past the ending date
                     3. Normal (ending date is past the starting date)
                  */
-                int difference = startingDate.getTime().compareTo(endingDate.getTime());    //use Date's compareTo method
+//                int difference = startingDate.getTime().compareTo(endingDate.getTime());    //use Date's compareTo method, b/c initially endingDate is a clone() of startingDate so they should have the same milliseconds
+                long difference = startingDate.getTimeInMillis() - endingDate.getTimeInMillis();    //if we used compareTo, if would mean we would have to do an additional unnecessary operation
+                Log.i(TAG, "Calendar 1's starting date: " + dateFormatter.format(startingDate.getTime()));
+                Log.i(TAG, "Calendar 2's starting date: " + dateFormatter.format(endingDate.getTime()));
+                Log.i(TAG, "Calendar 1's starting date in milliseconds: " + startingDate.getTimeInMillis());
+                Log.i(TAG, "Calendar 2's starting date in milliseconds: " + endingDate.getTimeInMillis());
+                Log.i(TAG, "Time difference = " + difference);  //compareTo() generates either -1, 0 , or 1
                 if(difference == 0){
+//                if(starting_day.getText().equals(ending_day.getText())){
                     //Case #1: Same date
                     if(!isChecked){
                         //don't include end date ==> regular
@@ -214,6 +240,7 @@ public class DaysUntilFragment extends Fragment {
                     else{
                         //include end date ==> add one day
                         result_text.setText(setResultText(1));
+                        result_text_details.setText("Or 1 day including the end date");
                     }
 
                 }
@@ -221,9 +248,15 @@ public class DaysUntilFragment extends Fragment {
                     //Case #2: Starting date is past the ending date
                     //for result_text. show the absolute value and have it look like: "Results: ... days PAST"
                     //for result_text_details, same
+                    int[] data = extractDaysMonthsYears(difference);
+                    result_text.setText(setResultText(data[2]));
+                    result_text_details.setText(setResultDetailsText(data[0], data[1], data[2], isChecked));
                 }
                 else{
                     //Case #3: Normal (ending date is past the starting date)
+                    int[] data = extractDaysMonthsYears(difference);
+                    result_text.setText(setResultText(data[2]));
+                    result_text_details.setText(setResultDetailsText(data[0], data[1], data[2], isChecked));
                 }
 
 
@@ -244,6 +277,38 @@ public class DaysUntilFragment extends Fragment {
 //    }
 
     /*
+        Extract the days, months, years, from the millisecond difference
+        Where diff = difference between starting date and ending date in milliseconds
+        Need to throw out extra milliseconds, seconds, minutes, hours
+        int[0] = years
+        int[1] = months
+        int[2] = days
+        http://pastebin.com/aRZYpEJg
+     */
+    //TODO fix this
+    public int[] extractDaysMonthsYears(long diff){
+        int[] data = new int[3];
+
+        //extract and throw out milliseconds
+        long millis = diff % 1000;
+        diff -= millis;
+
+        //extract and throw out seconds
+        long secs = diff % 60;
+        diff -= secs;
+
+        //extract and throw out minutes
+        long min = diff % 60;
+        diff -= min;
+
+        //extract and throw out hours
+        long hour = diff % 60;
+        diff -= hour;
+
+        return data;
+    }
+
+    /*
         Creates the String to set the result text
         Method created so that there could be a more uniform way of setting the texts
         instead of having to create a unique text for each condition
@@ -253,7 +318,13 @@ public class DaysUntilFragment extends Fragment {
      */
     public String setResultText(int days){
         if(days >= 0){
-            return "Result: " + days + " days";
+            if(days == 1){
+                return "Result: " + days + " day";
+            }
+            else{
+                return "Result: " + days + " days";
+            }
+
         }
         else{
             return "Result: " + Math.abs(days) + " days past";
@@ -268,9 +339,10 @@ public class DaysUntilFragment extends Fragment {
         instead of having to create a unique text for each condition
         AKA we might not have to write years, months, for every case
      */
-    public String setResultText(int days, boolean isInclude){
+    public String setResultDetailsText(int years, int months, int days, boolean isInclude){
         String text = "";
         if(!isInclude){
+            //..do stuff here
             text += " excluding the end date";
         }
         else{
