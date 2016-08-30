@@ -75,4 +75,7 @@
     <string name="result_text">Result: 3434343 days</string>
     <string name="result_text_details">Or 1 year, 7 months, 26 days excluding the end date</string>
     <string name="calculate_duration">Calculate duration</string>
+    <string name="alert_dialog_title">Set a date</string>
+    <string name="alert_dialog_save">Save</string>
+    <string name="alert_dialog_cancel">Cancel</string>
 </resources>
