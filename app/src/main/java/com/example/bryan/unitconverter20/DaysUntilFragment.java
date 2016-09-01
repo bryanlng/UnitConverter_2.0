@@ -205,7 +205,10 @@ public class DaysUntilFragment extends Fragment {
                         int day = Integer.parseInt(alert_dialog_starting_current_day);
                         GregorianCalendar gcal = new GregorianCalendar(year,month,day);
                         if(gcal.isLeapYear(year) && month == 2){
-                            //load 29 days into day spinner
+                            //load days_29 into day spinner
+                            //but first, clear the spinner of all entries
+                            days_spinner.setAdapter(null);
+
                             ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
                                     alertDialogCustomView.getContext(), R.layout.dropdown_item, days_29);
                             daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -244,9 +247,14 @@ public class DaysUntilFragment extends Fragment {
                         alert_dialog_starting_current_month = parent.getItemAtPosition(position).toString();
                         int month = convertWordMonth(alert_dialog_starting_current_month);
                         int day = Integer.parseInt(alert_dialog_starting_current_day);
+
+                        //but first, clear the spinner of all entries
+                        days_spinner.setAdapter(null);
+
                         if(month == 2 || month == 4 || month == 6 || month == 9 || month == 11){  //months with only 30 days
                             if(month == 2){
                                 //regularly, february only has 28 days
+
                                 ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
                                         alertDialogCustomView.getContext(), R.layout.dropdown_item, days_28);
                                 daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -306,6 +314,7 @@ public class DaysUntilFragment extends Fragment {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         alert_dialog_starting_current_day = parent.getItemAtPosition(position).toString();
+
                     }
 
                     @Override
@@ -314,20 +323,6 @@ public class DaysUntilFragment extends Fragment {
                     }
                 });
 
-
-//                else{
-//                    days_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//                        @Override
-//                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                            alert_dialog_starting_current_day = parent.getItemAtPosition(position).toString();
-//                        }
-//
-//                        @Override
-//                        public void onNothingSelected(AdapterView<?> parent) {
-//
-//                        }
-//                    });
-//                }
 
 
                 //Set title
