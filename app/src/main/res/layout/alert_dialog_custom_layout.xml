@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="horizontal">
+    <Spinner
+        android:layout_width="114dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/alert_dialog_months"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        >
+
+    </Spinner>
+    <Spinner
+        android:layout_width="111dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/alert_dialog_days"
+        android:layout_marginTop="10dp"
+        >
+
+    </Spinner>
+    <Spinner
+        android:layout_width="171dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/alert_dialog_years"
+        android:layout_marginTop="10dp"
+        >
+        <requestFocus />
+    </Spinner>
+</LinearLayout>

@@ -10,14 +10,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 /**
@@ -47,6 +52,21 @@ public class DaysUntilFragment extends Fragment {
     private Button compute;
 
     private boolean isChecked = false;
+
+//    Spinner days_spinner;
+//    Spinner month_spinner;
+//    Spinner years_Spinner;
+    private String alert_dialog_starting_current_day ="";
+    private String alert_dialog_starting_current_month ="";
+    private String alert_dialog_starting_current_year ="";
+    private String alert_dialog_ending_current_day ="";
+    private String alert_dialog_ending_current_month ="";
+    private String alert_dialog_ending_current_year ="";
+//    private int[] alert_dialog_starting_calendar_values = new int[3];
+//    private int[] alert_dialog_ending_calendar_values = new int[3];
+
+
+
     public DaysUntilFragment(){
 
     }
@@ -54,7 +74,7 @@ public class DaysUntilFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setRetainInstance(true);
-        final View rootView = inflater.inflate(R.layout.daysuntil_fragment_layout, container, false);
+        View rootView = inflater.inflate(R.layout.daysuntil_fragment_layout, container, false);
         dateFormatter = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
 
         //Instantiate Calendar instances first so we can set the texts of startingDay and endingDay to be the current day
@@ -78,12 +98,91 @@ public class DaysUntilFragment extends Fragment {
                 //need to use rootView.getContext() instead of getActivity().getApplicationContext()
                 //https://www.mkyong.com/android/android-alert-dialog-example/
                 //https://developer.android.com/guide/topics/ui/dialogs.html
+                //http://www.mkyong.com/android/android-prompt-user-input-dialog-example/
                 AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+
+                //Get alert_dialog_customs_layout.xml View
+                LayoutInflater layoutInflater = LayoutInflater.from(v.getContext());
+                View alertDialogCustomView = layoutInflater.inflate(R.layout.alert_dialog_custom_layout, null);
+
+                //Set AlertDialog.Builder's content view to be the view
+                builder.setView(alertDialogCustomView);
+
+                /*
+                    I ended up not doing the idea where I would dynamically fill in the days spinner with values depending on the months spinner.
+                    This is b/c in the case of the leap year, we would need to call GregorianCalendar's isLeapYear() method, which would require us
+                    having the values year,month,day from the original Calendar in order to create the GregorianCalendar instance. Which we can't get
+                    just from the year
+
+                    Problem:
+                    However, this leaves a kind of big problem, as we're giving the user some options that will fail. Which is BAD.
+                    But there's not really any other way.
+                 */
+                //Get the Spinner components and set their associated adapters, which are created to hold a list of items specified in strings.xml
+                //Have to use alertDialogCustomView instead of View v, b/c that's the View that actually contains the Spinners
+                //1. Days
+                Spinner days_spinner = (Spinner)alertDialogCustomView.findViewById(R.id.alert_dialog_days);
+                ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
+                        alertDialogCustomView.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_days));
+                daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                days_spinner.setAdapter(daysAdapter);  //set the Adapter
+                days_spinner.setSelection(0);  //set initial default value to be the first value
+                days_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        alert_dialog_starting_current_day = parent.getItemAtPosition(position).toString();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+
+
+                //2. Months
+                Spinner month_spinner = (Spinner)alertDialogCustomView.findViewById(R.id.alert_dialog_months);
+                ArrayAdapter<String> monthAdapter = new ArrayAdapter<String>(
+                        alertDialogCustomView.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_months));
+                monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                month_spinner.setAdapter(monthAdapter);  //set the Adapter
+                month_spinner.setSelection(0);  //set initial default value to be the first value
+                month_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        alert_dialog_starting_current_month = parent.getItemAtPosition(position).toString();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+
+
+                //3. Years
+                Spinner years_Spinner = (Spinner)alertDialogCustomView.findViewById(R.id.alert_dialog_years);
+                ArrayAdapter<String> yearsAdapter = new ArrayAdapter<String>(
+                        alertDialogCustomView.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_years));
+                yearsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                years_Spinner.setAdapter(yearsAdapter);  //set the Adapter
+                years_Spinner.setSelection(0);  //set initial default value to be the first value
+                years_Spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        alert_dialog_starting_current_year = parent.getItemAtPosition(position).toString();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
 
                 //Set title
                 builder.setTitle(getResources().getString(R.string.alert_dialog_title));
                 builder.setCancelable(false);
-                builder.setMessage("Need some spinners here");
+//                builder.setMessage("Need some spinners here");
 
                 //set Positive button to be "save"
                 builder.setPositiveButton(getResources().getString(R.string.alert_dialog_save), new DialogInterface.OnClickListener() {
@@ -91,6 +190,7 @@ public class DaysUntilFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         //Set the startingDay's text to be the date, then close the AlertDialog
                         //http://stackoverflow.com/questions/4336470/how-do-i-close-an-android-alertdialog
+                        setNewDateFromAlertDialog("startingDate");
                         dialog.cancel();
                     }
                 });
@@ -103,7 +203,6 @@ public class DaysUntilFragment extends Fragment {
                         dialog.cancel();
                     }
                 });
-
 
                 //Create AlertDialog from the AlertDialog.Builder ==> then show
                 AlertDialog alert = builder.create();
@@ -269,12 +368,177 @@ public class DaysUntilFragment extends Fragment {
 
     /*
         Checks if the date is valid
-        Parameter: String or Calendar???????
+        Parameter: String textview for which textview it will affect, startingDay or endingDay
         This will be called inside AlertDialog.Builder's  setPositiveButton onClick() method
+        Situations to check for:
+            1. Is it a leap year (extra day in feb; feb 29) and month = february?
+               http://stackoverflow.com/questions/7395699/calculate-leap-year-in-java
+                -to do this w/o coming up with some extravagant formula, we need to make use of GregorianCalendar's isLeapYear(year) method
+                -Thus, we would create a new GregorianCalendar using values from the current calendar
+            2. Else is it a valid day ( don't want a month w/ only days to have a 31st day)
+
      */
-//    public boolean checkAlertDialogDateFormat(String date){
-//
-//    }
+    public boolean checkFormat(int year, int month, int day){
+        boolean isGood = true;
+        GregorianCalendar gcal = new GregorianCalendar(year, month, day);
+        if(gcal.isLeapYear(year) && month == 2){
+            //if february and a leap year, we can allow 29, but not 30,31
+            if(day == 30 || day == 31){
+                isGood = false;
+            }
+        }
+        else{
+            if(month % 2 == 0){ //even month (ex: feb) Jan = month 1. These only have 30 days
+                if(month == 2){
+                    //if feb, additional restriction that it can't be 29, 30, 31
+                    if(day == 29 || day == 30 || day == 31){
+                        isGood = false;
+                    }
+                }
+                else{
+                    if(day == 31){
+                        isGood = false;
+                    }
+                }
+
+            }
+        }
+
+
+        return isGood;   //temp
+    }
+
+    /*
+        Before setting stuff, checks for correct format
+        Sets the string from the AlertDialog ==> to the correct TextView
+        Also, set the internal Calendar value too
+
+     */
+    public void setNewDateFromAlertDialog(String textview){
+        String newdate = "";
+        String monthString = "";
+        int day = 0;
+        int month = 0;
+        int year = 0;
+
+
+        //Need to first convert days word (ex: "Jan.") ==> into a number
+        //Although it's inefficient here if we used word month names, it makes it easier for the user
+        //This is for both textviews, so do this first to save code
+        if(textview.equals("startingDate")){
+            monthString = alert_dialog_starting_current_month;
+        }
+        else{
+            monthString = alert_dialog_ending_current_month;
+        }
+        switch(monthString){
+            case "Jan.":
+                newdate += "01-";
+                month = 1;
+                break;
+            case "Feb.":
+                newdate += "02-";
+                month = 2;
+                break;
+            case "Mar.":
+                newdate += "03-";
+                month = 3;
+                break;
+            case "Apr.":
+                newdate += "04-";
+                month = 4;
+                break;
+            case "May":
+                newdate += "05-";
+                month = 5;
+                break;
+            case "Jun.":
+                newdate += "06-";
+                month = 6;
+                break;
+            case "Jul.":
+                newdate += "07-";
+                month = 7;
+                break;
+            case "Aug.":
+                newdate += "08-";
+                month = 8;
+                break;
+            case "Sept.":
+                newdate += "09-";
+                month = 9;
+                break;
+            case "Oct.":
+                newdate += "10-";
+                month = 10;
+                break;
+            case "Nov.":
+                newdate += "11-";
+                month = 11;
+                break;
+            case "Dec.":
+                newdate += "12-";
+                month = 12;
+                break;
+            default:break;
+        }
+
+        Log.i(TAG, "month: " + month);
+
+        //add day and year into both the new string and temporary values that will be used later to set the calendar
+
+
+        if(textview.equals("startingDate")){
+            //month
+            newdate += alert_dialog_starting_current_day + "-";
+            day = Integer.parseInt(alert_dialog_starting_current_day);
+            Log.i(TAG, "day: " + day);
+
+            //year
+            newdate += alert_dialog_starting_current_year + "-";
+            year = Integer.parseInt(alert_dialog_starting_current_year);
+            Log.i(TAG, "year: " + year);
+
+            //if format is good, set stuff
+            if(checkFormat(year, month, day)){
+                //set text and new Calendar value
+                starting_day.setText(newdate);
+                startingDate.set(year,month,day);
+            }
+            else{
+                //if not, then we have a problem
+                showAlertDialog(getResources().getString(R.string.incorrect_format), getView());
+            }
+
+
+
+
+        }
+        else{
+            //month
+            newdate += alert_dialog_ending_current_day + "-";
+            day = Integer.parseInt(alert_dialog_ending_current_day);
+            Log.i(TAG, "day: " + day);
+
+            //year
+            newdate += alert_dialog_ending_current_year + "-";
+            year = Integer.parseInt(alert_dialog_ending_current_year);
+            Log.i(TAG, "year: " + year);
+
+            //if format is good, set stuff
+            if(checkFormat(year, month, day)){
+                //set text and new Calendar value
+                ending_day.setText(newdate);
+                endingDate.set(year,month,day);
+            }
+            else{
+                //if not, then we have a problem
+                showAlertDialog(getResources().getString(R.string.incorrect_format), getView());
+            }
+
+
+        }
+    }
 
     /*
         Extract the days, months, years, from the millisecond difference
@@ -354,21 +618,22 @@ public class DaysUntilFragment extends Fragment {
 
     /*
         Show an AlertDialog as an error message
+        Primarily called by checkFormat
      */
-//    public void showAlertDialog(String message, View v){
-//        //pop open a window saying that you need to remove the thing
-//        Log.i(TAG, "showAlertDialog with message: " + message);
-//        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext()); //getActivity().getApplicationContext());
-//        builder.setMessage(message);
-//        builder.setCancelable(false);
-//        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//            public void onClick(DialogInterface dialog, int id) {
-//                //do things
-//            }
-//        });
-//        AlertDialog alert = builder.create();
-//        alert.show();
-//    }
+    public void showAlertDialog(String message, View v){
+        //pop open a window saying that you need to remove the thing
+        Log.i(TAG, "showAlertDialog with message: " + message);
+        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext()); //getActivity().getApplicationContext());
+        builder.setMessage(message);
+        builder.setCancelable(false);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                //do things
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 
 
 }
