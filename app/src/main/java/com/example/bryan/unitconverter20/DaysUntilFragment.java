@@ -370,12 +370,27 @@ public class DaysUntilFragment extends Fragment {
         Checks if the date is valid
         Parameter: String textview for which textview it will affect, startingDay or endingDay
         This will be called inside AlertDialog.Builder's  setPositiveButton onClick() method
+
         Situations to check for:
             1. Is it a leap year (extra day in feb; feb 29) and month = february?
                http://stackoverflow.com/questions/7395699/calculate-leap-year-in-java
                 -to do this w/o coming up with some extravagant formula, we need to make use of GregorianCalendar's isLeapYear(year) method
                 -Thus, we would create a new GregorianCalendar using values from the current calendar
             2. Else is it a valid day ( don't want a month w/ only days to have a 31st day)
+
+        Months:
+        Jan: 31
+        feb: <varies, but case covered specifically>
+        mar: 31
+        apr: 30
+        may: 31
+        jun: 30
+        july: 31
+        aug: 31
+        sept: 30
+        oct: 31
+        nov: 30
+        dec: 31
 
      */
     public boolean checkFormat(int year, int month, int day){
@@ -388,9 +403,8 @@ public class DaysUntilFragment extends Fragment {
             }
         }
         else{
-            if(month % 2 == 0){ //even month (ex: feb) Jan = month 1. These only have 30 days
+            if(month == 2 || month == 4 || month == 6 || month == 9 || month == 11){  //months with only 30 days
                 if(month == 2){
-                    //if feb, additional restriction that it can't be 29, 30, 31
                     if(day == 29 || day == 30 || day == 31){
                         isGood = false;
                     }
@@ -400,7 +414,6 @@ public class DaysUntilFragment extends Fragment {
                         isGood = false;
                     }
                 }
-
             }
         }
 
