@@ -88,6 +88,7 @@ public class DaysUntilFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.daysuntil_fragment_layout, container, false);
         dateFormatter = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
 
+
         /*
             Instead of grabbing a static array list, we dynamically create 4 arrays for the arrayadapter
          */
@@ -834,15 +835,12 @@ public class DaysUntilFragment extends Fragment {
         return -1;
     }
 
-//    public void fixCurrentDay(String whichAlertDialog, int numDaysInMonth){
-//        if(whichAlertDialog.equals("alertdialog1")){
-//            //first alert dialog spawned by startingDay
-//            if(Integer.parseInt(alert_dialog_starting_current_day) > numDaysInMonth)
-//        }
-//        else{
-//            //second alert dialog spawned by endingDay
-//        }
-//    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        //Save stuff here
+
+        super.onSaveInstanceState(savedInstanceState);
+    }
 
 
 }

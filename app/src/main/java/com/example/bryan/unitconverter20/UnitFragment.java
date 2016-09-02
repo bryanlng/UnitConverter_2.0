@@ -48,6 +48,9 @@ public class UnitFragment extends Fragment {
 
     private boolean onlyUSTimeZones = false;
 
+    private int optionACurrentSelection = -1;
+    private int optionBCurrentSelection = -1;
+
     public UnitFragment(){
     }
 
@@ -62,6 +65,11 @@ public class UnitFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.unit_fragment_layout, container, false);
         setRetainInstance(true);
 
+        /**********************First check if there was a configuration change. If there was, restore values**************************/
+        if(savedInstanceState != null){
+            optionACurrentSelection = savedInstanceState.getInt("optionACurrentSelection");
+            optionBCurrentSelection = savedInstanceState.getInt("optionBCurrentSelection");
+        }
         /******************************************Instantiate UI elements of the View************************************************/
         /****Default showing = Category = Weight, EditTexts have value 0, Option A = kg, Option B = lb*******************************/
         //TextView to display the result
@@ -132,9 +140,16 @@ public class UnitFragment extends Fragment {
                         break;
                 }
 
-                //Make the first choice the default one
-                optionSpinnerA.setSelection(0);
-                optionSpinnerB.setSelection(0);
+                if(optionACurrentSelection == -1 || optionBCurrentSelection == -1){
+                    //If there wasn't a configuration change before, make the first choice the default one
+                    optionSpinnerA.setSelection(0);
+                    optionSpinnerB.setSelection(0);
+                }
+                else{
+                    optionSpinnerA.setSelection(optionACurrentSelection);
+                    optionSpinnerB.setSelection(optionBCurrentSelection);
+                }
+
 
             }
 
@@ -149,8 +164,11 @@ public class UnitFragment extends Fragment {
         // Set an setOnItemSelectedListener on the spinners
         optionSpinnerA.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                Log.i(TAG, "optionA: picked item at position: " + pos);
                 currentOptionA = parent.getItemAtPosition(pos).toString();
                 optionSpinnerA.setPrompt(currentOptionA);
+
+                optionACurrentSelection = pos;  //save this so that on configuration change, spinner will revert to this value
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
@@ -159,8 +177,11 @@ public class UnitFragment extends Fragment {
 
         optionSpinnerB.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                Log.i(TAG, "optionB picked item at position: " + pos);
                 currentOptionB = parent.getItemAtPosition(pos).toString();
                 optionSpinnerB.setPrompt(currentOptionB);
+
+                optionBCurrentSelection = pos;  //save this so that on configuration change, spinner will revert to this value
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
@@ -1448,6 +1469,21 @@ public class UnitFragment extends Fragment {
         }
 
         return ret;
+    }
+
+    /*
+        Problem:
+        On configuration change, categories inside optionA, optionB are not being saved and are being reverted back to the value at setSelection(0)
+        For some reason though, values inside the editTexts are being saved. Maybe b/c setRetainInstance(true)?
+        Save the items that were selected in optionA spinner and optionB spinner's onItemSelected method
+        More specifically, save the position they were so that on a configuration change ==> we can do setSelection(previous item #)
+     */
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        //Save stuff here
+        savedInstanceState.putInt("optionACurrentSelection", optionACurrentSelection);
+        savedInstanceState.putInt("optionBCurrentSelection", optionBCurrentSelection);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
 
