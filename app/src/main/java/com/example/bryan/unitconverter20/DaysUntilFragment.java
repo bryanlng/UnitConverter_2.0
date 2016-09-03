@@ -55,7 +55,7 @@ public class DaysUntilFragment extends Fragment {
 
     private boolean isChecked = false;
 
-    //AlertDialog1 stuff
+    //AlertDialog1 stuff: starting
     private Spinner days_spinner;           //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
     private Spinner month_spinner;          //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
     private Spinner years_spinner;          //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
@@ -65,10 +65,16 @@ public class DaysUntilFragment extends Fragment {
     private String alert_dialog_starting_current_year ="2011";
     private boolean isDaysAdapterSet_starting = false;
 
-    //AlertDialog2 stuff
+    //AlertDialog2 stuff: ending
+    private Spinner ending_days_spinner;           //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
+    private Spinner ending_month_spinner;          //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
+    private Spinner ending_years_spinner;          //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
+    private View alertDialogCustomView_ending;     //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
     private String alert_dialog_ending_current_day ="01";
     private String alert_dialog_ending_current_month ="Jan.";
     private String alert_dialog_ending_current_year ="2011";
+    private boolean isDaysAdapterSet_ending = false;
+
 
     //Dynamic arraylists for dynamic adding in of days depending on month,year
     private ArrayList<String> days_28 = new ArrayList<String>();
@@ -143,6 +149,7 @@ public class DaysUntilFragment extends Fragment {
         starting_day.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i(TAG, "New AlertDialog: startingDay");
                 //Open up a new AlertDialog, which has Spinners for Day, Month, Year, save button, and cancel button
                 //Once user presses save button ==> exit menu and save the date
                 //Once user presses cancel button ==> simply exit
@@ -182,6 +189,10 @@ public class DaysUntilFragment extends Fragment {
                 //Get the Spinner components and set their associated adapters, which are created to hold a list of items specified in strings.xml
                 //Have to use alertDialogCustomView_starting instead of View v, b/c that's the View that actually contains the Spinners
 
+                //First, print out current status of variables
+                Log.i(TAG,"Before anything: alert_dialog_starting_current_day: " + alert_dialog_starting_current_day);
+                Log.i(TAG,"Before anything: alert_dialog_starting_current_month: " + alert_dialog_starting_current_month);
+                Log.i(TAG,"Before anything: alert_dialog_starting_current_year: " + alert_dialog_starting_current_year);
 
 //                Spinner years_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_years);
 //                Spinner month_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_months);
@@ -203,6 +214,7 @@ public class DaysUntilFragment extends Fragment {
                      */
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        Log.i(TAG, "AlertDialog startingDay: years spinner");
                         alert_dialog_starting_current_year = parent.getItemAtPosition(position).toString();
                         int year = Integer.parseInt(alert_dialog_starting_current_year);
                         int month = convertWordMonth(alert_dialog_starting_current_month);
@@ -248,6 +260,7 @@ public class DaysUntilFragment extends Fragment {
                      */
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        Log.i(TAG, "AlertDialog startingDay: months spinner");
                         alert_dialog_starting_current_month = parent.getItemAtPosition(position).toString();
                         int month = convertWordMonth(alert_dialog_starting_current_month);
                         int day = Integer.parseInt(alert_dialog_starting_current_day);
@@ -308,6 +321,7 @@ public class DaysUntilFragment extends Fragment {
                 //1. Days
                 //If days adapter hasn't been already set by either month or year, set the array adapter for days
                 if(!isDaysAdapterSet_starting){
+                    Log.i(TAG, "AlertDialog startingDay: days spinner, hasn't been set before");
                     ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
                             alertDialogCustomView_starting.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_days));
                     daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -317,6 +331,7 @@ public class DaysUntilFragment extends Fragment {
                 days_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        Log.i(TAG, "AlertDialog startingDay: days spinner, already set before");
                         alert_dialog_starting_current_day = parent.getItemAtPosition(position).toString();
 
                     }
@@ -404,8 +419,212 @@ public class DaysUntilFragment extends Fragment {
         ending_day.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Open up a new AlertDialog, which has Spinners for Day, Month, Year and a save a button
+                Log.i(TAG, "New AlertDialog: endingDay");
+                //Open up a new AlertDialog, which has Spinners for Day, Month, Year, save button, and cancel button
                 //Once user presses save button ==> exit menu and save the date
+                //Once user presses cancel button ==> simply exit
+                //need to use rootView.getContext() instead of getActivity().getApplicationContext()
+                //https://www.mkyong.com/android/android-alert-dialog-example/
+                //https://developer.android.com/guide/topics/ui/dialogs.html
+                //http://www.mkyong.com/android/android-prompt-user-input-dialog-example/
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+
+                //Get alert_dialog_customs_layout.xml View
+                LayoutInflater layoutInflater = LayoutInflater.from(v.getContext());
+                alertDialogCustomView_ending = layoutInflater.inflate(R.layout.alert_dialog_custom_layout,null);
+
+                //Set AlertDialog.Builder's content view to be the view
+                builder.setView(alertDialogCustomView_ending);
+
+                /*
+                  Exact same thing as startingDay dialog
+                */
+
+                //First, print out current status of variables
+                Log.i(TAG,"Before anything: alert_dialog_ending_current_day: " + alert_dialog_ending_current_day);
+                Log.i(TAG,"Before anything: alert_dialog_ending_current_month: " + alert_dialog_ending_current_month);
+                Log.i(TAG,"Before anything: alert_dialog_ending_current_year: " + alert_dialog_ending_current_year);
+
+//                Spinner years_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_years);
+//                Spinner month_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_months);
+//                Spinner days_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_days);
+                ending_years_spinner = (Spinner)alertDialogCustomView_ending.findViewById(R.id.alert_dialog_years);
+                ending_month_spinner = (Spinner)alertDialogCustomView_ending.findViewById(R.id.alert_dialog_months);
+                ending_days_spinner = (Spinner)alertDialogCustomView_ending.findViewById(R.id.alert_dialog_days);
+
+                //3. Years
+                ArrayAdapter<String> yearsAdapter = new ArrayAdapter<String>(
+                        alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_years));
+                yearsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                ending_years_spinner.setAdapter(yearsAdapter);  //set the Adapter
+                ending_years_spinner.setSelection(0);  //set initial default value to be the first value
+                ending_years_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    /*
+                        1. Set the year
+                        2. Check if it's a leap year and if the month is 2. If it is,
+                     */
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        Log.i(TAG, "AlertDialog endingDay: years spinner");
+                        alert_dialog_ending_current_year = parent.getItemAtPosition(position).toString();
+                        int year = Integer.parseInt(alert_dialog_ending_current_year);
+                        int month = convertWordMonth(alert_dialog_ending_current_month);
+                        int day = Integer.parseInt(alert_dialog_ending_current_day);
+                        GregorianCalendar gcal = new GregorianCalendar(year,month,day);
+                        if(gcal.isLeapYear(year) && month == 2){
+                            //load days_29 into day spinner
+                            //but first, clear the spinner of all entries
+                            ending_days_spinner.setAdapter(null);
+
+                            ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
+                                    alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, days_29);
+                            daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            ending_days_spinner.setAdapter(daysAdapter);  //set the Adapter
+
+                            if(day > 29){
+                                //if day is over 29, fix it
+                                alert_dialog_ending_current_day = "29";
+                            }
+                            ending_days_spinner.setSelection(Integer.parseInt(alert_dialog_ending_current_day) - 1); //-1 because setSelection(0) gets the first entry, and the first entry is "01"
+
+                            isDaysAdapterSet_ending = true;    //notify that the days adapter has been set, so we don't have to reset it later
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+
+                //2. Months
+
+                ArrayAdapter<String> monthAdapter = new ArrayAdapter<String>(
+                        alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_months));
+                monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                ending_month_spinner.setAdapter(monthAdapter);  //set the Adapter
+                ending_month_spinner.setSelection(0);  //set initial default value to be the first value
+                ending_month_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    /*
+                        1. Set the month
+                        2. For that month, load the correct # of days into the days adapter
+                     */
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        Log.i(TAG, "AlertDialog endingDay: months spinner");
+                        alert_dialog_ending_current_month= parent.getItemAtPosition(position).toString();
+                        int month = convertWordMonth(alert_dialog_ending_current_month);
+                        int day = Integer.parseInt(alert_dialog_ending_current_day);
+
+                        //but first, clear the spinner of all entries
+                        ending_days_spinner.setAdapter(null);
+
+                        if(month == 2 || month == 4 || month == 6 || month == 9 || month == 11){  //months with only 30 days
+                            if(month == 2){
+                                //regularly, february only has 28 days
+
+                                ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
+                                        alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, days_28);
+                                daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                ending_days_spinner.setAdapter(daysAdapter);  //set the
+
+                                //now, we set the current day and fix it if necessary
+                                if(day > 28){
+                                    //if day is over 29, fix it
+                                    alert_dialog_ending_current_day = "28";
+                                }
+                                ending_days_spinner.setSelection(Integer.parseInt(alert_dialog_ending_current_day) - 1); //-1 because setSelection(0) gets the first entry, and the first entry is "01"
+                            }
+                            else{
+                                ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
+                                        alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, days_30);
+                                daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                ending_days_spinner.setAdapter(daysAdapter);  //set the Adapter
+
+                                //now, we set the current day and fix it if necessary
+                                if(day > 30){
+                                    //if day is over 29, fix it
+                                    alert_dialog_ending_current_day = "30";
+                                }
+                                ending_days_spinner.setSelection(Integer.parseInt(alert_dialog_ending_current_day) - 1); //-1 because setSelection(0) gets the first entry, and the first entry is "01"
+                            }
+
+
+                        }
+                        else{   //months with 31 days
+                            ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
+                                    alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, days_31);
+                            daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            ending_days_spinner.setAdapter(daysAdapter);  //set the Adapter
+                            ending_days_spinner.setSelection(Integer.parseInt(alert_dialog_ending_current_day) - 1); //-1 because setSelection(0) gets the first entry, and the first entry is "01"
+
+                        }
+
+                        isDaysAdapterSet_ending = true;    //notify that the days adapter has been set, so we don't have to reset it later
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+
+                //1. Days
+                //If days adapter hasn't been already set by either month or year, set the array adapter for days
+                if(!isDaysAdapterSet_ending){
+                    Log.i(TAG, "AlertDialog startingDay: days spinner, hasn't been set before");
+                    ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
+                            alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_days));
+                    daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    ending_days_spinner.setAdapter(daysAdapter);  //set the Adapter
+                    ending_days_spinner.setSelection(0);  //set initial default value to be the first value
+                }
+                ending_days_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        Log.i(TAG, "AlertDialog endingDay: days spinner, already set before");
+                        alert_dialog_ending_current_day = parent.getItemAtPosition(position).toString();
+
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+
+
+
+                //Set title
+                builder.setTitle(getResources().getString(R.string.alert_dialog_title));
+                builder.setCancelable(false);
+//                builder.setMessage("Need some spinners here");
+
+                //set Positive button to be "save"
+                builder.setPositiveButton(getResources().getString(R.string.alert_dialog_save), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Set the startingDay's text to be the date, then close the AlertDialog
+                        //http://stackoverflow.com/questions/4336470/how-do-i-close-an-android-alertdialog
+                        setNewDateFromAlertDialog("endingDate");
+                        dialog.cancel();
+                    }
+                });
+                //set Negative button to be "cancel"
+                builder.setNegativeButton(getResources().getString(R.string.alert_dialog_cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //close the AlertDialog
+                        //http://stackoverflow.com/questions/4336470/how-do-i-close-an-android-alertdialog
+                        dialog.cancel();
+                    }
+                });
+
+                //Create AlertDialog from the AlertDialog.Builder ==> then show
+                AlertDialog alert = builder.create();
+                alert.show();
+
+
 
             }
         });
@@ -660,7 +879,7 @@ public class DaysUntilFragment extends Fragment {
             Log.i(TAG, "day: " + day);
 
             //year
-            newdate += alert_dialog_starting_current_year + "-";
+            newdate += alert_dialog_starting_current_year;
             year = Integer.parseInt(alert_dialog_starting_current_year);
             Log.i(TAG, "year: " + year);
 
@@ -689,7 +908,7 @@ public class DaysUntilFragment extends Fragment {
             Log.i(TAG, "day: " + day);
 
             //year
-            newdate += alert_dialog_ending_current_year + "-";
+            newdate += alert_dialog_ending_current_year;
             year = Integer.parseInt(alert_dialog_ending_current_year);
             Log.i(TAG, "year: " + year);
 
@@ -838,6 +1057,8 @@ public class DaysUntilFragment extends Fragment {
 
         super.onSaveInstanceState(savedInstanceState);
     }
+
+
 
 
 }
