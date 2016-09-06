@@ -53,7 +53,7 @@ public class DaysUntilFragment extends Fragment {
 
     private Button compute;
 
-    private boolean isChecked = false;
+    private boolean isChecked = false;      //For Checkbox
 
     //AlertDialog1 stuff: starting
     private Spinner days_spinner;           //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
@@ -139,6 +139,18 @@ public class DaysUntilFragment extends Fragment {
         //starting day
         startingDate = Calendar.getInstance();
         endingDate = (Calendar)startingDate.clone();
+
+        //Why is it showing up as 8/5/16 instead of 9/5/16 (correct date)?
+        //https://developer.android.com/reference/java/util/Calendar.html#MONTH
+        /* Aka, in Android calendar, January is stored as "0" ==> thus all months are -1
+          Thus we need to internally, we need to do this on (calendar_object).set(year,month-1,day) instead
+         */
+        Log.i(TAG, "Before anything: startingDate's year: " + startingDate.get(Calendar.YEAR));
+        Log.i(TAG,"Before anything: startingDate's month: " + startingDate.get(Calendar.MONTH));
+        Log.i(TAG, "Before anything: startingDate's day: " + startingDate.get(Calendar.DAY_OF_MONTH));
+        Log.i(TAG, "Before anything: endingDate's year: " + endingDate.get(Calendar.YEAR));
+        Log.i(TAG,"Before anything: endingDate's month: " + endingDate.get(Calendar.MONTH));
+        Log.i(TAG, "Before anything: endingDate's day: " + endingDate.get(Calendar.DAY_OF_MONTH));
 //        endingDate = Calendar.getInstance();
 
 
@@ -390,7 +402,9 @@ public class DaysUntilFragment extends Fragment {
 //                starting_day.setText(dateFormatter.format(newDate.getTime()));
                 startingDate.set(year, monthOfYear, dayOfMonth);
                 starting_day.setText(dateFormatter.format(startingDate.getTime()));
-                Log.i(TAG, "New date on startingDay: " + dateFormatter.format(startingDate.getTime()));
+                Log.i(TAG, "New date on startingDate, year: " + startingDate.get(Calendar.YEAR));
+                Log.i(TAG, "New date on startingDate, month: " + startingDate.get(Calendar.MONTH));
+                Log.i(TAG, "New date on startingDate, day: " + startingDate.get(Calendar.DAY_OF_MONTH));
                 Log.i(TAG, "New date on startingDay, in milliseconds: " + startingDate.getTimeInMillis());
             }
         }, startingDate.get(Calendar.YEAR), startingDate.get(Calendar.MONTH), startingDate.get(Calendar.DAY_OF_MONTH));
@@ -642,7 +656,9 @@ public class DaysUntilFragment extends Fragment {
 //                ending_day.setText(dateFormatter.format(newDate.getTime()));
                 endingDate.set(year, monthOfYear, dayOfMonth);
                 ending_day.setText(dateFormatter.format(endingDate.getTime()));
-                Log.i(TAG, "New date on ending_day: " + dateFormatter.format(endingDate.getTime()));
+                Log.i(TAG, "New date on endingDate, year: " + endingDate.get(Calendar.YEAR));
+                Log.i(TAG, "New date on endingDate, month: " + endingDate.get(Calendar.MONTH));
+                Log.i(TAG, "New date on endingDate, day: " + endingDate.get(Calendar.DAY_OF_MONTH));
                 Log.i(TAG, "New date on ending_day, in milliseconds: " + endingDate.getTimeInMillis());
             }
         }, endingDate.get(Calendar.YEAR), endingDate.get(Calendar.MONTH), endingDate.get(Calendar.DAY_OF_MONTH));
@@ -694,8 +710,6 @@ public class DaysUntilFragment extends Fragment {
                  */
 //                int difference = startingDate.getTime().compareTo(endingDate.getTime());    //use Date's compareTo method, b/c initially endingDate is a clone() of startingDate so they should have the same milliseconds
                 long difference = startingDate.getTimeInMillis() - endingDate.getTimeInMillis();    //if we used compareTo, if would mean we would have to do an additional unnecessary operation
-                Log.i(TAG, "Calendar 1's starting date: " + dateFormatter.format(startingDate.getTime()));
-                Log.i(TAG, "Calendar 2's starting date: " + dateFormatter.format(endingDate.getTime()));
                 Log.i(TAG, "Calendar 1's starting date in milliseconds: " + startingDate.getTimeInMillis());
                 Log.i(TAG, "Calendar 2's starting date in milliseconds: " + endingDate.getTimeInMillis());
                 Log.i(TAG, "Time difference = " + difference);  //compareTo() generates either -1, 0 , or 1
@@ -718,15 +732,16 @@ public class DaysUntilFragment extends Fragment {
                     //Case #2: Starting date is past the ending date
                     //for result_text. show the absolute value and have it look like: "Results: ... days PAST"
                     //for result_text_details, same
-                    int[] data = extractDaysMonthsYears(difference);
-                    result_text.setText(setResultText(data[2]));
-                    result_text_details.setText(setResultDetailsText(data[0], data[1], data[2], isChecked));
+                    //Data contains: double[0] = totalDays, double[1] = years, double[2] = months, double[3] = days
+                    double[] data = extractDaysMonthsYears(difference, true);
+                    result_text.setText(setResultText(data[0]));
+                    result_text_details.setText(setResultDetailsText(data[1], data[2], data[3], data[4], false, isChecked));
                 }
                 else{
                     //Case #3: Normal (ending date is past the starting date)
-                    int[] data = extractDaysMonthsYears(difference);
-                    result_text.setText(setResultText(data[2]));
-                    result_text_details.setText(setResultDetailsText(data[0], data[1], data[2], isChecked));
+                    double[] data = extractDaysMonthsYears(difference, false);
+                    result_text.setText(setResultText(data[0]));
+                    result_text_details.setText(setResultDetailsText(data[1], data[2], data[3], data[4], true, isChecked));
                 }
 
 
@@ -764,33 +779,33 @@ public class DaysUntilFragment extends Fragment {
         dec: 31
 
      */
-    public boolean checkFormat(int year, int month, int day){
-        boolean isGood = true;
-        GregorianCalendar gcal = new GregorianCalendar(year, month, day);
-        if(gcal.isLeapYear(year) && month == 2){
-            //if february and a leap year, we can allow 29, but not 30,31
-            if(day == 30 || day == 31){
-                isGood = false;
-            }
-        }
-        else{
-            if(month == 2 || month == 4 || month == 6 || month == 9 || month == 11){  //months with only 30 days
-                if(month == 2){
-                    if(day == 29 || day == 30 || day == 31){
-                        isGood = false;
-                    }
-                }
-                else{
-                    if(day == 31){
-                        isGood = false;
-                    }
-                }
-            }
-        }
-
-
-        return isGood;   //temp
-    }
+//    public boolean checkFormat(int year, int month, int day){
+//        boolean isGood = true;
+//        GregorianCalendar gcal = new GregorianCalendar(year, month, day);
+//        if(gcal.isLeapYear(year) && month == 2){
+//            //if february and a leap year, we can allow 29, but not 30,31
+//            if(day == 30 || day == 31){
+//                isGood = false;
+//            }
+//        }
+//        else{
+//            if(month == 2 || month == 4 || month == 6 || month == 9 || month == 11){  //months with only 30 days
+//                if(month == 2){
+//                    if(day == 29 || day == 30 || day == 31){
+//                        isGood = false;
+//                    }
+//                }
+//                else{
+//                    if(day == 31){
+//                        isGood = false;
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//        return isGood;   //temp
+//    }
 
     /*
         Before setting stuff, checks for correct format
@@ -884,7 +899,11 @@ public class DaysUntilFragment extends Fragment {
             Log.i(TAG, "year: " + year);
 
             starting_day.setText(newdate);
-            startingDate.set(year, month, day);
+            startingDate.set(year, month-1, day);   //have to do -1 here b/c January is registered as "0" in Android Calendar
+            Log.i(TAG, "New date on startingDate, year: " + startingDate.get(Calendar.YEAR));
+            Log.i(TAG, "New date on startingDate, month: " + startingDate.get(Calendar.MONTH));
+            Log.i(TAG, "New date on startingDate, day: " + startingDate.get(Calendar.DAY_OF_MONTH));
+
 
             //if format is good, set stuff
 //            if(checkFormat(year, month, day)){
@@ -913,7 +932,10 @@ public class DaysUntilFragment extends Fragment {
             Log.i(TAG, "year: " + year);
 
             ending_day.setText(newdate);
-            endingDate.set(year,month,day);
+            endingDate.set(year,month-1,day); //have to do -1 here b/c January is registered as "0" in Android Calendar
+            Log.i(TAG, "New date on endingDate, year: " + endingDate.get(Calendar.YEAR));
+            Log.i(TAG, "New date on endingDate, month: " + endingDate.get(Calendar.MONTH));
+            Log.i(TAG, "New date on endingDate, day: " + endingDate.get(Calendar.DAY_OF_MONTH));
 
 //            //if format is good, set stuff
 //            if(checkFormat(year, month, day)){
@@ -933,31 +955,269 @@ public class DaysUntilFragment extends Fragment {
     /*
         Extract the days, months, years, from the millisecond difference
         Where diff = difference between starting date and ending date in milliseconds
-        Need to throw out extra milliseconds, seconds, minutes, hours
-        int[0] = years
-        int[1] = months
-        int[2] = days
-        http://pastebin.com/aRZYpEJg
+
+        double[0] = totalDays
+        double[1] = years
+        double[2] = months
+        double[3] = weeks
+        double[4] = days
+        Concept:
+        So let's say you're given a value in seconds, and you want to find hours. Ex: 1 hr, 3 min, 20 seconds ==> 3600 + 180 + 20 = 3800
+        To find hours, do integer division total/# seconds in and hour ==> 3800 / 3600 ==> 1. Integer division truncates the decimal
+
+        isStartingDatePastEndingDate: whether or not startingDate is past endingDate ==> which would mean that the difference would be negative
+
+        More info here: http://pastebin.com/XWBgWZBm
      */
     //TODO fix this
-    public int[] extractDaysMonthsYears(long diff){
-        int[] data = new int[3];
+    public double[] extractDaysMonthsYears(long diff, boolean isStartingDatePastEndingDate){
+        Log.i(TAG, "extractDaysMonthsYears, isStartingDatePastEndingDate: " + isStartingDatePastEndingDate);
+        Log.i(TAG, "startingDate's year: " + startingDate.get(Calendar.YEAR));
+        Log.i(TAG,"startingDate's month: " + startingDate.get(Calendar.MONTH));
+        Log.i(TAG, "startingDate's day: " + startingDate.get(Calendar.DAY_OF_MONTH));
+        Log.i(TAG, "endingDate's year: " + endingDate.get(Calendar.YEAR));
+        Log.i(TAG,"endingDate's month: " + endingDate.get(Calendar.MONTH));
+        Log.i(TAG, "endingDate's day: " + endingDate.get(Calendar.DAY_OF_MONTH));
 
-        //extract and throw out milliseconds
-        long millis = diff % 1000;
-        diff -= millis;
+        double[] data = new double[5];
+        double temp = Math.abs(new Long(diff).doubleValue()); //convert long to a double value, then get the abs value of it
+        //extract total days (if we didn't try to extract years,months)
+        //86400000 milliseconds in a year (1000*60*60*24)
+        double totalDays = Math.floor(temp / 86400000.0);   //to truncate the decimal, we use Math.floor();
+        if(isChecked){
+            ++totalDays;
+        }
+        data[0] = totalDays;
 
-        //extract and throw out seconds
-        long secs = diff % 60;
-        diff -= secs;
+        //extract years
+        //31536000000 milliseconds in a year (1000*60*60*24*365)
+        double years = Math.floor(temp / 31536000000.0);
+        data[1] = years;
+        Log.i(TAG, "years: " + years);
 
-        //extract and throw out minutes
-        long min = diff % 60;
-        diff -= min;
+        //take #years* (milliseconds per year) out of temp so we can properly extract months in the next step
+        temp -= (years*31536000000.0);
 
-        //extract and throw out hours
-        long hour = diff % 60;
-        diff -= hour;
+        double months = 0.0;
+        double weeks = 0.0;
+        double days = 0.0;
+
+        if(!isStartingDatePastEndingDate){
+            Log.i(TAG, "NORMAL: startingDate is before endingDate");
+            //Normal date: Starting date is before the ending date
+            //We want to move up the starting date (years) amount of years so we can extract months later
+            //However, we don't want this adjustment to affect the original Calendar object, so we create a temporary Calendar object
+            Calendar adjust = (Calendar) startingDate.clone();
+            adjust.set(adjust.get(Calendar.YEAR) + (int) years, adjust.get(Calendar.MONTH), adjust.get(Calendar.DAY_OF_MONTH));
+            Log.i(TAG, "startingDate's year: " + startingDate.get(Calendar.YEAR));
+            Log.i(TAG,"startingDate's month: " + startingDate.get(Calendar.MONTH));
+            Log.i(TAG, "startingDate's day: " + startingDate.get(Calendar.DAY_OF_MONTH));
+            Log.i(TAG, "copy's year: " + adjust.get(Calendar.YEAR));
+            Log.i(TAG,"copy's month: " + adjust.get(Calendar.MONTH));
+            Log.i(TAG, "copy's day: " + adjust.get(Calendar.DAY_OF_MONTH));
+
+            //Now,extract months. See steps at http://pastebin.com/XWBgWZBm
+            /*
+                1. First, take starting date, clone it, and move the clone forwards to the next closest month
+                    a) Case 1: Clone date and ending date are in the SAME month.
+                        If this is the case, then DON'T move it forwards to the next closest month, and instead calculate difference in days,
+                        from which we can extract weeks and days from
+                    b) Case 2: Clone date and ending date are in different months.
+                        Proceed with moving it forwards to the next closest month
+             */
+            if(adjust.get(Calendar.MONTH) == endingDate.get(Calendar.MONTH)){
+                Log.i(TAG, "adjust's month == endingDate's month, aka months = 0");
+                //# milliseconds in a week: 1000*60*60*24*7 = 604800000
+                //# milliseconds in a day: 1000*60*60*24    = 86400000
+                Log.i(TAG, "months: " + months);    //should be 0
+                data[2] = months;
+
+                //extract weeks, then take them out of total milliseconds
+                weeks = Math.floor(temp / 604800000.0);
+                Log.i(TAG, "weeks: " + weeks);
+                data[3] = weeks;
+                temp -= (weeks*604800000.0);
+
+                //extract weeks, then take them out of total milliseconds
+                days = Math.floor(temp / 86400000.0);
+                Log.i(TAG, "days: " + days);
+                data[4] = days;
+
+            }
+            else{
+                Log.i(TAG, "adjust's month < endingDate's month, so we have to first move forward to the first day of tne next month");
+                /*
+                    2. Then, enter a while loop
+                        -Get # of days in the current month
+                        a)If Clone date millis + (# days in current month in millis) < endingDate millis
+                            -Difference in time is still greater than a month, so let's move up a month
+                            -Move up clone date
+                            -Increment # of months ( keep track of this in a variable)
+                        b)else
+                            -(  If Clone date millis + (# days in current month in millis) > endingDate millis )
+                            -AKA Difference in time is less than a month now, so we need to break out of loop
+                            -End loop
+                            -From here, we can do as we did above and now extract weeks,days
+                 */
+                double numDaysInCurrentMonth = getDaysInMonth(adjust);
+                double addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*86400000.0;
+                double endingMillis = endingDate.getTimeInMillis();
+                while(addmonth < endingMillis){
+                    //"add a month" by subtracting a month off of temp
+                    temp -= numDaysInCurrentMonth*86400000.0;
+                    adjust.set(adjust.get(Calendar.YEAR), adjust.get(Calendar.MONTH) + 1, adjust.get(Calendar.DAY_OF_MONTH));   //set the calendar value to be the first day of the next month. adjust.get(Calendar.DAY_OF_MONTH) should equal 1
+                    numDaysInCurrentMonth = getDaysInMonth(adjust); //refresh value for the new month
+                    addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*86400000.0;
+                    months++;
+                }
+
+                //From here, we can do as we did above and now extract weeks,days
+                //# milliseconds in a week: 1000*60*60*24*7 = 604800000
+                //# milliseconds in a day: 1000*60*60*24    = 86400000
+                Log.i(TAG, "months: " + months);    //should be 0
+
+                //extract weeks, then take them out of total milliseconds
+                weeks = Math.floor(temp / 604800000.0);
+                Log.i(TAG, "total weeks: " + weeks);
+                temp -= (weeks*604800000.0);
+
+                //extract weeks, then take them out of total milliseconds
+                days = Math.floor(temp / 86400000.0);
+                Log.i(TAG, "total days: " + days);
+
+                //check if checkbox was set, and rebalance values if necessary
+                if(isChecked){
+                    ++days;
+                    if(days == 7.0){    //if day value is now 7, increment week and make days 0
+                        days = 0.0;
+                        ++weeks;
+                    }
+
+                    Log.i(TAG, "total weeks after isChecked checkbox rebalancing: " + weeks);
+                    Log.i(TAG, "total days after isChecked checkbox rebalancing: " + days);
+                }
+
+                //Put data into array
+                data[2] = months;
+                data[3] = weeks;
+                data[4] = days;
+
+            }
+
+        }
+
+        else{
+            Log.i(TAG, "SPECIAL: startingDate is past endingDate");
+            //Starting date is past the ending date
+            //We want to move up the ending date (years) amount of years so we can extract months later
+            //Basically a copy of everything above, except:
+            /*
+                1. Adjust = endingDate
+                2. the "end date" = startingDate
+                3. the "start date" = endingDate
+                Basically, replace every "startingDate" with endingDate and every "endingDate" with startingDate
+             */
+
+            Calendar adjust = (Calendar) endingDate.clone();
+            adjust.set(adjust.get(Calendar.YEAR) + (int) years, adjust.get(Calendar.MONTH), adjust.get(Calendar.DAY_OF_MONTH));
+            Log.i(TAG, "endingDate's year: " + endingDate.get(Calendar.YEAR));
+            Log.i(TAG,"endingDate's month: " + endingDate.get(Calendar.MONTH));
+            Log.i(TAG, "endingDate's day: " + endingDate.get(Calendar.DAY_OF_MONTH));
+            Log.i(TAG, "copy's year: " + adjust.get(Calendar.YEAR));
+            Log.i(TAG,"copy's month: " + adjust.get(Calendar.MONTH));
+            Log.i(TAG, "copy's day: " + adjust.get(Calendar.DAY_OF_MONTH));
+
+            //Now,extract months. See steps at http://pastebin.com/XWBgWZBm
+            /*
+                1. First, take starting date, clone it, and move the clone forwards to the next closest month
+                    a) Case 1: Clone date and ending date are in the SAME month.
+                        If this is the case, then DON'T move it forwards to the next closest month, and instead calculate difference in days,
+                        from which we can extract weeks and days from
+                    b) Case 2: Clone date and ending date are in different months.
+                        Proceed with moving it forwards to the next closest month
+             */
+            if(adjust.get(Calendar.MONTH) == startingDate.get(Calendar.MONTH)){
+                Log.i(TAG, "adjust's month == statingDate's month, aka months = 0");
+                //# milliseconds in a week: 1000*60*60*24*7 = 604800000
+                //# milliseconds in a day: 1000*60*60*24    = 86400000
+                Log.i(TAG, "months: " + months);    //should be 0
+                data[2] = months;
+
+                //extract weeks, then take them out of total milliseconds
+                weeks = Math.floor(temp / 604800000.0);
+                Log.i(TAG, "weeks: " + weeks);
+                data[3] = weeks;
+                temp -= (weeks*604800000.0);
+
+                //extract weeks, then take them out of total milliseconds
+                days = Math.floor(temp / 86400000.0);
+                Log.i(TAG, "days: " + days);
+                data[4] = days;
+
+            }
+            else{
+                Log.i(TAG, "adjust's month < statingDate's month, so we have to first move forward to the first day of tne next month");
+                /*
+                    2. Then, enter a while loop
+                        -Get # of days in the current month
+                        a)If Clone date millis + (# days in current month in millis) < endingDate millis
+                            -Difference in time is still greater than a month, so let's move up a month
+                            -Move up clone date
+                            -Increment # of months ( keep track of this in a variable)
+                        b)else
+                            -(  If Clone date millis + (# days in current month in millis) > endingDate millis )
+                            -AKA Difference in time is less than a month now, so we need to break out of loop
+                            -End loop
+                            -From here, we can do as we did above and now extract weeks,days
+                 */
+                double numDaysInCurrentMonth = getDaysInMonth(adjust);
+                double addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*86400000.0;
+                double endingMillis = startingDate.getTimeInMillis();
+                while(addmonth < endingMillis){
+                    //"add a month" by subtracting a month off of temp
+                    temp -= numDaysInCurrentMonth*86400000.0;
+                    adjust.set(adjust.get(Calendar.YEAR), adjust.get(Calendar.MONTH) + 1, adjust.get(Calendar.DAY_OF_MONTH));   //set the calendar value to be the first day of the next month. adjust.get(Calendar.DAY_OF_MONTH) should equal 1
+                    numDaysInCurrentMonth = getDaysInMonth(adjust); //refresh value for the new month
+                    addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*86400000.0;
+                    months++;
+                }
+
+                //From here, we can do as we did above and now extract weeks,days
+                //# milliseconds in a week: 1000*60*60*24*7 = 604800000
+                //# milliseconds in a day: 1000*60*60*24    = 86400000
+                Log.i(TAG, "months: " + months);    //should be 0
+
+                //extract weeks, then take them out of total milliseconds
+                weeks = Math.floor(temp / 604800000.0);
+                Log.i(TAG, "total weeks: " + weeks);
+                temp -= (weeks*604800000.0);
+
+                //extract weeks, then take them out of total milliseconds
+                days = Math.floor(temp / 86400000.0);
+                Log.i(TAG, "total days: " + days);
+
+                //check if checkbox was set, and rebalance values if necessary
+                if(isChecked){
+                    ++days;
+                    if(days == 7.0){    //if day value is now 7, increment week and make days 0
+                        days = 0.0;
+                        ++weeks;
+                    }
+
+                    Log.i(TAG, "total weeks after isChecked checkbox rebalancing: " + weeks);
+                    Log.i(TAG, "total days after isChecked checkbox rebalancing: " + days);
+                }
+
+                //Put data into array
+                data[2] = months;
+                data[3] = weeks;
+                data[4] = days;
+
+            }
+
+
+
+        }
 
         return data;
     }
@@ -967,43 +1227,92 @@ public class DaysUntilFragment extends Fragment {
         Method created so that there could be a more uniform way of setting the texts
         instead of having to create a unique text for each condition
 
-        If days is negative (aka Case #2: Starting date is past the ending date),
-        then show the absolute value, but also include the word "past"
-     */
-    public String setResultText(int days){
-        if(days >= 0){
-            if(days == 1){
-                return "Result: " + days + " day";
-            }
-            else{
-                return "Result: " + days + " days";
-            }
+        days = total amount of days
+        days = always guaranteed to be positive
 
+        cast to an int to make it look nicer
+     */
+    public String setResultText(double totalDays){
+        if(totalDays == 1){
+            return "Result: " + (int)totalDays + " day";
         }
         else{
-            return "Result: " + Math.abs(days) + " days past";
+            return "Result: " + (int)totalDays + " days";
         }
 
     }
 
     /*
         Creates the String to set the result_details text
-        isChecked will go inside isInclude
+
+        years,month,weeks,days <== all come from a double array generated in extractDaysMonthsYears
+        isInclude: whether or not the checkbox is checked or not
+
         Method created so that there could be a more uniform way of setting the texts
         instead of having to create a unique text for each condition
         AKA we might not have to write years, months, for every case
+            -In general, if a field isn't 0, we add it in
+            -Cast to an int to make it look nice
+
      */
-    public String setResultDetailsText(int years, int months, int days, boolean isInclude){
-        String text = "";
-        if(!isInclude){
-            //..do stuff here
-            text += " excluding the end date";
-        }
-        else{
-            text += " including the end date";
+    public String setResultDetailsText(double years,double months, double weeks,
+                                       double days, boolean isStartingDatePastEndingDate, boolean isInclude){
+        StringBuilder text = new StringBuilder("Or ");
+        //set year
+        if(years != 0.0){
+            if(years == 1.0){
+                text.append("" + (int)years + " year, ");
+            }
+            else{
+                text.append("" + (int)years + " years, ");
+            }
+
         }
 
-        return text;
+        //set month
+        if(months != 0.0){
+            if(months == 1.0){
+                text.append("" + (int)months + " month, ");
+            }
+            else{
+                text.append("" + (int)months + " months, ");
+            }
+
+        }
+
+        //set weeks
+        if(weeks != 0.0){
+            if(weeks == 1.0){
+                text.append("" + (int)weeks + " week, ");
+            }
+            else{
+                text.append("" + (int)weeks + " weeks, ");
+            }
+
+        }
+
+        //set day
+        if(days != 0.0){
+            if(days == 1.0){
+                text.append("" + (int)days + " day ");
+            }
+            else{
+                text.append("" + (int)days + " days ");
+            }
+
+        }
+
+        //set checkbox
+        if(!isInclude){
+            //if the checkbox isn't checked, append this to the end of the text
+            //actual math was done previously in extractDaysMonthsYears
+            text.append("excluding the end date");
+        }
+        else{
+            text.append("including the end date");
+        }
+
+        return text.toString();
     }
 
     /*
@@ -1058,7 +1367,123 @@ public class DaysUntilFragment extends Fragment {
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    /*
+        This will be called in extractDaysMonthsYears
+
+        calendarmonth = int values that represent a month ,based on the Android calendar standard.
+        Aka January = 0, Feb = 1..... Dec == 11. Kind of illogical imo but oh well.
+        Jan: 31
+        feb: <varies, but case covered specifically>
+        mar: 31
+        apr: 30
+        may: 31
+        jun: 30
+        july: 31
+        aug: 31
+        sept: 30
+        oct: 31
+        nov: 30
+        dec: 31
+
+        cal = the Calendar object. Will either be startingDay or endingDay
+     */
+    public double getDaysInMonth(Calendar cal){
+        double numdays = 0.0;
+        int calendarmonth = cal.get(Calendar.MONTH);
+        if(calendarmonth == 0 || calendarmonth == 2 || calendarmonth == 4 || calendarmonth == 6
+                || calendarmonth == 7 || calendarmonth == 9 || calendarmonth == 11){
+            //months with 31 days
+            numdays = 31.0;
+        }
+        else if(calendarmonth == 3 || calendarmonth == 5 || calendarmonth == 8 || calendarmonth == 10){
+            //months with 30 days
+            numdays = 30.0;
+        }
+        else{
+            //february, this depends on whether it's a leap year or not
+            int year = cal.get(Calendar.YEAR);
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+            GregorianCalendar gcal = new GregorianCalendar(year,calendarmonth,day);
+            if(gcal.isLeapYear(year)){
+                numdays = 29.0;
+            }
+            else{
+                numdays = 28.0;
+            }
+    }
+
+        return numdays;
+    }
+
 
 
 
 }
+
+/* http://pastebin.com/XWBgWZBm
+data in case it ever gets lost
+http://www.timeanddate.com/date/durationresult.html
+New logic:
+In order to not complicate this further enough, here's a much simpler way to approach the problem:
+1. First, take starting date, clone it, and move the clone forwards to the next closest month
+	a) Case 1: Clone date and ending date are in the SAME month.
+		If this is the case, then DON'T move it forwards to the next closest month, and instead calculate difference in days,
+		from which we can extract weeks and days from
+	b) Case 2: Clone date and ending date are in different months.
+		Proceed with moving it forwards to the next closest month
+
+2. Then, enter a while loop
+	-Get # of days in the current month
+	a)If Clone date millis + (# days in current month in millis) < endingDate millis
+		-Difference in time is still greater than a month, so let's move up a month
+		-Move up clone date
+		-Increment # of months ( keep track of this in a variable)
+	b)else
+		-(  If Clone date millis + (# days in current month in millis) > endingDate millis )
+		-AKA Difference in time is less than a month now, so we need to break out of loop
+		-End loop
+
+3. Get # of days between Clone date and endingDate
+	-From here, we can now extract weeks,days
+
+
+Month will be defined as: the # of days it takes to get from (month1) day ==> (next month) day
+		Jan: 31
+        feb: <varies, but case covered specifically>
+        mar: 31
+        apr: 30
+        may: 31
+        jun: 30
+        july: 31
+        aug: 31
+        sept: 30
+        oct: 31
+        nov: 30
+        dec: 31
+
+31->30:  31 days from Mar 5 to apr 5
+30->31:  30 days from Apr 5 to may 5
+31->31:  31 days from Dec 1 2016 - Jan 1 2017. (Dec- Jan, Jun - July)
+
+Thus, we can see that the # of days considered to be in a "month" is the # of days from the STARTING MONTH.
+
+Special cases:
+1a. Dealing with transitions from months with 31 days --> months with 30 days
+	1) Any regular day (aka not 31) ==> will just be # of days from the STARTING MONTH.
+	2) However, if the starting day is 31, then # of days will just be the day value of the next month.
+	   Aka 3/31 --> 4/15 ==> is 15 days
+1b. Dealing with transitions from months with 30 days --> months with 31 days
+	1) Any regular day (aka not 30) ==> will just be # of days from the STARTING MONTH.
+	2) However, if the starting day is 30, then # of days will just be the day value of the next month.
+	   Aka 4/30 --> 5/15 ==> is 15 days, 4/30 --> 5/31 ==> is 31 days
+
+2. Leap Years
+Jan -> Feb (31 - 29) leap year:
+Jan -> Feb (31 - 28) non leap year:
+
+Feb -> March leap year:
+Feb -> March non leap year:
+
+
+
+ */

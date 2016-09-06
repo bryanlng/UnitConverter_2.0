@@ -72,8 +72,8 @@
     <string name="starting_day">02/02/0000</string>
     <string name="ending_day">02/02/0000</string>
     <string name="checkbox">Include end date in calculation (1 day is added)</string>
-    <string name="result_text">Result: 3434343 days</string>
-    <string name="result_text_details">Or 1 year, 7 months, 26 days excluding the end date</string>
+    <string name="result_text"></string>
+    <string name="result_text_details"></string>
     <string name="calculate_duration">Calculate duration</string>
     <string name="alert_dialog_title">Set a date (mm/dd/yyyy)</string>
     <string name="alert_dialog_save">Save</string>

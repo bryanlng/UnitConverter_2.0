@@ -16,7 +16,9 @@
         android:id="@+id/optionAText"
         android:hint="@string/optionsHint"
         android:layout_below="@+id/category"
-        android:layout_toStartOf="@+id/compute_button" />
+        android:layout_toStartOf="@+id/compute_button"
+        android:inputType="number"
+        />
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,7 +26,9 @@
         android:hint="@string/optionsHint"
         android:layout_alignBaseline="@+id/clearB"
         android:layout_alignBottom="@+id/clearB"
-        android:layout_toStartOf="@+id/compute_button" />
+        android:layout_toStartOf="@+id/compute_button"
+        android:inputType="number"
+        />
     <Spinner
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
