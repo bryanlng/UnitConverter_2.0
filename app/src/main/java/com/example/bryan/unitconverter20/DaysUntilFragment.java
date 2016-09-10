@@ -60,20 +60,20 @@ public class DaysUntilFragment extends Fragment {
     private Spinner month_spinner;          //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
     private Spinner years_spinner;          //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
     private View alertDialogCustomView_starting;     //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
-    private String alert_dialog_starting_current_day ="01";
-    private String alert_dialog_starting_current_month ="Jan.";
-    private String alert_dialog_starting_current_year ="2011";
-    private boolean isDaysAdapterSet_starting = false;
+    private String alert_dialog_starting_current_day =""; //01
+    private String alert_dialog_starting_current_month =""; //Still a word ("Jan.") anymore. The ACTUAL value of the month, not the Android definition.
+    private String alert_dialog_starting_current_year =""; //11
+    private boolean isDaysAdapterSet_starting = false;  //false
 
     //AlertDialog2 stuff: ending
     private Spinner ending_days_spinner;           //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
     private Spinner ending_month_spinner;          //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
     private Spinner ending_years_spinner;          //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
     private View alertDialogCustomView_ending;     //need to be declared here globally so it doesn't give us the error that prompts us to set it to final
-    private String alert_dialog_ending_current_day ="01";
-    private String alert_dialog_ending_current_month ="Jan.";
-    private String alert_dialog_ending_current_year ="2011";
-    private boolean isDaysAdapterSet_ending = false;
+    private String alert_dialog_ending_current_day =""; //01
+    private String alert_dialog_ending_current_month =""; //Still a word ("Jan.") anymore. The ACTUAL value of the month, not the Android definition.
+    private String alert_dialog_ending_current_year =""; //11
+    private boolean isDaysAdapterSet_ending = false;    //false
 
 
     //Dynamic arraylists for dynamic adding in of days depending on month,year
@@ -93,52 +93,136 @@ public class DaysUntilFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.daysuntil_fragment_layout, container, false);
         dateFormatter = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
 
-
-        /*
-            Instead of grabbing a static array list, we dynamically create 4 arrays for the arrayadapter
-            days_28: 01,02,03....28
-            days_29: 01,02,03....29
-            days_30: 01,02,03....30
-            days_31: 01,02,03....31
-         */
-        for(int i = 1; i <= 31; i++){
-            String inside = "";
-            if(i < 10){
-                inside = "0"+i;
-            }
-            else{
-                inside = ""+i;
-            }
-
-            if(i > 28){
-                if(i == 29){
-                    days_29.add(inside);
-                    days_30.add(inside);
-                    days_31.add(inside);
-                }
-                else if (i == 30){
-                    days_30.add(inside);
-                    days_31.add(inside);
-                }
-                else{   //i == 31
-                    days_31.add(inside);
-                }
-            }
-            else{   //27 or less, every array gets a number
-                days_28.add(inside);
-                days_29.add(inside);
-                days_30.add(inside);
-                days_31.add(inside);
-            }
-        }
-
-
-
         //Instantiate Calendar instances first so we can set the texts of startingDay and endingDay to be the current day
         //Also, make endingDate be a clone() of startingDate so that their millisecond values will be exactly the same
         //starting day
         startingDate = Calendar.getInstance();
         endingDate = (Calendar)startingDate.clone();
+
+        //Set some elements from xml layout file so we they can be used for the logic of the instance state restore
+        from = (TextView)rootView.findViewById(R.id.from);
+        starting_day = (TextView)rootView.findViewById(R.id.starting_day);  //Need to set this text to be the current day, by default;
+        to = (TextView)rootView.findViewById(R.id.to);
+        ending_day = (TextView)rootView.findViewById(R.id.ending_day);   //Need to set this text to be the current day, by default
+
+        result_text = (TextView)rootView.findViewById(R.id.result_text);   //Need to set this text to be the BLANK by default. Also, create some method to set the text in the correct format
+//        result_text.setText("");
+        result_text_details = (TextView)rootView.findViewById(R.id.result_text_details); //Need to set this text to be the BLANK by default
+//        result_text_details.setText("");
+
+        if(savedInstanceState != null){
+            //restore stuff
+            //1. ArrayLists so we don't have to recreate them
+            days_28 = savedInstanceState.getStringArrayList("days_28");
+            days_29 = savedInstanceState.getStringArrayList("days_29");
+            days_30 = savedInstanceState.getStringArrayList("days_30");
+            days_31 = savedInstanceState.getStringArrayList("days_31");
+
+            //2. alert dialog values
+            alert_dialog_starting_current_day = savedInstanceState.getString("alert_dialog_starting_current_day");
+            alert_dialog_starting_current_month = savedInstanceState.getString("alert_dialog_starting_current_month");  //Still a word. The ACTUAL value of the month, not the Android definition.
+            alert_dialog_starting_current_year = savedInstanceState.getString("alert_dialog_starting_current_year");
+            isDaysAdapterSet_starting = savedInstanceState.getBoolean("isDaysAdapterSet_starting");
+
+            alert_dialog_ending_current_day = savedInstanceState.getString("alert_dialog_ending_current_day");
+            alert_dialog_ending_current_month = savedInstanceState.getString("alert_dialog_ending_current_month");  //Still a word. The ACTUAL value of the month, not the Android definition.
+            alert_dialog_ending_current_year = savedInstanceState.getString("alert_dialog_ending_current_year");
+            isDaysAdapterSet_ending = savedInstanceState.getBoolean("isDaysAdapterSet_ending");
+
+            //3. set calendars to their correct dates
+            //remember, month needs to be set to month-1, so that it can be in Android value
+            //Basic format: set(year, month-1, day);
+            startingDate.set(Integer.parseInt(alert_dialog_starting_current_year),
+                    convertWordMonth(alert_dialog_starting_current_month) -1,
+                    Integer.parseInt(alert_dialog_starting_current_day));
+
+            endingDate.set(Integer.parseInt(alert_dialog_ending_current_year),
+                    convertWordMonth(alert_dialog_ending_current_month) -1,
+                    Integer.parseInt(alert_dialog_ending_current_day));
+
+            //4. Set textViews (startingDay, endingDay) to date specified
+            //CHANGED: It turns out, we can set the TextViews outside of the if-else conditional b/c either way. startingDate/endingDate will already be set with the correct value
+//            starting_day.setText(alert_dialog_starting_current_month + "-" + alert_dialog_starting_current_day
+//                            + "-" + alert_dialog_starting_current_year);
+//            ending_day.setText(alert_dialog_ending_current_month + "-" + alert_dialog_ending_current_day
+//                    + "-" + alert_dialog_ending_current_year);
+
+            //5. result text and result details text
+            result_text.setText(savedInstanceState.getString("result_text"));
+            result_text_details.setText(savedInstanceState.getString("result_text_details"));
+
+
+
+        }
+        else{
+            /* Create original values of the following:
+            1. ArrayLists (days_28, days_29, days_30, days_31)
+            2. Alert Dialog values (to be today). No need to set isAdapterSet boolean values.
+            3. No need to set calendars, b/c they're already on today's date
+            4. Set textViews (startingDay, endingDay) to current date
+             */
+
+            /* 1. Create ArrayLists
+            Instead of grabbing a static array list, we dynamically create 4 arrays for the arrayadapter
+            days_28: 01,02,03....28
+            days_29: 01,02,03....29
+            days_30: 01,02,03....30
+            days_31: 01,02,03....31
+            */
+            for(int i = 1; i <= 31; i++){
+                String inside = "";
+                if(i < 10){
+                    inside = "0"+i;
+                }
+                else{
+                    inside = ""+i;
+                }
+
+                if(i > 28){
+                    if(i == 29){
+                        days_29.add(inside);
+                        days_30.add(inside);
+                        days_31.add(inside);
+                    }
+                    else if (i == 30){
+                        days_30.add(inside);
+                        days_31.add(inside);
+                    }
+                    else{   //i == 31
+                        days_31.add(inside);
+                    }
+                }
+                else{   //27 or less, every array gets a number
+                    days_28.add(inside);
+                    days_29.add(inside);
+                    days_30.add(inside);
+                    days_31.add(inside);
+                }
+            }
+
+            //2. Fill in AlertDialog values for today
+            alert_dialog_starting_current_day = "" + startingDate.get(Calendar.DAY_OF_MONTH);
+            alert_dialog_starting_current_month = convertnumberMonthWord(startingDate.get(Calendar.MONTH) + 1);  //have to +1 b/c Android's values are 1 behind. Ex: January is 0
+            alert_dialog_starting_current_year = "" + startingDate.get(Calendar.YEAR);
+
+            alert_dialog_ending_current_day = "" + endingDate.get(Calendar.DAY_OF_MONTH);
+            alert_dialog_ending_current_month = convertnumberMonthWord(endingDate.get(Calendar.MONTH) + 1);  //have to +1 b/c Android's values are 1 behind. Ex: January is 0
+            alert_dialog_ending_current_year = "" + endingDate.get(Calendar.YEAR);
+
+            //4. TextViews will be set outside below b/c it doesn't matter whether we had an instance state restore or not,
+            //   startingDate, endingDate will be set already
+
+            //5. result text and result details text
+            result_text.setText("");
+            result_text_details.setText("");
+
+        }
+
+        //4. Set textViews (startingDay, endingDay) to current date
+        starting_day.setText(dateFormatter.format(startingDate.getTime())); //Set starting_day's text to be the current day by default
+        ending_day.setText(dateFormatter.format(endingDate.getTime())); //Set ending_day's text to be the current day by default
+
+
 
         //Why is it showing up as 8/5/16 instead of 9/5/16 (correct date)?
         //https://developer.android.com/reference/java/util/Calendar.html#MONTH
@@ -151,13 +235,13 @@ public class DaysUntilFragment extends Fragment {
         Log.i(TAG, "Before anything: endingDate's year: " + endingDate.get(Calendar.YEAR));
         Log.i(TAG,"Before anything: endingDate's month: " + endingDate.get(Calendar.MONTH));
         Log.i(TAG, "Before anything: endingDate's day: " + endingDate.get(Calendar.DAY_OF_MONTH));
-//        endingDate = Calendar.getInstance();
 
+        //These elements moved up to the top so we could do the instance restore
+//        from = (TextView)rootView.findViewById(R.id.from);
+//        starting_day = (TextView)rootView.findViewById(R.id.starting_day);  //Need to set this text to be the current day, by default;
+//        starting_day.setText(dateFormatter.format(startingDate.getTime())); //Set starting_day's text to be the current day by default
 
-        //Set elements from xml layout file
-        from = (TextView)rootView.findViewById(R.id.from);
-        starting_day = (TextView)rootView.findViewById(R.id.starting_day);  //Need to set this text to be the current day, by default;
-        starting_day.setText(dateFormatter.format(startingDate.getTime())); //Set starting_day's text to be the current day by default
+        //Set rest of elements from xml layout file
         starting_day.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -218,7 +302,7 @@ public class DaysUntilFragment extends Fragment {
                         alertDialogCustomView_starting.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_years));
                 yearsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 years_spinner.setAdapter(yearsAdapter);  //set the Adapter
-                years_spinner.setSelection(0);  //set initial default value to be the first value
+                years_spinner.setSelection(yearsAdapter.getPosition(alert_dialog_starting_current_year));  //set initial default value to be the current year, or the year it was on before the configuration change. -1 b/c setSelection(0) is the first element
                 years_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     /*
                         1. Set the year
@@ -264,7 +348,7 @@ public class DaysUntilFragment extends Fragment {
                         alertDialogCustomView_starting.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_months));
                 monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 month_spinner.setAdapter(monthAdapter);  //set the Adapter
-                month_spinner.setSelection(0);  //set initial default value to be the first value
+                month_spinner.setSelection(convertWordMonth(alert_dialog_starting_current_month) - 1);  //set initial default value to be the current month, or the month it was on before the configuration change. -1 b/c setSelection(0) is the first element
                 month_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     /*
                         1. Set the month
@@ -338,7 +422,7 @@ public class DaysUntilFragment extends Fragment {
                             alertDialogCustomView_starting.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_days));
                     daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     days_spinner.setAdapter(daysAdapter);  //set the Adapter
-                    days_spinner.setSelection(0);  //set initial default value to be the first value
+                    days_spinner.setSelection(Integer.parseInt(alert_dialog_starting_current_day)-1);  //set initial default value to be the current day, or the day it was on before the configuration change. -1 b/c setSelection(0) is the first element
                 }
                 days_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
@@ -393,7 +477,9 @@ public class DaysUntilFragment extends Fragment {
         //need to use rootView.getContext() instead of getActivity().getApplicationContext()
         calendar1datePickerDialog = new DatePickerDialog(rootView.getContext(), new DatePickerDialog.OnDateSetListener() {
             /*
-                set Calendar object endingDate to be the new data
+                1. set Calendar object endingDate to be the new data
+                2. set textview to have the appropriate values
+                3. Set starting AlertDialog values so they can be updated ==> thus saved later in onSaveInstance()
              */
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -402,6 +488,9 @@ public class DaysUntilFragment extends Fragment {
 //                starting_day.setText(dateFormatter.format(newDate.getTime()));
                 startingDate.set(year, monthOfYear, dayOfMonth);
                 starting_day.setText(dateFormatter.format(startingDate.getTime()));
+                alert_dialog_starting_current_year = ""+year;
+                alert_dialog_starting_current_month= convertnumberMonthWord(monthOfYear+1);
+                alert_dialog_starting_current_day  = ""+dayOfMonth;
                 Log.i(TAG, "New date on startingDate, year: " + startingDate.get(Calendar.YEAR));
                 Log.i(TAG, "New date on startingDate, month: " + startingDate.get(Calendar.MONTH));
                 Log.i(TAG, "New date on startingDate, day: " + startingDate.get(Calendar.DAY_OF_MONTH));
@@ -426,10 +515,10 @@ public class DaysUntilFragment extends Fragment {
         });
 
 
-        to = (TextView)rootView.findViewById(R.id.to);
-
-        ending_day = (TextView)rootView.findViewById(R.id.ending_day);   //Need to set this text to be the current day, by default
-        ending_day.setText(dateFormatter.format(endingDate.getTime())); //Set ending_day's text to be the current day by default
+//        to = (TextView)rootView.findViewById(R.id.to);
+//
+//        ending_day = (TextView)rootView.findViewById(R.id.ending_day);   //Need to set this text to be the current day, by default
+//        ending_day.setText(dateFormatter.format(endingDate.getTime())); //Set ending_day's text to be the current day by default
         ending_day.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -471,7 +560,7 @@ public class DaysUntilFragment extends Fragment {
                         alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_years));
                 yearsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 ending_years_spinner.setAdapter(yearsAdapter);  //set the Adapter
-                ending_years_spinner.setSelection(0);  //set initial default value to be the first value
+                ending_years_spinner.setSelection(yearsAdapter.getPosition(alert_dialog_ending_current_year));  //set initial default value to be the current year, or the year it was on before the configuration change. -1 b/c setSelection(0) is the first element
                 ending_years_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     /*
                         1. Set the year
@@ -517,7 +606,7 @@ public class DaysUntilFragment extends Fragment {
                         alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_months));
                 monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 ending_month_spinner.setAdapter(monthAdapter);  //set the Adapter
-                ending_month_spinner.setSelection(0);  //set initial default value to be the first value
+                ending_month_spinner.setSelection(convertWordMonth(alert_dialog_ending_current_month) - 1);  //set initial default value to be the current month, or the month it was on before the configuration change. -1 b/c setSelection(0) is the first element
                 ending_month_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     /*
                         1. Set the month
@@ -591,7 +680,7 @@ public class DaysUntilFragment extends Fragment {
                             alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_days));
                     daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     ending_days_spinner.setAdapter(daysAdapter);  //set the Adapter
-                    ending_days_spinner.setSelection(0);  //set initial default value to be the first value
+                    ending_days_spinner.setSelection(Integer.parseInt(alert_dialog_ending_current_day)-1);  //set initial default value to be the current day, or the day it was on before the configuration change. -1 b/c setSelection(0) is the first element
                 }
                 ending_days_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
@@ -647,7 +736,9 @@ public class DaysUntilFragment extends Fragment {
         //need to use rootView.getContext() instead of getActivity().getApplicationContext()
         calendar2datePickerDialog = new DatePickerDialog(rootView.getContext(), new DatePickerDialog.OnDateSetListener() {
             /*
-                set Calendar object endingDate to be the new data
+                1. set Calendar object endingDate to be the new data
+                2. set textview to have the appropriate values
+                3. Set ending AlertDialog values so they can be updated ==> thus saved later in onSaveInstance()
              */
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -656,6 +747,9 @@ public class DaysUntilFragment extends Fragment {
 //                ending_day.setText(dateFormatter.format(newDate.getTime()));
                 endingDate.set(year, monthOfYear, dayOfMonth);
                 ending_day.setText(dateFormatter.format(endingDate.getTime()));
+                alert_dialog_ending_current_year = ""+year;
+                alert_dialog_ending_current_month= convertnumberMonthWord(monthOfYear+1);
+                alert_dialog_ending_current_day  = ""+dayOfMonth;
                 Log.i(TAG, "New date on endingDate, year: " + endingDate.get(Calendar.YEAR));
                 Log.i(TAG, "New date on endingDate, month: " + endingDate.get(Calendar.MONTH));
                 Log.i(TAG, "New date on endingDate, day: " + endingDate.get(Calendar.DAY_OF_MONTH));
@@ -691,11 +785,11 @@ public class DaysUntilFragment extends Fragment {
             }
         });
 
-
-        result_text = (TextView)rootView.findViewById(R.id.result_text);   //Need to set this text to be the BLANK by default. Also, create some method to set the text in the correct format
-//        result_text.setText("");
-        result_text_details = (TextView)rootView.findViewById(R.id.result_text_details); //Need to set this text to be the BLANK by default
-//        result_text_details.setText("");
+        //Moved to top of page so that we could save/restore values of it from onSaveInstanceState()
+//        result_text = (TextView)rootView.findViewById(R.id.result_text);   //Need to set this text to be the BLANK by default. Also, create some method to set the text in the correct format
+////        result_text.setText("");
+//        result_text_details = (TextView)rootView.findViewById(R.id.result_text_details); //Need to set this text to be the BLANK by default
+////        result_text_details.setText("");
 
         compute = (Button)rootView.findViewById(R.id.calculate_duration);
         compute.setOnClickListener(new View.OnClickListener() {
@@ -713,17 +807,19 @@ public class DaysUntilFragment extends Fragment {
                 Log.i(TAG, "Calendar 1's starting date in milliseconds: " + startingDate.getTimeInMillis());
                 Log.i(TAG, "Calendar 2's starting date in milliseconds: " + endingDate.getTimeInMillis());
                 Log.i(TAG, "Time difference = " + difference);  //compareTo() generates either -1, 0 , or 1
+
+
                 if(difference == 0){
 //                if(starting_day.getText().equals(ending_day.getText())){
                     //Case #1: Same date
                     if(!isChecked){
                         //don't include end date ==> regular
-                        result_text.setText(setResultText(0));
+                        result_text.setText(setResultText(0,false));
                         result_text_details.setText("Or 0 days excluding the end date");
                     }
                     else{
                         //include end date ==> add one day
-                        result_text.setText(setResultText(1));
+                        result_text.setText(setResultText(1,false));
                         result_text_details.setText("Or 1 day including the end date");
                     }
 
@@ -734,14 +830,14 @@ public class DaysUntilFragment extends Fragment {
                     //for result_text_details, same
                     //Data contains: double[0] = totalDays, double[1] = years, double[2] = months, double[3] = days
                     double[] data = extractDaysMonthsYears(difference, true);
-                    result_text.setText(setResultText(data[0]));
-                    result_text_details.setText(setResultDetailsText(data[1], data[2], data[3], data[4], false, isChecked));
+                    result_text.setText(setResultText(data[0],true));
+                    result_text_details.setText(setResultDetailsText(data[1], data[2], data[3], data[4], isChecked));
                 }
                 else{
                     //Case #3: Normal (ending date is past the starting date)
                     double[] data = extractDaysMonthsYears(difference, false);
-                    result_text.setText(setResultText(data[0]));
-                    result_text_details.setText(setResultDetailsText(data[1], data[2], data[3], data[4], true, isChecked));
+                    result_text.setText(setResultText(data[0], false));
+                    result_text_details.setText(setResultDetailsText(data[1], data[2], data[3], data[4],  isChecked));
                 }
 
 
@@ -811,6 +907,11 @@ public class DaysUntilFragment extends Fragment {
         Before setting stuff, checks for correct format
         Sets the string from the AlertDialog ==> to the correct TextView
         Also, set the internal Calendar value too
+
+        Month = the actual value, not the internal Android calendar value
+        However, calendar is set to (month-1) ==> so it becomes the actual calendar value
+        Thus, when we restore on a configuration change, we would save alert_dialog_starting_current_month,alert_dialog_ending_current_month, but then
+        when setting startingDate,endingDate, we would set it to be that month -1
 
      */
     public void setNewDateFromAlertDialog(String textview){
@@ -966,6 +1067,8 @@ public class DaysUntilFragment extends Fragment {
         To find hours, do integer division total/# seconds in and hour ==> 3800 / 3600 ==> 1. Integer division truncates the decimal
 
         isStartingDatePastEndingDate: whether or not startingDate is past endingDate ==> which would mean that the difference would be negative
+            Normal: False
+            Past: True
 
         More info here: http://pastebin.com/XWBgWZBm
      */
@@ -1025,25 +1128,44 @@ public class DaysUntilFragment extends Fragment {
                     b) Case 2: Clone date and ending date are in different months.
                         Proceed with moving it forwards to the next closest month
              */
+
+            //If Clone date and ending date are in the SAME month.
             if(adjust.get(Calendar.MONTH) == endingDate.get(Calendar.MONTH)){
                 Log.i(TAG, "adjust's month == endingDate's month, aka months = 0");
                 //# milliseconds in a week: 1000*60*60*24*7 = 604800000
                 //# milliseconds in a day: 1000*60*60*24    = 86400000
                 Log.i(TAG, "months: " + months);    //should be 0
-                data[2] = months;
 
                 //extract weeks, then take them out of total milliseconds
                 weeks = Math.floor(temp / 604800000.0);
                 Log.i(TAG, "weeks: " + weeks);
-                data[3] = weeks;
                 temp -= (weeks*604800000.0);
 
                 //extract weeks, then take them out of total milliseconds
                 days = Math.floor(temp / 86400000.0);
                 Log.i(TAG, "days: " + days);
+
+                //check if checkbox was set, and rebalance values if necessary
+                if(isChecked){
+                    ++days;
+                    if(days == 7.0){    //if day value is now 7, increment week and make days 0
+                        days = 0.0;
+                        ++weeks;
+                    }
+
+                    Log.i(TAG, "total weeks after isChecked checkbox rebalancing: " + weeks);
+                    Log.i(TAG, "total days after isChecked checkbox rebalancing: " + days);
+                }
+
+                data[2] = months;
+                data[3] = weeks;
                 data[4] = days;
 
+
+
             }
+
+            //If Clone date and ending date are in different months.
             else{
                 Log.i(TAG, "adjust's month < endingDate's month, so we have to first move forward to the first day of tne next month");
                 /*
@@ -1141,17 +1263,30 @@ public class DaysUntilFragment extends Fragment {
                 //# milliseconds in a week: 1000*60*60*24*7 = 604800000
                 //# milliseconds in a day: 1000*60*60*24    = 86400000
                 Log.i(TAG, "months: " + months);    //should be 0
-                data[2] = months;
 
                 //extract weeks, then take them out of total milliseconds
                 weeks = Math.floor(temp / 604800000.0);
                 Log.i(TAG, "weeks: " + weeks);
-                data[3] = weeks;
                 temp -= (weeks*604800000.0);
 
                 //extract weeks, then take them out of total milliseconds
                 days = Math.floor(temp / 86400000.0);
                 Log.i(TAG, "days: " + days);
+
+                //check if checkbox was set, and rebalance values if necessary
+                if(isChecked){
+                    ++days;
+                    if(days == 7.0){    //if day value is now 7, increment week and make days 0
+                        days = 0.0;
+                        ++weeks;
+                    }
+
+                    Log.i(TAG, "total weeks after isChecked checkbox rebalancing: " + weeks);
+                    Log.i(TAG, "total days after isChecked checkbox rebalancing: " + days);
+                }
+
+                data[2] = months;
+                data[3] = weeks;
                 data[4] = days;
 
             }
@@ -1232,13 +1367,24 @@ public class DaysUntilFragment extends Fragment {
 
         cast to an int to make it look nicer
      */
-    public String setResultText(double totalDays){
-        if(totalDays == 1){
-            return "Result: " + (int)totalDays + " day";
+    public String setResultText(double totalDays, boolean isStartingDatePastEndingDate){
+        if(isStartingDatePastEndingDate){
+            if(totalDays == 1){
+                return "Result: " + (int)totalDays + " day past";
+            }
+            else{
+                return "Result: " + (int)totalDays + " days past";
+            }
         }
-        else{
-            return "Result: " + (int)totalDays + " days";
+        else{   //For normal (startingDate < endingDate as well as 0 days)
+            if(totalDays == 1){
+                return "Result: " + (int)totalDays + " day";
+            }
+            else{
+                return "Result: " + (int)totalDays + " days";
+            }
         }
+
 
     }
 
@@ -1256,7 +1402,7 @@ public class DaysUntilFragment extends Fragment {
 
      */
     public String setResultDetailsText(double years,double months, double weeks,
-                                       double days, boolean isStartingDatePastEndingDate, boolean isInclude){
+                                       double days, boolean isInclude){
         StringBuilder text = new StringBuilder("Or ");
         //set year
         if(years != 0.0){
@@ -1355,14 +1501,75 @@ public class DaysUntilFragment extends Fragment {
         }
         return -1;
     }
+
+    /*
+        Converts the # in month to a word. Ex: its number representation ==> Jan
+        Where the # is the month's REAL value, not the Android representation of it.
+     */
+    public String convertnumberMonthWord(int month){
+        switch(month){
+            case 1: return "Jan.";
+            case 2: return "Feb.";
+            case 3: return "Mar.";
+            case 4: return "Apr.";
+            case 5: return "May.";
+            case 6: return "Jun.";
+            case 7: return "Jul.";
+            case 8: return "Aug.";
+            case 9: return "Sept.";
+            case 10: return "Oct.";
+            case 11: return "Nov.";
+            case 12: return "Dec.";
+             default:break;
+        }
+        return "";
+    }
     /* Problem:
         1. Dates on the Textviews ==> reverting back to date of today on configuration change
         2. Result texts  ==> reverting back to original defaults in string.xml on configuration change
         3. days Spinner adapters ==> keep compounding on each other on configuration change
+
+        Things to save:
+        1. All the days_# arraylist<string>
+        2. All the alert_dialog_values for starting and ending
+            alert_dialog_starting_current_day
+            alert_dialog_starting_current_month:    This will be the ACTUAL value, not the Android set value
+            alert_dialog_starting_current_year
+            isDaysAdapterSet_starting
+            alert_dialog_ending_current_day
+            alert_dialog_ending_current_month:    This will be the ACTUAL value, not the Android set value
+            alert_dialog_ending_current_year
+            isDaysAdapterSet_ending
+
+        3. resultText text
+        4. resultDetail text
+
+
+
      */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
         //Save stuff here
+        //days ArrayList<String>
+        savedInstanceState.putStringArrayList("days_28", days_28);
+        savedInstanceState.putStringArrayList("days_29", days_29);
+        savedInstanceState.putStringArrayList("days_30", days_30);
+        savedInstanceState.putStringArrayList("days_31", days_31);
+
+        //alert dialog values
+        savedInstanceState.putString("alert_dialog_starting_current_day", alert_dialog_starting_current_day);
+        savedInstanceState.putString("alert_dialog_starting_current_month", alert_dialog_starting_current_month);
+        savedInstanceState.putString("alert_dialog_starting_current_year", alert_dialog_starting_current_year);
+        savedInstanceState.putBoolean("isDaysAdapterSet_starting", isDaysAdapterSet_starting);
+
+        savedInstanceState.putString("alert_dialog_ending_current_day", alert_dialog_ending_current_day);
+        savedInstanceState.putString("alert_dialog_ending_current_month",alert_dialog_ending_current_month);
+        savedInstanceState.putString("alert_dialog_ending_current_year", alert_dialog_ending_current_year);
+        savedInstanceState.putBoolean("isDaysAdapterSet_ending", isDaysAdapterSet_ending);
+
+        //Result and deatiled result texts
+        savedInstanceState.putString("result_text", result_text.getText().toString());
+        savedInstanceState.putString("result_text_details", result_text_details.getText().toString());
 
         super.onSaveInstanceState(savedInstanceState);
     }
