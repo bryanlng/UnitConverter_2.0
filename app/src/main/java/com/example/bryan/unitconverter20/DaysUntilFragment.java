@@ -151,7 +151,34 @@ public class DaysUntilFragment extends Fragment {
             result_text.setText(savedInstanceState.getString("result_text"));
             result_text_details.setText(savedInstanceState.getString("result_text_details"));
 
-
+            //6. Set spinners adapters to be null, so they don't keep compounding on each other
+            //  Once an AlertDIalog is created, the Spinner objects stay alive forever.
+            //  However, there is the case situation where the user doesn't do anything but orientation change ==> spinners stay null
+            //  Thus, we would only check if the Spinner is not null ==> then set its adapter to null
+            if(days_spinner != null){
+                Log.i(TAG, "days spinner is not null");
+                days_spinner.setAdapter(null);
+            }
+            if(month_spinner != null){
+                Log.i(TAG, "month spinner is not null");
+                month_spinner.setAdapter(null);
+            }
+            if(years_spinner != null){
+                Log.i(TAG, "years spinner is not null");
+                years_spinner.setAdapter(null);
+            }
+            if(ending_days_spinner != null){
+                Log.i(TAG, "e days spinner is not null");
+                ending_days_spinner.setAdapter(null);
+            }
+            if(ending_month_spinner != null){
+                Log.i(TAG, "e month spinner is not null");
+                ending_month_spinner.setAdapter(null);
+            }
+            if(ending_years_spinner != null){
+                Log.i(TAG, "e year spinner is not null");
+                ending_years_spinner.setAdapter(null);
+            }
 
         }
         else{
