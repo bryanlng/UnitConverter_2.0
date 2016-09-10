@@ -110,7 +110,78 @@ public class DaysUntilFragment extends Fragment {
         result_text_details = (TextView)rootView.findViewById(R.id.result_text_details); //Need to set this text to be the BLANK by default
 //        result_text_details.setText("");
 
+        //Checking if stuff is empty
+        if(days_28.isEmpty()){
+            Log.i(TAG, "days_28 is empty");
+        }
+        else{
+            Log.i(TAG, "days_28 is NOT empty");
+        }
+        if(days_29.isEmpty()){
+            Log.i(TAG, "days_29 is empty");
+        }
+        else{
+            Log.i(TAG, "days_29 is NOT empty");
+        }
+        if(days_30.isEmpty()){
+            Log.i(TAG, "days_30 is empty");
+        }
+        else{
+            Log.i(TAG, "days_30 is NOT empty");
+        }
+        if(days_31.isEmpty()){
+            Log.i(TAG, "days_31 is empty");
+        }
+        else{
+            Log.i(TAG, "days_31 is NOT empty");
+        }
+        if(days_spinner != null){
+            Log.i(TAG, "days spinner is not null");
+        }
+        else{
+            Log.i(TAG, "days spinner is null");
+        }
+        if(month_spinner != null){
+            Log.i(TAG, "month spinner is not null");
+        }
+        else{
+            Log.i(TAG, "month spinner is null");
+        }
+        if(years_spinner != null){
+            Log.i(TAG, "years spinner is not null");
+        }
+        else{
+            Log.i(TAG, "years spinner is null");
+        }
+        if(ending_days_spinner != null){
+            Log.i(TAG, "e days spinner is not null");
+        }
+        else{
+            Log.i(TAG, "e days spinner is null");
+        }
+        if(ending_month_spinner != null){
+            Log.i(TAG, "e month spinner is not null");
+        }
+        else{
+            Log.i(TAG, "e month spinner is null");
+        }
+        if(ending_years_spinner != null){
+            Log.i(TAG, "e year spinner is not null");
+        }
+        else{
+            Log.i(TAG, "e year spinner is null");
+        }
+
         if(savedInstanceState != null){
+            /* Problem
+               DaysUntilFragment loaded ==> then fragment change to UnitFragment ==> then fragment change back to daysUntilFragment
+               Means that values are not null, but savedInstanceState == null
+
+               Solution:
+               Make a Utilities class that houses a global variable
+               And our new if conditional will be: if(savedInstanceState != null || <some condition on the global variable>)
+             */
+            Log.i(TAG,"savedInstanceState != null, so we must restore");
             //restore stuff
             //1. ArrayLists so we don't have to recreate them
             days_28 = savedInstanceState.getStringArrayList("days_28");
@@ -182,6 +253,12 @@ public class DaysUntilFragment extends Fragment {
 
         }
         else{
+            Log.i(TAG,"savedInstanceState == null, so we must create original values");
+            /* Problem
+               DaysUntilFragment loaded ==> then fragment change to UnitFragment ==> then fragment change back to daysUntilFragment
+               Means that values are not null, but savedInstanceState == null
+             */
+
             /* Create original values of the following:
             1. ArrayLists (days_28, days_29, days_30, days_31)
             2. Alert Dialog values (to be today). No need to set isAdapterSet boolean values.
@@ -242,6 +319,36 @@ public class DaysUntilFragment extends Fragment {
             //5. result text and result details text
             result_text.setText("");
             result_text_details.setText("");
+
+//            //6. Set spinners adapters to be null, so they don't keep compounding on each other
+//            //  Once an AlertDIalog is created, the Spinner objects stay alive forever.
+//            //  However, there is the case situation where the user CHANGES TO A DIFFERENT FRAGMENT. However, the spinner objects still stay alive
+//            //  This means that savedInstanceState == null ===> so it would go inside this else conditional
+//            //  Still only check if the Spinner is not null ==> then set its adapter to null
+//            if(days_spinner != null){
+//                Log.i(TAG, "days spinner is not null");
+//                days_spinner.setAdapter(null);
+//            }
+//            if(month_spinner != null){
+//                Log.i(TAG, "month spinner is not null");
+//                month_spinner.setAdapter(null);
+//            }
+//            if(years_spinner != null){
+//                Log.i(TAG, "years spinner is not null");
+//                years_spinner.setAdapter(null);
+//            }
+//            if(ending_days_spinner != null){
+//                Log.i(TAG, "e days spinner is not null");
+//                ending_days_spinner.setAdapter(null);
+//            }
+//            if(ending_month_spinner != null){
+//                Log.i(TAG, "e month spinner is not null");
+//                ending_month_spinner.setAdapter(null);
+//            }
+//            if(ending_years_spinner != null){
+//                Log.i(TAG, "e year spinner is not null");
+//                ending_years_spinner.setAdapter(null);
+//            }
 
         }
 
