@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +52,11 @@ public class UnitFragment extends Fragment {
     private int optionACurrentSelection = -1;
     private int optionBCurrentSelection = -1;
 
+    //Booleans for setting custom inputType/ keyboard for hex
+    //B/c for hex you need letters
+    private boolean optionAHexSet = false;
+    private boolean optionBHexSet = false;
+
     public UnitFragment(){
     }
 
@@ -69,11 +75,27 @@ public class UnitFragment extends Fragment {
         if(savedInstanceState != null){
             optionACurrentSelection = savedInstanceState.getInt("optionACurrentSelection");
             optionBCurrentSelection = savedInstanceState.getInt("optionBCurrentSelection");
+            optionAHexSet = savedInstanceState.getBoolean("optionAHexSet");
+            optionBHexSet = savedInstanceState.getBoolean("optionBHexSet");
         }
         /******************************************Instantiate UI elements of the View************************************************/
         /****Default showing = Category = Weight, EditTexts have value 0, Option A = kg, Option B = lb*******************************/
         //TextView to display the result
 //        displayMessage = (TextView) .findViewById(R.id.result_display);
+
+        //Options EditTexts.
+        textA = (EditText)rootView.findViewById(R.id.optionAText);
+        textB = (EditText)rootView.findViewById(R.id.optionBText);
+
+        //Check to see if hex was set (as values from savedInstanceState might have been brought back)
+        //If it is true, set the keyboard to be the regular keyboard with alphabet
+        //Else, leave the keyboard the way it is (number keyboard)
+        if(optionAHexSet){
+            textA.setInputType(InputType.TYPE_CLASS_TEXT);
+        }
+        if(optionBHexSet){
+            textB.setInputType(InputType.TYPE_CLASS_TEXT);
+        }
 
         //Category, optionA, optionB spinners
         category = (Spinner)rootView.findViewById(R.id.category);
@@ -168,7 +190,32 @@ public class UnitFragment extends Fragment {
                 currentOptionA = parent.getItemAtPosition(pos).toString();
                 optionSpinnerA.setPrompt(currentOptionA);
 
+                //If it's hex, we need to change the keyboard from number (android:inputType = numberDecimal),
+                //to a keyboard with letters
+                //http://stackoverflow.com/questions/2586301/set-inputtype-for-an-edittext
+                //https://developer.android.com/reference/android/widget/TextView.html#attr_android%3ainputType
+                //android:inputType="text" is equivalent to  TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL
+                //TYPE_CLASS_TEXT is equivalent to TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL, b/c
+                //TYPE_CLASS_TEXT == 0x1 and TYPE_TEXT_VARIATION_NORMAL == 0x0, so a bit or would just be redundant
+
+                if(currentOptionA.equals("Hex")){
+                    textA.setInputType(InputType.TYPE_CLASS_TEXT);  //InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL
+                    optionAHexSet = true;
+                }
+
+                //Situation: User was on Hex before, so we had to set a new inputType. However, they're on any of the other
+                //ones right now, and they need the regular (number) keyboard
+                //android:inputType="numberDecimal" is equivalent to InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
+                else{
+                    //only check if optionAHexSet is true, b/c it's redundant and wasteful to keep checking every time
+                    if(optionAHexSet){
+                        textA.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL );
+                        optionAHexSet = false;
+                    }
+                }
+
                 optionACurrentSelection = pos;  //save this so that on configuration change, spinner will revert to this value
+
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
@@ -181,6 +228,30 @@ public class UnitFragment extends Fragment {
                 currentOptionB = parent.getItemAtPosition(pos).toString();
                 optionSpinnerB.setPrompt(currentOptionB);
 
+                //If it's hex, we need to change the keyboard from number (android:inputType = numberDecimal),
+                //to a keyboard with letters
+                //http://stackoverflow.com/questions/2586301/set-inputtype-for-an-edittext
+                //https://developer.android.com/reference/android/widget/TextView.html#attr_android%3ainputType
+                //android:inputType="text" is equivalent to  TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL
+                //TYPE_CLASS_TEXT is equivalent to TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL, b/c
+                //TYPE_CLASS_TEXT == 0x1 and TYPE_TEXT_VARIATION_NORMAL == 0x0, so a bit or would just be redundant
+
+                if(currentOptionB.equals("Hex")){
+                    textB.setInputType(InputType.TYPE_CLASS_TEXT);  //InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL
+                    optionBHexSet = true;
+                }
+
+                //Situation: User was on Hex before, so we had to set a new inputType. However, they're on any of the other
+                //ones right now, and they need the regular (number) keyboard
+                //android:inputType="numberDecimal" is equivalent to InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
+                else{
+                    //only check if optionAHexSet is true, b/c it's redundant and wasteful to keep checking every time
+                    if(optionBHexSet){
+                        textB.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL );
+                        optionBHexSet = false;
+                    }
+                }
+
                 optionBCurrentSelection = pos;  //save this so that on configuration change, spinner will revert to this value
             }
 
@@ -188,10 +259,8 @@ public class UnitFragment extends Fragment {
             }
         });
 
-
-        //Options EditTexts. Set the default values to be 0
-        textA = (EditText)rootView.findViewById(R.id.optionAText);
-        textB = (EditText)rootView.findViewById(R.id.optionBText);
+        //EditTexts moved to the top so they can be referenced.
+        //Done so that we can implement a different inputType whenever "hex" option is selected
 
         //Clear Buttons
         clearA = (Button)rootView.findViewById(R.id.clearA);
@@ -1494,6 +1563,9 @@ public class UnitFragment extends Fragment {
         //Save stuff here
         savedInstanceState.putInt("optionACurrentSelection", optionACurrentSelection);
         savedInstanceState.putInt("optionBCurrentSelection", optionBCurrentSelection);
+        savedInstanceState.putBoolean("optionAHexSet", optionAHexSet);
+        savedInstanceState.putBoolean("optionBHexSet", optionBHexSet);
+
         super.onSaveInstanceState(savedInstanceState);
     }
 
