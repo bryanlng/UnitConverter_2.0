@@ -47,6 +47,7 @@ public class MainActivity extends ActionBarActivity {
             selectItemCurrentPosition = savedInstanceState.getInt("selectItemCurrentPosition");
             setTitle(fragmentTitles[selectItemCurrentPosition]);
         }
+
         setContentView(R.layout.activity_main);
         Log.i(TAG, "Entered onCreate()");
         fragmentTitles = getResources().getStringArray(R.array.fragmentTitles);
@@ -135,23 +136,29 @@ public class MainActivity extends ActionBarActivity {
                 //First time, user hasn't opened either the Unit Fragment or DaysUntil fragment yet.
                 fragmentTransaction.add(R.id.content_frame, unitFragment).commit();
                 isUnitCurrentFragment = true;
+
             }
             else if(!isUnitCurrentFragment && isDaysUntilFragment){
                 //User previously opened and is currently on daysUntil fragment, now wants to open Unit Fragment
                 //Determine if i
+
                 if(previousFragmentAction.equals("Replaced unitFragment with daysUntilFragment")){
+                    //http://stackoverflow.com/questions/17793249/how-do-popbackstack-and-replace-operations-differ
                     fragmentManager.popBackStack();
                 }
                 else{
+                    previousFragmentAction = "Replaced daysUntilFragment with unitFragment";
                     fragmentTransaction.replace(R.id.content_frame, unitFragment)
                             .addToBackStack(null)
                             .commit();
                     fragmentManager.executePendingTransactions();
-                    previousFragmentAction = "Replaced daysUntilFragment with unitFragment";
+
                 }
 
                 isUnitCurrentFragment = true;
                 isDaysUntilFragment = false;
+
+
 
             }
 
@@ -164,28 +171,39 @@ public class MainActivity extends ActionBarActivity {
                 Log.i(TAG, "isUnitCurrentFragment: " + isUnitCurrentFragment + " ,isDaysUntilFragment:" + isDaysUntilFragment);
             }
         }
+
+        //position = 1
         else{   //user selected daysUntil fragment/ desires to open daysUntil Fragment
             if(!isUnitCurrentFragment && !isDaysUntilFragment){
                 //First time, user hasn't opened either the Unit Fragment or DaysUntil fragment yet.
-                fragmentTransaction.add(R.id.content_frame, daysUntilFragment).commit();
                 isDaysUntilFragment = true;
+
+                fragmentTransaction.add(R.id.content_frame, daysUntilFragment).commit();
+
             }
 
             else if(!isDaysUntilFragment && isUnitCurrentFragment ){
                 //User previously opened and is currently on Unit fragment, now wants to open daysUntil Fragment
+
+
                 if(previousFragmentAction.equals("Replaced daysUntilFragment with unitFragment")){
+                    //that means the user previously was on daysUntilFragment ==> then switched to unitFragment ==> and is now trying to switch to daysUntilFragment
+                    //http://stackoverflow.com/questions/17793249/how-do-popbackstack-and-replace-operations-differ
                     fragmentManager.popBackStack();
-                    previousFragmentAction = "wut";
                 }
                 else{
+                    previousFragmentAction = "Replaced unitFragment with daysUntilFragment";
                     fragmentTransaction.replace(R.id.content_frame, daysUntilFragment)
                             .addToBackStack(null)
                             .commit();
                     fragmentManager.executePendingTransactions();
-                    previousFragmentAction = "Replaced unitFragment with daysUntilFragment";
+
                 }
+
                 isDaysUntilFragment = true;
                 isUnitCurrentFragment = false;
+
+
             }
 
             else if(isDaysUntilFragment){

@@ -106,73 +106,91 @@ public class DaysUntilFragment extends Fragment {
         ending_day = (TextView)rootView.findViewById(R.id.ending_day);   //Need to set this text to be the current day, by default
 
         result_text = (TextView)rootView.findViewById(R.id.result_text);   //Need to set this text to be the BLANK by default. Also, create some method to set the text in the correct format
-//        result_text.setText("");
         result_text_details = (TextView)rootView.findViewById(R.id.result_text_details); //Need to set this text to be the BLANK by default
-//        result_text_details.setText("");
 
-        //Checking if stuff is empty
-        if(days_28.isEmpty()){
-            Log.i(TAG, "days_28 is empty");
-        }
-        else{
-            Log.i(TAG, "days_28 is NOT empty");
-        }
-        if(days_29.isEmpty()){
-            Log.i(TAG, "days_29 is empty");
-        }
-        else{
-            Log.i(TAG, "days_29 is NOT empty");
-        }
-        if(days_30.isEmpty()){
-            Log.i(TAG, "days_30 is empty");
-        }
-        else{
-            Log.i(TAG, "days_30 is NOT empty");
-        }
-        if(days_31.isEmpty()){
-            Log.i(TAG, "days_31 is empty");
-        }
-        else{
-            Log.i(TAG, "days_31 is NOT empty");
-        }
-        if(days_spinner != null){
-            Log.i(TAG, "days spinner is not null");
-        }
-        else{
-            Log.i(TAG, "days spinner is null");
-        }
-        if(month_spinner != null){
-            Log.i(TAG, "month spinner is not null");
-        }
-        else{
-            Log.i(TAG, "month spinner is null");
-        }
-        if(years_spinner != null){
-            Log.i(TAG, "years spinner is not null");
-        }
-        else{
-            Log.i(TAG, "years spinner is null");
-        }
-        if(ending_days_spinner != null){
-            Log.i(TAG, "e days spinner is not null");
-        }
-        else{
-            Log.i(TAG, "e days spinner is null");
-        }
-        if(ending_month_spinner != null){
-            Log.i(TAG, "e month spinner is not null");
-        }
-        else{
-            Log.i(TAG, "e month spinner is null");
-        }
-        if(ending_years_spinner != null){
-            Log.i(TAG, "e year spinner is not null");
-        }
-        else{
-            Log.i(TAG, "e year spinner is null");
-        }
+        checkBox = (CheckBox)rootView.findViewById(R.id.checkBox);  //If checked, include ending day ==> +1 day
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //https://developer.android.com/guide/topics/ui/controls/checkbox.html
+                //Set the global boolean variable isChecked
+                //this will be used later in the date calculation
+                //Since there's only 1 checkbox, don't have to worry about the getting the id
+                isChecked = ((CheckBox)v).isChecked();
+                Log.i(TAG, "New isChecked: " + isChecked);
+            }
+        });
 
-        if(savedInstanceState != null){
+        //Debug for when I was implementing configuration save states: Checking if stuff is empty
+//        if(days_28.isEmpty()){
+//            Log.i(TAG, "days_28 is empty");
+//        }
+//        else{
+//            Log.i(TAG, "days_28 is NOT empty");
+//        }
+//        if(days_29.isEmpty()){
+//            Log.i(TAG, "days_29 is empty");
+//        }
+//        else{
+//            Log.i(TAG, "days_29 is NOT empty");
+//        }
+//        if(days_30.isEmpty()){
+//            Log.i(TAG, "days_30 is empty");
+//        }
+//        else{
+//            Log.i(TAG, "days_30 is NOT empty");
+//        }
+//        if(days_31.isEmpty()){
+//            Log.i(TAG, "days_31 is empty");
+//        }
+//        else{
+//            Log.i(TAG, "days_31 is NOT empty");
+//        }
+//        if(days_spinner != null){
+//            Log.i(TAG, "days spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "days spinner is null");
+//        }
+//        if(month_spinner != null){
+//            Log.i(TAG, "month spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "month spinner is null");
+//        }
+//        if(years_spinner != null){
+//            Log.i(TAG, "years spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "years spinner is null");
+//        }
+//        if(ending_days_spinner != null){
+//            Log.i(TAG, "e days spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "e days spinner is null");
+//        }
+//        if(ending_month_spinner != null){
+//            Log.i(TAG, "e month spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "e month spinner is null");
+//        }
+//        if(ending_years_spinner != null){
+//            Log.i(TAG, "e year spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "e year spinner is null");
+//        }
+
+        Bundle utilitiesBundle = Utilities.getBundleFromDaysUntilFragment();
+        if(utilitiesBundle == null){
+            Log.i(TAG,"Utilities bundle is null");
+        }
+        else{
+            Log.i(TAG,"Utilities bundle HERE AND NOT NULL");
+        }
+        if( savedInstanceState != null || utilitiesBundle != null){
             /* Problem
                DaysUntilFragment loaded ==> then fragment change to UnitFragment ==> then fragment change back to daysUntilFragment
                Means that values are not null, but savedInstanceState == null
@@ -181,7 +199,19 @@ public class DaysUntilFragment extends Fragment {
                Make a Utilities class that houses a global variable
                And our new if conditional will be: if(savedInstanceState != null || <some condition on the global variable>)
              */
-            Log.i(TAG,"savedInstanceState != null, so we must restore");
+
+            //In the case where a fragment change back to daysUntilFragment, meaning that values are not null, but savedInstanceState == null
+            if(savedInstanceState == null && utilitiesBundle != null){
+                //get the bundle from the Utilities class ==> make it to be savedInstanceState
+                Log.i(TAG,"savedInstanceState == null, so we must get from Utilities, then restore");
+                savedInstanceState = Utilities.getBundleFromDaysUntilFragment();
+            }
+            else{
+                Log.i(TAG,"savedInstanceState != null, not getting from Utilities, so we must restore");
+            }
+
+
+
             //restore stuff
             //1. ArrayLists so we don't have to recreate them
             days_28 = savedInstanceState.getStringArrayList("days_28");
@@ -250,6 +280,10 @@ public class DaysUntilFragment extends Fragment {
                 Log.i(TAG, "e year spinner is not null");
                 ending_years_spinner.setAdapter(null);
             }
+
+            //7. Checkbox's isChecked
+            isChecked = savedInstanceState.getBoolean("isChecked");
+            checkBox.setChecked(isChecked);
 
         }
         else{
@@ -906,18 +940,19 @@ public class DaysUntilFragment extends Fragment {
             }
         });
 
-        checkBox = (CheckBox)rootView.findViewById(R.id.checkBox);  //If checked, include ending day ==> +1 day
-        checkBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //https://developer.android.com/guide/topics/ui/controls/checkbox.html
-                //Set the global boolean variable isChecked
-                //this will be used later in the date calculation
-                //Since there's only 1 checkbox, don't have to worry about the getting the id
-                isChecked = ((CheckBox)v).isChecked();
-                Log.i(TAG, "New isChecked: " + isChecked);
-            }
-        });
+        //Moved to top of page so that we could save/restore values of it from onSaveInstanceState()
+//        checkBox = (CheckBox)rootView.findViewById(R.id.checkBox);  //If checked, include ending day ==> +1 day
+//        checkBox.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                //https://developer.android.com/guide/topics/ui/controls/checkbox.html
+//                //Set the global boolean variable isChecked
+//                //this will be used later in the date calculation
+//                //Since there's only 1 checkbox, don't have to worry about the getting the id
+//                isChecked = ((CheckBox)v).isChecked();
+//                Log.i(TAG, "New isChecked: " + isChecked);
+//            }
+//        });
 
         //Moved to top of page so that we could save/restore values of it from onSaveInstanceState()
 //        result_text = (TextView)rootView.findViewById(R.id.result_text);   //Need to set this text to be the BLANK by default. Also, create some method to set the text in the correct format
@@ -1697,15 +1732,67 @@ public class DaysUntilFragment extends Fragment {
         savedInstanceState.putBoolean("isDaysAdapterSet_starting", isDaysAdapterSet_starting);
 
         savedInstanceState.putString("alert_dialog_ending_current_day", alert_dialog_ending_current_day);
-        savedInstanceState.putString("alert_dialog_ending_current_month",alert_dialog_ending_current_month);
+        savedInstanceState.putString("alert_dialog_ending_current_month", alert_dialog_ending_current_month);
         savedInstanceState.putString("alert_dialog_ending_current_year", alert_dialog_ending_current_year);
         savedInstanceState.putBoolean("isDaysAdapterSet_ending", isDaysAdapterSet_ending);
 
-        //Result and deatiled result texts
+        //Result and detailed result texts
         savedInstanceState.putString("result_text", result_text.getText().toString());
         savedInstanceState.putString("result_text_details", result_text_details.getText().toString());
 
+        //Checkbox's isChecked
+        savedInstanceState.putBoolean("isChecked", isChecked);
+
+        //Create a copy of the bundle to be put inside Utilties
+        Utilities.setBundleFromDaysUntilFragment((Bundle) savedInstanceState.clone());
+
+        //Lastly, call the parent class's equivalent method
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    /* onPause functionality:
+        Called when hosting Activity is visible, but it doesn't have focus
+        https://developer.android.com/guide/components/fragments.html
+        https://developer.android.com/guide/components/fragments.html#Lifecycle
+        https://developer.android.com/reference/android/app/Activity.html#onPause()
+
+        My override:
+        Save all our stuff that we're saving in onSaveInstanceState
+
+        Addresses situation:
+        User clicks daysUntilFragment, makes changes, but DOESN'T DO A CONFIGURATION CHANGE, then goes to unitFragment,
+        then goes back to daysUntilFragment
+
+     */
+    @Override
+    public void onPause(){
+        Bundle onPauseBundle = new Bundle();
+        //Save stuff here
+        //days ArrayList<String>
+        onPauseBundle.putStringArrayList("days_28", days_28);
+        onPauseBundle.putStringArrayList("days_29", days_29);
+        onPauseBundle.putStringArrayList("days_30", days_30);
+        onPauseBundle.putStringArrayList("days_31", days_31);
+
+        //alert dialog values
+        onPauseBundle.putString("alert_dialog_starting_current_day", alert_dialog_starting_current_day);
+        onPauseBundle.putString("alert_dialog_starting_current_month", alert_dialog_starting_current_month);
+        onPauseBundle.putString("alert_dialog_starting_current_year", alert_dialog_starting_current_year);
+        onPauseBundle.putBoolean("isDaysAdapterSet_starting", isDaysAdapterSet_starting);
+
+        onPauseBundle.putString("alert_dialog_ending_current_day", alert_dialog_ending_current_day);
+        onPauseBundle.putString("alert_dialog_ending_current_month", alert_dialog_ending_current_month);
+        onPauseBundle.putString("alert_dialog_ending_current_year", alert_dialog_ending_current_year);
+        onPauseBundle.putBoolean("isDaysAdapterSet_ending", isDaysAdapterSet_ending);
+
+        //Result and detailed result texts
+        onPauseBundle.putString("result_text", result_text.getText().toString());
+        onPauseBundle.putString("result_text_details", result_text_details.getText().toString());
+
+        //Create a copy of the bundle to be put inside Utilties
+        Utilities.setBundleFromDaysUntilFragment((Bundle)onPauseBundle.clone());
+
+        super.onPause();
     }
 
     /*
