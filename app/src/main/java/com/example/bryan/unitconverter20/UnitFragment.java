@@ -49,8 +49,9 @@ public class UnitFragment extends Fragment {
 
     private boolean onlyUSTimeZones = false;
 
-    private int optionACurrentSelection = -1;
-    private int optionBCurrentSelection = -1;
+    private int optionACurrentSelection = 0;
+    private int optionBCurrentSelection = 0;
+    private int currentArraySize = 0;
 
     //Booleans for setting custom inputType/ keyboard for hex
     //B/c for hex you need letters
@@ -78,6 +79,11 @@ public class UnitFragment extends Fragment {
             optionAHexSet = savedInstanceState.getBoolean("optionAHexSet");
             optionBHexSet = savedInstanceState.getBoolean("optionBHexSet");
         }
+
+        Log.i(TAG, "optionACurrentSelection before anything: " + optionACurrentSelection);
+        Log.i(TAG, "optionBCurrentSelection before anything: " + optionBCurrentSelection);
+
+
         /******************************************Instantiate UI elements of the View************************************************/
         /****Default showing = Category = Weight, EditTexts have value 0, Option A = kg, Option B = lb*******************************/
         //TextView to display the result
@@ -129,6 +135,7 @@ public class UnitFragment extends Fragment {
                         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         optionSpinnerA.setAdapter(adapter2);
                         optionSpinnerB.setAdapter(adapter2);
+                        currentArraySize = getResources().getStringArray(R.array.weight).length;
                         break;
                     case "Volume":
                         ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(
@@ -136,6 +143,7 @@ public class UnitFragment extends Fragment {
                         adapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         optionSpinnerA.setAdapter(adapter3);
                         optionSpinnerB.setAdapter(adapter3);
+                        currentArraySize = getResources().getStringArray(R.array.volume).length;
                         break;
                     case "Distance":
                         ArrayAdapter<CharSequence> adapter4 = ArrayAdapter.createFromResource(
@@ -143,6 +151,7 @@ public class UnitFragment extends Fragment {
                         adapter4.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         optionSpinnerA.setAdapter(adapter4);
                         optionSpinnerB.setAdapter(adapter4);
+                        currentArraySize = getResources().getStringArray(R.array.distance).length;
                         break;
                     case "Temperature":
                         ArrayAdapter<CharSequence> adapter5 = ArrayAdapter.createFromResource(
@@ -150,6 +159,7 @@ public class UnitFragment extends Fragment {
                         adapter5.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         optionSpinnerA.setAdapter(adapter5);
                         optionSpinnerB.setAdapter(adapter5);
+                        currentArraySize = getResources().getStringArray(R.array.temperature).length;
                         break;
                     case "Programming":
                         ArrayAdapter<CharSequence> adapter6 = ArrayAdapter.createFromResource(
@@ -157,20 +167,46 @@ public class UnitFragment extends Fragment {
                         adapter6.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         optionSpinnerA.setAdapter(adapter6);
                         optionSpinnerB.setAdapter(adapter6);
+                        currentArraySize = getResources().getStringArray(R.array.programming).length;
                         break;
                     default:
                         break;
                 }
 
-                if(optionACurrentSelection == -1 || optionBCurrentSelection == -1){
-                    //If there wasn't a configuration change before, make the first choice the default one
-                    optionSpinnerA.setSelection(0);
-                    optionSpinnerB.setSelection(0);
+                /*ArrayOutofBoundsException error likely here
+                  Aka, if you're in a category where an option has 10 items and let's say you choose index 5,
+                  but then switch to another category that has only 3 options,
+                  when it tries to restore to an index 5 with only 3 options( index 0 -2)==> outofbounds
+
+                  Solution:
+                  Get the current size of the array that we put in
+                  If our current selection id >= size of the array ==> set optionACurrentSelection or optionBCurrentSelection back to 0
+                  depending on which one (or both) had bad indexes
+                  Else, proceed with <spinner>.setSelection(<spinner>CurrentSelection)
+
+                */
+                if(optionACurrentSelection >= currentArraySize || optionBCurrentSelection >= currentArraySize){
+                    //Only optionsA has bad index
+                    if(optionACurrentSelection >= currentArraySize || optionBCurrentSelection >= currentArraySize){
+                        optionACurrentSelection = 0;
+                    }
+
+                    //Only optionsB has bad index
+                    else if(optionACurrentSelection >= currentArraySize || optionBCurrentSelection >= currentArraySize){
+                        optionBCurrentSelection = 0;
+                    }
+
+                    //Both have bad indexes
+                    else{
+                        optionACurrentSelection = 0;
+                        optionBCurrentSelection = 0;
+                    }
+
                 }
-                else{
-                    optionSpinnerA.setSelection(optionACurrentSelection);
-                    optionSpinnerB.setSelection(optionBCurrentSelection);
-                }
+
+
+                optionSpinnerA.setSelection(optionACurrentSelection);
+                optionSpinnerB.setSelection(optionBCurrentSelection);
 
 
             }
