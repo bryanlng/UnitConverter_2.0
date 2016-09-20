@@ -173,6 +173,10 @@ public class UnitFragment extends Fragment {
                         break;
                 }
 
+                Log.i(TAG, "Current array size of current category " + currentCategory + " is: " + currentArraySize);
+                Log.i(TAG, "optionACurrentSelection: " + optionACurrentSelection);
+                Log.i(TAG, "optionBCurrentSelection: " + optionBCurrentSelection);
+
                 /*ArrayOutofBoundsException error likely here
                   Aka, if you're in a category where an option has 10 items and let's say you choose index 5,
                   but then switch to another category that has only 3 options,
@@ -187,12 +191,12 @@ public class UnitFragment extends Fragment {
                 */
                 if(optionACurrentSelection >= currentArraySize || optionBCurrentSelection >= currentArraySize){
                     //Only optionsA has bad index
-                    if(optionACurrentSelection >= currentArraySize || optionBCurrentSelection >= currentArraySize){
+                    if(optionACurrentSelection >= currentArraySize && optionBCurrentSelection < currentArraySize){
                         optionACurrentSelection = 0;
                     }
 
                     //Only optionsB has bad index
-                    else if(optionACurrentSelection >= currentArraySize || optionBCurrentSelection >= currentArraySize){
+                    else if(optionACurrentSelection < currentArraySize && optionBCurrentSelection >= currentArraySize){
                         optionBCurrentSelection = 0;
                     }
 
