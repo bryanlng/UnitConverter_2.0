@@ -270,15 +270,10 @@ public class MainActivity extends ActionBarActivity {
 
         savedInstanceState.putBoolean("isUnitCurrentFragment",
                 isUnitCurrentFragment);
-
         savedInstanceState.putBoolean("isDaysUntilFragment",
                 isDaysUntilFragment);
-
         savedInstanceState.putInt("selectItemCurrentPosition", selectItemCurrentPosition);
-
         savedInstanceState.putStringArray("fragmentTitles",fragmentTitles);
-
-
         super.onSaveInstanceState(savedInstanceState);
     }
 

@@ -82,6 +82,15 @@ public class DaysUntilFragment extends Fragment {
     private ArrayList<String> days_30 = new ArrayList<String>();
     private ArrayList<String> days_31 = new ArrayList<String>();
 
+    //Macros to eliminate magic numbers
+    private final int FEBRUARY =2;
+    private final int APRIL = 4;
+    private final int JUNE = 6;
+    private final int SEPTEMBER = 9;
+    private final int NOVEMBER = 11;
+    private final double MILLISECONDS_PER_YEAR =31536000000.0;
+    private final double MILLISECONDS_PER_WEEK = 604800000.0;
+    private final double MILLISECONDS_PER_DAY= 86400000.0;
 
     public DaysUntilFragment(){
 
@@ -353,37 +362,6 @@ public class DaysUntilFragment extends Fragment {
             //5. result text and result details text
             result_text.setText("");
             result_text_details.setText("");
-
-//            //6. Set spinners adapters to be null, so they don't keep compounding on each other
-//            //  Once an AlertDIalog is created, the Spinner objects stay alive forever.
-//            //  However, there is the case situation where the user CHANGES TO A DIFFERENT FRAGMENT. However, the spinner objects still stay alive
-//            //  This means that savedInstanceState == null ===> so it would go inside this else conditional
-//            //  Still only check if the Spinner is not null ==> then set its adapter to null
-//            if(days_spinner != null){
-//                Log.i(TAG, "days spinner is not null");
-//                days_spinner.setAdapter(null);
-//            }
-//            if(month_spinner != null){
-//                Log.i(TAG, "month spinner is not null");
-//                month_spinner.setAdapter(null);
-//            }
-//            if(years_spinner != null){
-//                Log.i(TAG, "years spinner is not null");
-//                years_spinner.setAdapter(null);
-//            }
-//            if(ending_days_spinner != null){
-//                Log.i(TAG, "e days spinner is not null");
-//                ending_days_spinner.setAdapter(null);
-//            }
-//            if(ending_month_spinner != null){
-//                Log.i(TAG, "e month spinner is not null");
-//                ending_month_spinner.setAdapter(null);
-//            }
-//            if(ending_years_spinner != null){
-//                Log.i(TAG, "e year spinner is not null");
-//                ending_years_spinner.setAdapter(null);
-//            }
-
         }
 
         //4. Set textViews (startingDay, endingDay) to current date
@@ -484,7 +462,7 @@ public class DaysUntilFragment extends Fragment {
                         int month = convertWordMonth(alert_dialog_starting_current_month);
                         int day = Integer.parseInt(alert_dialog_starting_current_day);
                         GregorianCalendar gcal = new GregorianCalendar(year,month,day);
-                        if(gcal.isLeapYear(year) && month == 2){
+                        if(gcal.isLeapYear(year) && month == FEBRUARY){
                             //load days_29 into day spinner
                             //but first, clear the spinner of all entries
                             days_spinner.setAdapter(null);
@@ -532,8 +510,8 @@ public class DaysUntilFragment extends Fragment {
                         //but first, clear the spinner of all entries
                         days_spinner.setAdapter(null);
 
-                        if(month == 2 || month == 4 || month == 6 || month == 9 || month == 11){  //months with only 30 days
-                            if(month == 2){
+                        if(month == FEBRUARY || month == APRIL || month == JUNE || month == SEPTEMBER || month == NOVEMBER){  //months with only 30 days
+                            if(month == FEBRUARY){
                                 //regularly, february only has 28 days
 
                                 ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
@@ -651,9 +629,6 @@ public class DaysUntilFragment extends Fragment {
              */
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-//                Calendar newDate = Calendar.getInstance();
-//                newDate.set(year, monthOfYear, dayOfMonth);
-//                starting_day.setText(dateFormatter.format(newDate.getTime()));
                 startingDate.set(year, monthOfYear, dayOfMonth);
                 starting_day.setText(dateFormatter.format(startingDate.getTime()));
                 alert_dialog_starting_current_year = ""+year;
@@ -682,7 +657,7 @@ public class DaysUntilFragment extends Fragment {
             }
         });
 
-
+    //Moved to top
 //        to = (TextView)rootView.findViewById(R.id.to);
 //
 //        ending_day = (TextView)rootView.findViewById(R.id.ending_day);   //Need to set this text to be the current day, by default
@@ -716,9 +691,6 @@ public class DaysUntilFragment extends Fragment {
                 Log.i(TAG,"Before anything: alert_dialog_ending_current_month: " + alert_dialog_ending_current_month);
                 Log.i(TAG,"Before anything: alert_dialog_ending_current_year: " + alert_dialog_ending_current_year);
 
-//                Spinner years_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_years);
-//                Spinner month_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_months);
-//                Spinner days_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_days);
                 ending_years_spinner = (Spinner)alertDialogCustomView_ending.findViewById(R.id.alert_dialog_years);
                 ending_month_spinner = (Spinner)alertDialogCustomView_ending.findViewById(R.id.alert_dialog_months);
                 ending_days_spinner = (Spinner)alertDialogCustomView_ending.findViewById(R.id.alert_dialog_days);
@@ -742,7 +714,7 @@ public class DaysUntilFragment extends Fragment {
                         int month = convertWordMonth(alert_dialog_ending_current_month);
                         int day = Integer.parseInt(alert_dialog_ending_current_day);
                         GregorianCalendar gcal = new GregorianCalendar(year,month,day);
-                        if(gcal.isLeapYear(year) && month == 2){
+                        if(gcal.isLeapYear(year) && month == FEBRUARY){
                             //load days_29 into day spinner
                             //but first, clear the spinner of all entries
                             ending_days_spinner.setAdapter(null);
@@ -790,8 +762,8 @@ public class DaysUntilFragment extends Fragment {
                         //but first, clear the spinner of all entries
                         ending_days_spinner.setAdapter(null);
 
-                        if(month == 2 || month == 4 || month == 6 || month == 9 || month == 11){  //months with only 30 days
-                            if(month == 2){
+                        if(month == FEBRUARY || month == APRIL || month == JUNE || month == SEPTEMBER || month == NOVEMBER){  //months with only 30 days
+                            if(month == FEBRUARY){
                                 //regularly, february only has 28 days
 
                                 ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
@@ -910,9 +882,6 @@ public class DaysUntilFragment extends Fragment {
              */
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-//                Calendar newDate = Calendar.getInstance();
-//                newDate.set(year, monthOfYear, dayOfMonth);
-//                ending_day.setText(dateFormatter.format(newDate.getTime()));
                 endingDate.set(year, monthOfYear, dayOfMonth);
                 ending_day.setText(dateFormatter.format(endingDate.getTime()));
                 alert_dialog_ending_current_year = ""+year;
@@ -1017,7 +986,12 @@ public class DaysUntilFragment extends Fragment {
 //        return inflater.inflate(R.layout.daysuntil_fragment_layout, container, false);
     }
 
-    /*
+    /* method checkFormat deprecated b/c I implemented both:
+       1) DatePickerDialog ==> no incorrect date ever
+       2) Inside editText:
+            -Since arrays keep getting dynamically added to Spinners ==> no incorrect date ever
+
+
         Checks if the date is valid
         Parameter: String textview for which textview it will affect, startingDay or endingDay
         This will be called inside AlertDialog.Builder's  setPositiveButton onClick() method
@@ -1241,7 +1215,6 @@ public class DaysUntilFragment extends Fragment {
 
         More info here: http://pastebin.com/XWBgWZBm
      */
-    //TODO fix this
     public double[] extractDaysMonthsYears(long diff, boolean isStartingDatePastEndingDate){
         Log.i(TAG, "extractDaysMonthsYears, isStartingDatePastEndingDate: " + isStartingDatePastEndingDate);
         Log.i(TAG, "startingDate's year: " + startingDate.get(Calendar.YEAR));
@@ -1255,7 +1228,7 @@ public class DaysUntilFragment extends Fragment {
         double temp = Math.abs(new Long(diff).doubleValue()); //convert long to a double value, then get the abs value of it
         //extract total days (if we didn't try to extract years,months)
         //86400000 milliseconds in a year (1000*60*60*24)
-        double totalDays = Math.floor(temp / 86400000.0);   //to truncate the decimal, we use Math.floor();
+        double totalDays = Math.floor(temp / MILLISECONDS_PER_DAY);   //to truncate the decimal, we use Math.floor();
         if(isChecked){
             ++totalDays;
         }
@@ -1263,12 +1236,12 @@ public class DaysUntilFragment extends Fragment {
 
         //extract years
         //31536000000 milliseconds in a year (1000*60*60*24*365)
-        double years = Math.floor(temp / 31536000000.0);
+        double years = Math.floor(temp / MILLISECONDS_PER_YEAR);
         data[1] = years;
         Log.i(TAG, "years: " + years);
 
         //take #years* (milliseconds per year) out of temp so we can properly extract months in the next step
-        temp -= (years*31536000000.0);
+        temp -= (years*MILLISECONDS_PER_YEAR);
 
         double months = 0.0;
         double weeks = 0.0;
@@ -1306,12 +1279,12 @@ public class DaysUntilFragment extends Fragment {
                 Log.i(TAG, "months: " + months);    //should be 0
 
                 //extract weeks, then take them out of total milliseconds
-                weeks = Math.floor(temp / 604800000.0);
+                weeks = Math.floor(temp / MILLISECONDS_PER_WEEK);
                 Log.i(TAG, "weeks: " + weeks);
-                temp -= (weeks*604800000.0);
+                temp -= (weeks*MILLISECONDS_PER_WEEK);
 
                 //extract weeks, then take them out of total milliseconds
-                days = Math.floor(temp / 86400000.0);
+                days = Math.floor(temp / MILLISECONDS_PER_DAY);
                 Log.i(TAG, "days: " + days);
 
                 //check if checkbox was set, and rebalance values if necessary
@@ -1351,14 +1324,14 @@ public class DaysUntilFragment extends Fragment {
                             -From here, we can do as we did above and now extract weeks,days
                  */
                 double numDaysInCurrentMonth = getDaysInMonth(adjust);
-                double addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*86400000.0;
+                double addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*MILLISECONDS_PER_DAY;
                 double endingMillis = endingDate.getTimeInMillis();
                 while(addmonth < endingMillis){
                     //"add a month" by subtracting a month off of temp
-                    temp -= numDaysInCurrentMonth*86400000.0;
+                    temp -= numDaysInCurrentMonth*MILLISECONDS_PER_DAY;
                     adjust.set(adjust.get(Calendar.YEAR), adjust.get(Calendar.MONTH) + 1, adjust.get(Calendar.DAY_OF_MONTH));   //set the calendar value to be the first day of the next month. adjust.get(Calendar.DAY_OF_MONTH) should equal 1
                     numDaysInCurrentMonth = getDaysInMonth(adjust); //refresh value for the new month
-                    addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*86400000.0;
+                    addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*MILLISECONDS_PER_DAY;
                     months++;
                 }
 
@@ -1368,12 +1341,12 @@ public class DaysUntilFragment extends Fragment {
                 Log.i(TAG, "months: " + months);    //should be 0
 
                 //extract weeks, then take them out of total milliseconds
-                weeks = Math.floor(temp / 604800000.0);
+                weeks = Math.floor(temp / MILLISECONDS_PER_WEEK);
                 Log.i(TAG, "total weeks: " + weeks);
                 temp -= (weeks*604800000.0);
 
                 //extract weeks, then take them out of total milliseconds
-                days = Math.floor(temp / 86400000.0);
+                days = Math.floor(temp / MILLISECONDS_PER_DAY);
                 Log.i(TAG, "total days: " + days);
 
                 //check if checkbox was set, and rebalance values if necessary
@@ -1439,7 +1412,7 @@ public class DaysUntilFragment extends Fragment {
                 temp -= (weeks*604800000.0);
 
                 //extract weeks, then take them out of total milliseconds
-                days = Math.floor(temp / 86400000.0);
+                days = Math.floor(temp / MILLISECONDS_PER_DAY);
                 Log.i(TAG, "days: " + days);
 
                 //check if checkbox was set, and rebalance values if necessary
@@ -1475,14 +1448,14 @@ public class DaysUntilFragment extends Fragment {
                             -From here, we can do as we did above and now extract weeks,days
                  */
                 double numDaysInCurrentMonth = getDaysInMonth(adjust);
-                double addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*86400000.0;
+                double addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*MILLISECONDS_PER_DAY;
                 double endingMillis = startingDate.getTimeInMillis();
                 while(addmonth < endingMillis){
                     //"add a month" by subtracting a month off of temp
-                    temp -= numDaysInCurrentMonth*86400000.0;
+                    temp -= numDaysInCurrentMonth*MILLISECONDS_PER_DAY;
                     adjust.set(adjust.get(Calendar.YEAR), adjust.get(Calendar.MONTH) + 1, adjust.get(Calendar.DAY_OF_MONTH));   //set the calendar value to be the first day of the next month. adjust.get(Calendar.DAY_OF_MONTH) should equal 1
                     numDaysInCurrentMonth = getDaysInMonth(adjust); //refresh value for the new month
-                    addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*86400000.0;
+                    addmonth = adjust.getTimeInMillis() + numDaysInCurrentMonth*MILLISECONDS_PER_DAY;
                     months++;
                 }
 
@@ -1497,7 +1470,7 @@ public class DaysUntilFragment extends Fragment {
                 temp -= (weeks*604800000.0);
 
                 //extract weeks, then take them out of total milliseconds
-                days = Math.floor(temp / 86400000.0);
+                days = Math.floor(temp / MILLISECONDS_PER_DAY);
                 Log.i(TAG, "total days: " + days);
 
                 //check if checkbox was set, and rebalance values if necessary
