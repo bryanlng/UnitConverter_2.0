@@ -1,0 +1,180 @@
+If it's hex, we need to change the keyboard from number (android:inputType = numberDecimal), to a keyboard with letters
+http://stackoverflow.com/questions/2586301/set-inputtype-for-an-edittext
+https://developer.android.com/reference/android/widget/TextView.html#attr_android%3ainputType
+
+Open up a new AlertDialog, which has Spinners for Day, Month, Year, save button, and cancel button
+Once user presses save button ==> exit menu and save the date
+Once user presses cancel button ==> simply exit
+need to use rootView.getContext() instead of getActivity().getApplicationContext()
+https://www.mkyong.com/android/android-alert-dialog-example/
+https://developer.android.com/guide/topics/ui/dialogs.html
+http://www.mkyong.com/android/android-prompt-user-input-dialog-example/
+				
+				
+/*
+	I ended up not doing the idea where I would dynamically fill in the days spinner with values depending on the months spinner.
+	This is b/c in the case of the leap year, we would need to call GregorianCalendar's isLeapYear() method, which would require us
+	having the values year,month,day from the original Calendar in order to create the GregorianCalendar instance. Which we can't get
+	just from the year
+
+	Problem:
+	However, this leaves a kind of big problem, as we're giving the user some options that will fail. Which is BAD.
+	But there's not really any other way.
+
+	solution:
+	Actually I just thought about this before I went to sleep. The main thing hindering this was the situation that we wouldn't be able to
+	get the year,month,day values at the same time, because some of them would be null. Well, I thought, why don't we just set default values
+	to the year,month,day initially on startup?
+
+	Flowchart:
+	1. Year--> dynamically affects days (in the case of a leap year). Aka if month == 2 and its a leap year
+	2. Month --> dynamically affects days.
+	Thus we would set the year component first, then the month component, then the days component
+*/
+//Get the Spinner components and set their associated adapters, which are created to hold a list of items specified in strings.xml
+//Have to use alertDialogCustomView_starting instead of View v, b/c that's the View that actually contains the Spinners
+
+
+Open up a new menu with a CalendarView inside it. Also have a save button
+Once user presses save button ==> exit menu and save the date
+http://androidopentutorials.com/android-datepickerdialog-on-edittext-click-event/
+Use a DatePickerDialog instead. May have to implement onSaveInstanceState
+Use constructor
+DatePickerDialog(Context context, DatePickerDialog.OnDateSetListener listener, int year, int month, int dayOfMonth)
+
+
+
+
+    /* method checkFormat deprecated b/c I implemented both:
+       1) DatePickerDialog ==> no incorrect date ever
+       2) Inside editText:
+            -Since arrays keep getting dynamically added to Spinners ==> no incorrect date ever
+
+
+        Checks if the date is valid
+        Parameter: String textview for which textview it will affect, startingDay or endingDay
+        This will be called inside AlertDialog.Builder's  setPositiveButton onClick() method
+
+        Situations to check for:
+            1. Is it a leap year (extra day in feb; feb 29) and month = february?
+               http://stackoverflow.com/questions/7395699/calculate-leap-year-in-java
+                -to do this w/o coming up with some extravagant formula, we need to make use of GregorianCalendar's isLeapYear(year) method
+                -Thus, we would create a new GregorianCalendar using values from the current calendar
+            2. Else is it a valid day ( don't want a month w/ only days to have a 31st day)
+
+        Months:
+        Jan: 31
+        feb: <varies, but case covered specifically>
+        mar: 31
+        apr: 30
+        may: 31
+        jun: 30
+        july: 31
+        aug: 31
+        sept: 30
+        oct: 31
+        nov: 30
+        dec: 31
+
+     */
+//    public boolean checkFormat(int year, int month, int day){
+//        boolean isGood = true;
+//        GregorianCalendar gcal = new GregorianCalendar(year, month, day);
+//        if(gcal.isLeapYear(year) && month == 2){
+//            //if february and a leap year, we can allow 29, but not 30,31
+//            if(day == 30 || day == 31){
+//                isGood = false;
+//            }
+//        }
+//        else{
+//            if(month == 2 || month == 4 || month == 6 || month == 9 || month == 11){  //months with only 30 days
+//                if(month == 2){
+//                    if(day == 29 || day == 30 || day == 31){
+//                        isGood = false;
+//                    }
+//                }
+//                else{
+//                    if(day == 31){
+//                        isGood = false;
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//        return isGood;   //temp
+//    }
+
+
+/* http://pastebin.com/XWBgWZBm
+data in case it ever gets lost
+http://www.timeanddate.com/date/durationresult.html
+New logic:
+In order to not complicate this further enough, here's a much simpler way to approach the problem:
+1. First, take starting date, clone it, and move the clone forwards to the next closest month
+	a) Case 1: Clone date and ending date are in the SAME month.
+		If this is the case, then DON'T move it forwards to the next closest month, and instead calculate difference in days,
+		from which we can extract weeks and days from
+	b) Case 2: Clone date and ending date are in different months.
+		Proceed with moving it forwards to the next closest month
+
+2. Then, enter a while loop
+	-Get # of days in the current month
+	a)If Clone date millis + (# days in current month in millis) < endingDate millis
+		-Difference in time is still greater than a month, so let's move up a month
+		-Move up clone date
+		-Increment # of months ( keep track of this in a variable)
+	b)else
+		-(  If Clone date millis + (# days in current month in millis) > endingDate millis )
+		-AKA Difference in time is less than a month now, so we need to break out of loop
+		-End loop
+
+3. Get # of days between Clone date and endingDate
+	-From here, we can now extract weeks,days
+
+
+Month will be defined as: the # of days it takes to get from (month1) day ==> (next month) day
+		Jan: 31
+        feb: <varies, but case covered specifically>
+        mar: 31
+        apr: 30
+        may: 31
+        jun: 30
+        july: 31
+        aug: 31
+        sept: 30
+        oct: 31
+        nov: 30
+        dec: 31
+
+31->30:  31 days from Mar 5 to apr 5
+30->31:  30 days from Apr 5 to may 5
+31->31:  31 days from Dec 1 2016 - Jan 1 2017. (Dec- Jan, Jun - July)
+
+Thus, we can see that the # of days considered to be in a "month" is the # of days from the STARTING MONTH.
+
+Special cases:
+1a. Dealing with transitions from months with 31 days --> months with 30 days
+	1) Any regular day (aka not 31) ==> will just be # of days from the STARTING MONTH.
+	2) However, if the starting day is 31, then # of days will just be the day value of the next month.
+	   Aka 3/31 --> 4/15 ==> is 15 days
+1b. Dealing with transitions from months with 30 days --> months with 31 days
+	1) Any regular day (aka not 30) ==> will just be # of days from the STARTING MONTH.
+	2) However, if the starting day is 30, then # of days will just be the day value of the next month.
+	   Aka 4/30 --> 5/15 ==> is 15 days, 4/30 --> 5/31 ==> is 31 days
+
+2. Leap Years
+Jan -> Feb (31 - 29) leap year:
+Jan -> Feb (31 - 28) non leap year:
+
+Feb -> March leap year:
+Feb -> March non leap year:
+
+
+
+ */
+
+
+
+
+				

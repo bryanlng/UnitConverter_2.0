@@ -250,19 +250,12 @@ public class DaysUntilFragment extends Fragment {
                     convertWordMonth(alert_dialog_ending_current_month) -1,
                     Integer.parseInt(alert_dialog_ending_current_day));
 
-            //4. Set textViews (startingDay, endingDay) to date specified
-            //CHANGED: It turns out, we can set the TextViews outside of the if-else conditional b/c either way. startingDate/endingDate will already be set with the correct value
-//            starting_day.setText(alert_dialog_starting_current_month + "-" + alert_dialog_starting_current_day
-//                            + "-" + alert_dialog_starting_current_year);
-//            ending_day.setText(alert_dialog_ending_current_month + "-" + alert_dialog_ending_current_day
-//                    + "-" + alert_dialog_ending_current_year);
-
-            //5. result text and result details text
+            //4. result text and result details text
             result_text.setText(savedInstanceState.getString("result_text"));
             result_text_details.setText(savedInstanceState.getString("result_text_details"));
 
-            //6. Set spinners adapters to be null, so they don't keep compounding on each other
-            //  Once an AlertDIalog is created, the Spinner objects stay alive forever.
+            //5. Set spinners adapters to be null, so they don't keep compounding on each other
+            //  Once an AlertDialog is created, the Spinner objects stay alive forever.
             //  However, there is the case situation where the user doesn't do anything but orientation change ==> spinners stay null
             //  Thus, we would only check if the Spinner is not null ==> then set its adapter to null
             if(days_spinner != null){
@@ -382,23 +375,12 @@ public class DaysUntilFragment extends Fragment {
         Log.i(TAG,"Before anything: endingDate's month: " + endingDate.get(Calendar.MONTH));
         Log.i(TAG, "Before anything: endingDate's day: " + endingDate.get(Calendar.DAY_OF_MONTH));
 
-        //These elements moved up to the top so we could do the instance restore
-//        from = (TextView)rootView.findViewById(R.id.from);
-//        starting_day = (TextView)rootView.findViewById(R.id.starting_day);  //Need to set this text to be the current day, by default;
-//        starting_day.setText(dateFormatter.format(startingDate.getTime())); //Set starting_day's text to be the current day by default
-
         //Set rest of elements from xml layout file
         starting_day.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "New AlertDialog: startingDay");
-                //Open up a new AlertDialog, which has Spinners for Day, Month, Year, save button, and cancel button
-                //Once user presses save button ==> exit menu and save the date
-                //Once user presses cancel button ==> simply exit
-                //need to use rootView.getContext() instead of getActivity().getApplicationContext()
-                //https://www.mkyong.com/android/android-alert-dialog-example/
-                //https://developer.android.com/guide/topics/ui/dialogs.html
-                //http://www.mkyong.com/android/android-prompt-user-input-dialog-example/
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
 
                 //Get alert_dialog_customs_layout.xml View
@@ -408,40 +390,15 @@ public class DaysUntilFragment extends Fragment {
                 //Set AlertDialog.Builder's content view to be the view
                 builder.setView(alertDialogCustomView_starting);
 
-                /*
-                    I ended up not doing the idea where I would dynamically fill in the days spinner with values depending on the months spinner.
-                    This is b/c in the case of the leap year, we would need to call GregorianCalendar's isLeapYear() method, which would require us
-                    having the values year,month,day from the original Calendar in order to create the GregorianCalendar instance. Which we can't get
-                    just from the year
-
-                    Problem:
-                    However, this leaves a kind of big problem, as we're giving the user some options that will fail. Which is BAD.
-                    But there's not really any other way.
-
-                    solution:
-                    Actually I just thought about this before I went to sleep. The main thing hindering this was the situation that we wouldn't be able to
-                    get the year,month,day values at the same time, because some of them would be null. Well, I thought, why don't we just set default values
-                    to the year,month,day initially on startup?
-
-                    Flowchart:
-                    1. Year--> dynamically affects days (in the case of a leap year). Aka if month == 2 and its a leap year
-                    2. Month --> dynamically affects days.
-                    Thus we would set the year component first, then the month component, then the days component
-                 */
-                //Get the Spinner components and set their associated adapters, which are created to hold a list of items specified in strings.xml
-                //Have to use alertDialogCustomView_starting instead of View v, b/c that's the View that actually contains the Spinners
-
-                //First, print out current status of variables
+                //Debug: print out current status of variables
                 Log.i(TAG,"Before anything: alert_dialog_starting_current_day: " + alert_dialog_starting_current_day);
                 Log.i(TAG,"Before anything: alert_dialog_starting_current_month: " + alert_dialog_starting_current_month);
                 Log.i(TAG,"Before anything: alert_dialog_starting_current_year: " + alert_dialog_starting_current_year);
 
-//                Spinner years_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_years);
-//                Spinner month_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_months);
-//                Spinner days_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_days);
-                 years_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_years);
-                 month_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_months);
-                 days_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_days);
+                //Initialize Years, Months, Day spinners
+                years_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_years);
+                month_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_months);
+                days_spinner = (Spinner)alertDialogCustomView_starting.findViewById(R.id.alert_dialog_days);
 
                 //3. Years
                 ArrayAdapter<String> yearsAdapter = new ArrayAdapter<String>(
@@ -461,12 +418,11 @@ public class DaysUntilFragment extends Fragment {
                         int year = Integer.parseInt(alert_dialog_starting_current_year);
                         int month = convertWordMonth(alert_dialog_starting_current_month);
                         int day = Integer.parseInt(alert_dialog_starting_current_day);
+
+                        /**load days_29 into day spinner, but first, clear the spinner of all entries**/
                         GregorianCalendar gcal = new GregorianCalendar(year,month,day);
                         if(gcal.isLeapYear(year) && month == FEBRUARY){
-                            //load days_29 into day spinner
-                            //but first, clear the spinner of all entries
                             days_spinner.setAdapter(null);
-
                             ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
                                     alertDialogCustomView_starting.getContext(), R.layout.dropdown_item, days_29);
                             daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -657,22 +613,11 @@ public class DaysUntilFragment extends Fragment {
             }
         });
 
-    //Moved to top
-//        to = (TextView)rootView.findViewById(R.id.to);
-//
-//        ending_day = (TextView)rootView.findViewById(R.id.ending_day);   //Need to set this text to be the current day, by default
-//        ending_day.setText(dateFormatter.format(endingDate.getTime())); //Set ending_day's text to be the current day by default
+
         ending_day.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "New AlertDialog: endingDay");
-                //Open up a new AlertDialog, which has Spinners for Day, Month, Year, save button, and cancel button
-                //Once user presses save button ==> exit menu and save the date
-                //Once user presses cancel button ==> simply exit
-                //need to use rootView.getContext() instead of getActivity().getApplicationContext()
-                //https://www.mkyong.com/android/android-alert-dialog-example/
-                //https://developer.android.com/guide/topics/ui/dialogs.html
-                //http://www.mkyong.com/android/android-prompt-user-input-dialog-example/
                 AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
 
                 //Get alert_dialog_customs_layout.xml View
@@ -900,34 +845,9 @@ public class DaysUntilFragment extends Fragment {
             public void onClick(View v) {
                 //Open up a new menu with a CalendarView inside it. Also have a save button
                 //Once user presses save button ==> exit menu and save the date
-                //http://androidopentutorials.com/android-datepickerdialog-on-edittext-click-event/
-                //Use a DatePickerDialog instead. May have to implement onSaveInstanceState
-                //Use constructor
-                // DatePickerDialog(Context context, DatePickerDialog.OnDateSetListener listener, int year, int month, int dayOfMonth)
-
                 calendar2datePickerDialog.show();
             }
         });
-
-        //Moved to top of page so that we could save/restore values of it from onSaveInstanceState()
-//        checkBox = (CheckBox)rootView.findViewById(R.id.checkBox);  //If checked, include ending day ==> +1 day
-//        checkBox.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //https://developer.android.com/guide/topics/ui/controls/checkbox.html
-//                //Set the global boolean variable isChecked
-//                //this will be used later in the date calculation
-//                //Since there's only 1 checkbox, don't have to worry about the getting the id
-//                isChecked = ((CheckBox)v).isChecked();
-//                Log.i(TAG, "New isChecked: " + isChecked);
-//            }
-//        });
-
-        //Moved to top of page so that we could save/restore values of it from onSaveInstanceState()
-//        result_text = (TextView)rootView.findViewById(R.id.result_text);   //Need to set this text to be the BLANK by default. Also, create some method to set the text in the correct format
-////        result_text.setText("");
-//        result_text_details = (TextView)rootView.findViewById(R.id.result_text_details); //Need to set this text to be the BLANK by default
-////        result_text_details.setText("");
 
         compute = (Button)rootView.findViewById(R.id.calculate_duration);
         compute.setOnClickListener(new View.OnClickListener() {
@@ -948,7 +868,6 @@ public class DaysUntilFragment extends Fragment {
 
 
                 if(difference == 0){
-//                if(starting_day.getText().equals(ending_day.getText())){
                     //Case #1: Same date
                     if(!isChecked){
                         //don't include end date ==> regular
@@ -964,15 +883,14 @@ public class DaysUntilFragment extends Fragment {
                 }
                 else if(difference > 0){
                     //Case #2: Starting date is past the ending date
-                    //for result_text. show the absolute value and have it look like: "Results: ... days PAST"
-                    //for result_text_details, same
-                    //Data contains: double[0] = totalDays, double[1] = years, double[2] = months, double[3] = days
+
                     double[] data = extractDaysMonthsYears(difference, true);
                     result_text.setText(setResultText(data[0],true));
                     result_text_details.setText(setResultDetailsText(data[1], data[2], data[3], data[4], isChecked));
                 }
                 else{
                     //Case #3: Normal (ending date is past the starting date)
+
                     double[] data = extractDaysMonthsYears(difference, false);
                     result_text.setText(setResultText(data[0], false));
                     result_text_details.setText(setResultDetailsText(data[1], data[2], data[3], data[4],  isChecked));
@@ -986,65 +904,7 @@ public class DaysUntilFragment extends Fragment {
 //        return inflater.inflate(R.layout.daysuntil_fragment_layout, container, false);
     }
 
-    /* method checkFormat deprecated b/c I implemented both:
-       1) DatePickerDialog ==> no incorrect date ever
-       2) Inside editText:
-            -Since arrays keep getting dynamically added to Spinners ==> no incorrect date ever
 
-
-        Checks if the date is valid
-        Parameter: String textview for which textview it will affect, startingDay or endingDay
-        This will be called inside AlertDialog.Builder's  setPositiveButton onClick() method
-
-        Situations to check for:
-            1. Is it a leap year (extra day in feb; feb 29) and month = february?
-               http://stackoverflow.com/questions/7395699/calculate-leap-year-in-java
-                -to do this w/o coming up with some extravagant formula, we need to make use of GregorianCalendar's isLeapYear(year) method
-                -Thus, we would create a new GregorianCalendar using values from the current calendar
-            2. Else is it a valid day ( don't want a month w/ only days to have a 31st day)
-
-        Months:
-        Jan: 31
-        feb: <varies, but case covered specifically>
-        mar: 31
-        apr: 30
-        may: 31
-        jun: 30
-        july: 31
-        aug: 31
-        sept: 30
-        oct: 31
-        nov: 30
-        dec: 31
-
-     */
-//    public boolean checkFormat(int year, int month, int day){
-//        boolean isGood = true;
-//        GregorianCalendar gcal = new GregorianCalendar(year, month, day);
-//        if(gcal.isLeapYear(year) && month == 2){
-//            //if february and a leap year, we can allow 29, but not 30,31
-//            if(day == 30 || day == 31){
-//                isGood = false;
-//            }
-//        }
-//        else{
-//            if(month == 2 || month == 4 || month == 6 || month == 9 || month == 11){  //months with only 30 days
-//                if(month == 2){
-//                    if(day == 29 || day == 30 || day == 31){
-//                        isGood = false;
-//                    }
-//                }
-//                else{
-//                    if(day == 31){
-//                        isGood = false;
-//                    }
-//                }
-//            }
-//        }
-//
-//
-//        return isGood;   //temp
-//    }
 
     /*
         Before setting stuff, checks for correct format
@@ -1147,23 +1007,8 @@ public class DaysUntilFragment extends Fragment {
             Log.i(TAG, "New date on startingDate, year: " + startingDate.get(Calendar.YEAR));
             Log.i(TAG, "New date on startingDate, month: " + startingDate.get(Calendar.MONTH));
             Log.i(TAG, "New date on startingDate, day: " + startingDate.get(Calendar.DAY_OF_MONTH));
-
-
-            //if format is good, set stuff
-//            if(checkFormat(year, month, day)){
-////                set text and new Calendar value
-//                starting_day.setText(newdate);
-//                startingDate.set(year,month,day);
-//            }
-//            else{
-//                //if not, then we have a problem
-//                showAlertDialog(getResources().getString(R.string.incorrect_format), getView());
-//            }
-
-
-
-
         }
+
         else{
             //month
             newdate += alert_dialog_ending_current_day + "-";
@@ -1180,17 +1025,6 @@ public class DaysUntilFragment extends Fragment {
             Log.i(TAG, "New date on endingDate, year: " + endingDate.get(Calendar.YEAR));
             Log.i(TAG, "New date on endingDate, month: " + endingDate.get(Calendar.MONTH));
             Log.i(TAG, "New date on endingDate, day: " + endingDate.get(Calendar.DAY_OF_MONTH));
-
-//            //if format is good, set stuff
-//            if(checkFormat(year, month, day)){
-//                //set text and new Calendar value
-//                ending_day.setText(newdate);
-//                endingDate.set(year,month,day);
-//            }
-//            else{
-//                //if not, then we have a problem
-//                showAlertDialog(getResources().getString(R.string.incorrect_format), getView());
-//            }
 
 
         }
@@ -1820,71 +1654,3 @@ public class DaysUntilFragment extends Fragment {
 
 
 }
-
-/* http://pastebin.com/XWBgWZBm
-data in case it ever gets lost
-http://www.timeanddate.com/date/durationresult.html
-New logic:
-In order to not complicate this further enough, here's a much simpler way to approach the problem:
-1. First, take starting date, clone it, and move the clone forwards to the next closest month
-	a) Case 1: Clone date and ending date are in the SAME month.
-		If this is the case, then DON'T move it forwards to the next closest month, and instead calculate difference in days,
-		from which we can extract weeks and days from
-	b) Case 2: Clone date and ending date are in different months.
-		Proceed with moving it forwards to the next closest month
-
-2. Then, enter a while loop
-	-Get # of days in the current month
-	a)If Clone date millis + (# days in current month in millis) < endingDate millis
-		-Difference in time is still greater than a month, so let's move up a month
-		-Move up clone date
-		-Increment # of months ( keep track of this in a variable)
-	b)else
-		-(  If Clone date millis + (# days in current month in millis) > endingDate millis )
-		-AKA Difference in time is less than a month now, so we need to break out of loop
-		-End loop
-
-3. Get # of days between Clone date and endingDate
-	-From here, we can now extract weeks,days
-
-
-Month will be defined as: the # of days it takes to get from (month1) day ==> (next month) day
-		Jan: 31
-        feb: <varies, but case covered specifically>
-        mar: 31
-        apr: 30
-        may: 31
-        jun: 30
-        july: 31
-        aug: 31
-        sept: 30
-        oct: 31
-        nov: 30
-        dec: 31
-
-31->30:  31 days from Mar 5 to apr 5
-30->31:  30 days from Apr 5 to may 5
-31->31:  31 days from Dec 1 2016 - Jan 1 2017. (Dec- Jan, Jun - July)
-
-Thus, we can see that the # of days considered to be in a "month" is the # of days from the STARTING MONTH.
-
-Special cases:
-1a. Dealing with transitions from months with 31 days --> months with 30 days
-	1) Any regular day (aka not 31) ==> will just be # of days from the STARTING MONTH.
-	2) However, if the starting day is 31, then # of days will just be the day value of the next month.
-	   Aka 3/31 --> 4/15 ==> is 15 days
-1b. Dealing with transitions from months with 30 days --> months with 31 days
-	1) Any regular day (aka not 30) ==> will just be # of days from the STARTING MONTH.
-	2) However, if the starting day is 30, then # of days will just be the day value of the next month.
-	   Aka 4/30 --> 5/15 ==> is 15 days, 4/30 --> 5/31 ==> is 31 days
-
-2. Leap Years
-Jan -> Feb (31 - 29) leap year:
-Jan -> Feb (31 - 28) non leap year:
-
-Feb -> March leap year:
-Feb -> March non leap year:
-
-
-
- */

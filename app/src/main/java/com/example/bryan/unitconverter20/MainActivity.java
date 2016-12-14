@@ -55,21 +55,11 @@ public class MainActivity extends ActionBarActivity {
         mDrawerList = (ListView)findViewById(R.id.left_drawer);
         selectItemCurrentPosition = 0;
 
-//        // set a custom shadow that overlays the main content when the drawer opens
-//        mDrawerlayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-          //Disable drawer layout shadow
-//        mDrawerlayout.setScrimColor(getResources().getColor(android.R.color.transparent));
-
         //Set the adapter for the ListVIew, which will be an ArrayAdapter
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
                 R.layout.drawer_list_item,fragmentTitles));
 
         //Set the ListView's clickListener
-        /* https://developer.android.com/reference/android/widget/AdapterView.OnItemClickListener.html
-            onItemClick(AdapterView<?> parent, View view, int position, long id)
-            position = The position of the view in the adapter.
-         */
-//        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -83,14 +73,7 @@ public class MainActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        // ActionBarDrawerToggle ties together the the proper interactions
-        // between the sliding drawer and the action bar app icon
-        //https://developer.android.com/reference/android/support/v7/app/ActionBarDrawerToggle.html
-        //https://developer.android.com/reference/android/support/v7/app/ActionBarDrawerToggle.html#ActionBarDrawerToggle(android.app.Activity,%20android.support.v4.widget.DrawerLayout,%20int,%20int)
-        /* ActionBarDrawerToggle(Activity activity, DrawerLayout drawerLayout, int openDrawerContentDescRes, int closeDrawerContentDescRes)
-           openDrawerContentDescRes = A String resource to describe the "open drawer" action for accessibility
-           closeDrawerContentDescRes = A String resource to describe the "close drawer" action for accessibility
-         */
+        // ActionBarDrawerToggle ties together the the proper interactions between the sliding drawer and the action bar app icon
         mDrawerToggle = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
                 mDrawerlayout,         /* DrawerLayout object */
@@ -314,11 +297,4 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /* The click listner for ListView in the navigation drawer */
-//    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-//        @Override
-//        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//            selectItem(position);
-//        }
-//    }
 }

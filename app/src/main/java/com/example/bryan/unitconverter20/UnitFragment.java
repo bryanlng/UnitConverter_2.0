@@ -98,12 +98,6 @@ public class UnitFragment extends Fragment {
     public UnitFragment(){
     }
 
-    /* Alternative constructor for saveInstance
-
-     */
-//    public UnitFragment(){
-//    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.unit_fragment_layout, container, false);
@@ -123,10 +117,7 @@ public class UnitFragment extends Fragment {
 
         /******************************************Instantiate UI elements of the View************************************************/
         /****Default showing = Category = Weight, EditTexts have value 0, Option A = kg, Option B = lb*******************************/
-        //TextView to display the result
-//        displayMessage = (TextView) .findViewById(R.id.result_display);
-
-        //Options EditTexts.
+        //Initialize Options EditTexts.
         textA = (EditText)rootView.findViewById(R.id.optionAText);
         textB = (EditText)rootView.findViewById(R.id.optionBText);
 
@@ -144,20 +135,18 @@ public class UnitFragment extends Fragment {
         category = (Spinner)rootView.findViewById(R.id.category);
         optionSpinnerA = (Spinner)rootView.findViewById(R.id.optionsA);
         optionSpinnerB = (Spinner)rootView.findViewById(R.id.optionsB);
+
         // Create an Adapter that holds a list of categories
-//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-//                getActivity().getApplicationContext(), R.array.categories, dropdown_item.xml);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 getActivity().getApplicationContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.categories));
-
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        // Set the Adapter for the spinner
+        // Set the Adapter for the Category spinner, and make its default item be the first one
         category.setAdapter(adapter);
-
         category.setSelection(0);
 
-        // Set an setOnItemSelectedListener on the spinner
+
+        // Set an setOnItemSelectedListener on the Category Spinner
         category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 currentCategory = parent.getItemAtPosition(pos).toString();
@@ -267,14 +256,7 @@ public class UnitFragment extends Fragment {
                 currentOptionA = parent.getItemAtPosition(pos).toString();
                 optionSpinnerA.setPrompt(currentOptionA);
 
-                //If it's hex, we need to change the keyboard from number (android:inputType = numberDecimal),
-                //to a keyboard with letters
-                //http://stackoverflow.com/questions/2586301/set-inputtype-for-an-edittext
-                //https://developer.android.com/reference/android/widget/TextView.html#attr_android%3ainputType
-                //android:inputType="text" is equivalent to  TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL
-                //TYPE_CLASS_TEXT is equivalent to TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL, b/c
-                //TYPE_CLASS_TEXT == 0x1 and TYPE_TEXT_VARIATION_NORMAL == 0x0, so a bit or would just be redundant
-
+                //If it's hex, we need to change the keyboard from number to a keyboard with letters
                 if(currentOptionA.equals("Hex")){
                     textA.setInputType(InputType.TYPE_CLASS_TEXT);  //InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL
                     optionAHexSet = true;
@@ -282,7 +264,6 @@ public class UnitFragment extends Fragment {
 
                 //Situation: User was on Hex before, so we had to set a new inputType. However, they're on any of the other
                 //ones right now, and they need the regular (number) keyboard
-                //android:inputType="numberDecimal" is equivalent to InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
                 else{
                     //only check if optionAHexSet is true, b/c it's redundant and wasteful to keep checking every time
                     if(optionAHexSet){
@@ -305,14 +286,7 @@ public class UnitFragment extends Fragment {
                 currentOptionB = parent.getItemAtPosition(pos).toString();
                 optionSpinnerB.setPrompt(currentOptionB);
 
-                //If it's hex, we need to change the keyboard from number (android:inputType = numberDecimal),
-                //to a keyboard with letters
-                //http://stackoverflow.com/questions/2586301/set-inputtype-for-an-edittext
-                //https://developer.android.com/reference/android/widget/TextView.html#attr_android%3ainputType
-                //android:inputType="text" is equivalent to  TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL
-                //TYPE_CLASS_TEXT is equivalent to TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL, b/c
-                //TYPE_CLASS_TEXT == 0x1 and TYPE_TEXT_VARIATION_NORMAL == 0x0, so a bit or would just be redundant
-
+                //If it's hex, we need to change the keyboard from number (android:inputType = numberDecimal) to a keyboard with letters
                 if(currentOptionB.equals("Hex")){
                     textB.setInputType(InputType.TYPE_CLASS_TEXT);  //InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL
                     optionBHexSet = true;
@@ -336,10 +310,7 @@ public class UnitFragment extends Fragment {
             }
         });
 
-        //EditTexts moved to the top so they can be referenced.
-        //Done so that we can implement a different inputType whenever "hex" option is selected
-
-        //Clear Buttons
+        //Set the Clear Buttons
         clearA = (Button)rootView.findViewById(R.id.clearA);
         clearA.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -347,6 +318,7 @@ public class UnitFragment extends Fragment {
                 textA.setText("");
             }
         });
+
         clearB = (Button)rootView.findViewById(R.id.clearB);
         clearB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -367,12 +339,14 @@ public class UnitFragment extends Fragment {
 //        return inflater.inflate(R.layout.unit_fragment_layout, container, false);
     }
 
+
+
+
     /*
         Compute result using text from optionA and optionB
         First check that only one textbook has text in it. If not, then show an alert dialog
         Then, check for correct format in
      */
-
     public void computeResult(View v){
         String optionA = textA.getText().toString();
         String optionB = textB.getText().toString();
