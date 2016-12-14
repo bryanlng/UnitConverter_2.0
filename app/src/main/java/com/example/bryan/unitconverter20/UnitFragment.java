@@ -1285,11 +1285,13 @@ public class UnitFragment extends Fragment {
                     //Case 1: Converting between Binary <----> Decimal
                     if(currentOptionA.equals("Binary") && currentOptionB.equals("Decimal")){
 
-                        //Case 1a: Convert Binary --> Decimal
+                        //Case 1a: Convert Binary --> Decimal, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
                             Double value = binaryToDecimal(optionA);
                             textB.setText(""+truncateToNDecimalPlaces(value,4));
                         }
+
+                        //Case 1b: Convert Decimal --> Binary, where optionB has input, optionA has nothing
                         else{
                             //decimal --> binary
                             textA.setText(decimalToBinary(optionB));
@@ -1299,10 +1301,13 @@ public class UnitFragment extends Fragment {
 
                     //Case 2: Converting between Binary <----> Hex
                     else if(currentOptionA.equals("Binary") && currentOptionB.equals("Hex")){  //binary --> hex
-                        //is really just binary --> decimal, then decimal --> hex
+
+                        //Case 2a: Convert Binary --> Decimal --> Hex, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
                             textB.setText(decimalToHex(String.valueOf(binaryToDecimal(optionA))));
                         }
+
+                        //Case 2b: Convert Hex --> Decimal --> Binary, where optionB has input, optionA has nothing
                         else{
                             //hex --> binary
                             textA.setText(decimalToBinary(String.valueOf(hexToDecimal(optionB))));
@@ -1311,11 +1316,14 @@ public class UnitFragment extends Fragment {
 
                     //Case 3: Converting between Decimal <----> Binary
                     else if(currentOptionA.equals("Decimal") && currentOptionB.equals("Binary")){ //decimal --> binary
+
+                        //Case 3a: Convert Decimal --> Binary, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
                             textB.setText(decimalToBinary(optionA));
                         }
+
+                        //Case 3b: Convert Binary --> Decimal, where optionB has input, optionA has nothing
                         else{
-                            //binary --> decimal
                             Double value = binaryToDecimal(optionB);
                             textA.setText(""+truncateToNDecimalPlaces(value,4));
                         }
@@ -1324,11 +1332,14 @@ public class UnitFragment extends Fragment {
 
                     //Case 4: Converting between Decimal <----> Hex
                     else if(currentOptionA.equals("Decimal") && currentOptionB.equals("Hex")){ //decimal --> binary
+
+                        //Case 4a: Convert Decimal --> Hex, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
                             textB.setText(decimalToHex(optionA));
                         }
+
+                        //Case 4b: Convert Hex --> Decimal, where optionB has input, optionA has nothing
                         else{
-                            //hex --> decimal
                             Double value = hexToDecimal(optionB);
                             textA.setText(""+truncateToNDecimalPlaces(value,4));
                         }
@@ -1336,24 +1347,30 @@ public class UnitFragment extends Fragment {
 
                     //Case 5: Converting between Hex <----> Decimal
                     else if(currentOptionA.equals("Hex") && currentOptionB.equals("Decimal")){  //hex --> decimal
+
+                        //Case 5a: Convert Hex --> Decimal, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
                             Double value = hexToDecimal(optionA);
                             textB.setText(""+truncateToNDecimalPlaces(value,4));
                         }
+
+                        //Case 5b: Convert Decimal --> Hex, where optionB has input, optionA has nothing
                         else{
                             //decimal --> hex
                             textA.setText(decimalToHex(optionB));
                         }
                     }
 
-                    //Case 4: Converting between Hex <----> Binary
-                    else{   //Hex --> binary
-                        //is really just hex --> decimal, decimal --> binary
+                    //Case 6: Converting between Hex <----> Binary
+                    else{
+
+                        //Case 6a: Convert Hex --> Decimal --> Binary, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
                             textB.setText(decimalToBinary(String.valueOf(hexToDecimal(optionA))));
                         }
+
+                        //Case 6b: Convert Binary --> Decimal --> Hex, where optionB has input, optionA has nothing
                         else{
-                            //binary --> hex
                             textA.setText(decimalToHex(String.valueOf(binaryToDecimal(optionB))));
                         }
                     }
@@ -1361,103 +1378,109 @@ public class UnitFragment extends Fragment {
                 }
             }
             else{
+                //catch bad error cases
                 showAlertDialog(getResources().getString(R.string.incorrect_format), v);    //"Incorrect format"
             }
         }
 
-        else{   //Non-programming: General unit converter
-            Log.i(TAG, "computeResultHelper, General unit converter");
+        //Non-programming: General unit converter
+        else{
             boolean correctFormat = checkFormat(false, "", "");
+
+            //If input is good
             if(correctFormat){
-                Log.i(TAG, "computeResultHelper, General unit converter GOOD FORMAT");
+
+                //If same format, prompt user to choose a different category
                 if(currentOptionA.equals(currentOptionB)) {
                     showAlertDialog(getResources().getString(R.string.same_category), v);    //"Same category, please choose a different category"
                 }
                 else{
                         /* 2 Conversions
-                            Common unit needs to be small, or else if converting from small form --> large form, it will become 0
-                            optionA <==> common unit <==> optionB
-                            Common units:
+                            In order to preserve accuracy, we need to convert to an intemediary unit first, before converting
+                            to the desired unit. AKA,
+
+                            Case 1: optionA -> common unit -> optionB
+                            Case 2: optionB -> common unit -> optionA
+
+                            Intermediate units for each category:
                                 1. Weight:          microgram
                                 2. Volume:          mL
                                 3. Distance:        micrometer
                                 4. Temperature:     Celsius
-
-                            Updated:
-                            Updated methods to consolidate code and not have to re-copy this entire thing again for optionB implementation
-                            createStartingmiddlemanValue ==> gets the value from terms of unit A ==> common unit
-                            createEndingmiddlemanValue ==> gets the value from terms of the common unit ==> unit B
-                            truncateToNDecimalPlaces: truncates resulting number into only having 4 decimal places
                          */
+
+                      //Case 1: optionA has input, optionB has nothing
                       Double mmvalue = 0.0;
                       if(whichOption.equals("optionA")){
-                          mmvalue = createStartingmiddlemanValue(currentOptionA, optionA);
-                          mmvalue = createEndingmiddlemanValue(currentOptionB, mmvalue);
+                          mmvalue = generateMiddlemanValue(currentOptionA, optionA);
+                          mmvalue = generateEndingValue(currentOptionB, mmvalue);
                           textB.setText(""+truncateToNDecimalPlaces(mmvalue,4));
                       }
+
+                      //Case 2: optionB has input, optionA has nothing
                       else{
-                          mmvalue = createStartingmiddlemanValue(currentOptionB, optionB);
-                          mmvalue = createEndingmiddlemanValue(currentOptionA, mmvalue);
+                          mmvalue = generateMiddlemanValue(currentOptionB, optionB);
+                          mmvalue = generateEndingValue(currentOptionA, mmvalue);
                           textA.setText(""+truncateToNDecimalPlaces(mmvalue,4));
                       }
                 }
             }
             else{
-                showAlertDialog(getResources().getString(R.string.incorrect_format), v);    //"Incorrect format"
+                //Incorrect format
+                showAlertDialog(getResources().getString(R.string.incorrect_format), v);
             }
         }
     }
 
     /*
-        Generates the starting middlemanValue for ALL options, despite category
-        Aka I dumped all the categories into this method
-        May be a little bit insecure if currentOptionA and currentOptionB every have the wrong value
-
-        option: it's either going to be currentOptionA or currentOptionB.
+        Given the value in the original format, generates the starting middlemanValue for ALL options, despite category
+        AKA,..
+        Case 1: optionA -> common unit
+        Case 2: optionB -> common unit
      */
-    public Double createStartingmiddlemanValue(String option, String numberInStringForm){
+    public Double generateMiddlemanValue(String option, String numberInStringForm){
         Double middlemanValue = 0.0;
-        Log.i(TAG, "createStartingmiddlemanValue, middlemanValue before: " + middlemanValue);
+        Log.i(TAG, "generateMiddlemanValue, middlemanValue before: " + middlemanValue);
         switch(option){
             //Weight
             case "Kilogram":        //kg --> microgram
-                Log.i(TAG, "createStartingmiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double kg = Double.parseDouble(numberInStringForm);
-                Log.i(TAG, "createStartingmiddlemanValue, Weight: kg = " + kg);
+                Log.i(TAG, "generateMiddlemanValue, Weight: kg = " + kg);
                 middlemanValue = kg * MICROGRAMS_PER_KILOGRAM;      //1000000000
                 break;
             case "Gram":            //g --> microgram
-                Log.i(TAG, "createStartingmiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double g = Double.parseDouble(numberInStringForm);
                 middlemanValue = g * MICROGRAMS_PER_GRAM;           //1000000
                 break;
             case "Milligram":       //mg --> microgram
-                Log.i(TAG, "createStartingmiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double mg = Double.parseDouble(numberInStringForm);
                 middlemanValue = mg  * MICROGRAMS_PER_MILLIGRAM;        //1000
                 break;
             case "Metric ton":      //metric ton --> microgram. 1 metric ton = 1000kg
-                Log.i(TAG, "createStartingmiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double mton = Double.parseDouble(numberInStringForm);
                 middlemanValue = mton * MICROGRAMS_PER_METRIC_TON;    //1000000000000.0
                 break;
             case "Stone":           //stone --> microgram
-                Log.i(TAG, "createStartingmiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double stone = Double.parseDouble(numberInStringForm);
                 middlemanValue = stone * MICROGRAMS_PER_STONE;   //6350290000.0
                 break;
             case "US Ton":          //us ton --> microgram
-                Log.i(TAG, "createStartingmiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double uston = Double.parseDouble(numberInStringForm);
                 middlemanValue = uston * MICROGRAMS_PER_US_TON;    //907185000000.0
                 break;
             case "Pound":          //pound --> microgram
-                Log.i(TAG, "createStartingmiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double lb = Double.parseDouble(numberInStringForm);
                 middlemanValue = lb * MICROGRAMS_PER_POUND;           //453592000
                 break;
             case "Ounce":           //ounce --> microgram
-                Log.i(TAG, "createStartingmiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Weight: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double oz = Double.parseDouble(numberInStringForm);
                 middlemanValue = oz * MICROGRAMS_PER_OUNCE;         //28349500
                 break;
@@ -1465,42 +1488,42 @@ public class UnitFragment extends Fragment {
 
             //Volume
             case "US gallon":       // US gallon --> mLR
-                Log.i(TAG, "createStartingmiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double gal= Double.parseDouble(numberInStringForm);
                 middlemanValue = gal*ML_PER_US_GALLON;       //3785.41
                 break;
             case "US quart":       // US quart --> mL
-                Log.i(TAG, "createStartingmiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double quart = Double.parseDouble(numberInStringForm);
                 middlemanValue = quart * ML_PER_US_QUART;     //946.353
                 break;
             case "US pint":       // US pint --> mL
-                Log.i(TAG, "createStartingmiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double pint = Double.parseDouble(numberInStringForm);
                 middlemanValue = pint * ML_PER_US_PINT;       //473.176
                 break;
             case "US cup":       // US cup --> mL
-                Log.i(TAG, "createStartingmiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double cup = Double.parseDouble(numberInStringForm);
                 middlemanValue = cup *ML_PER_US_CUP;          //236.588
                 break;
             case "US fluid ounce":  // US fluid ounce --> mL
-                Log.i(TAG, "createStartingmiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double fl= Double.parseDouble(numberInStringForm);
                 middlemanValue = fl* ML_PER_US_FLUID_OUNCE;           //29.5735
                 break;
             case "US tbsp":       // US tbsp --> mL
-                Log.i(TAG, "createStartingmiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double tbsp = Double.parseDouble(numberInStringForm);
                 middlemanValue = tbsp * ML_PER_US_TBSP;        //14.7868
                 break;
             case "US tsp":       // US tsp --> mL
-                Log.i(TAG, "createStartingmiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double tsp = Double.parseDouble(numberInStringForm);
                 middlemanValue = tsp * ML_PER_US_TSP;     //4.92892
                 break;
             case "Liters":       // Liters --> mL
-                Log.i(TAG, "createStartingmiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Volume: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double liters= Double.parseDouble(numberInStringForm);
                 middlemanValue = liters *ML_PER_LITERS;      //1000
                 break;
@@ -1508,52 +1531,52 @@ public class UnitFragment extends Fragment {
 
             //Distance
             case "Kilometer":   //km --> micrometer
-                Log.i(TAG, "createStartingmiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double km = Double.parseDouble(numberInStringForm);
                 middlemanValue = km*MICROMETER_PER_KILOMETER;     //1000000000
                 break;
             case "Meter":   //km --> micrometer
-                Log.i(TAG, "createStartingmiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double m = Double.parseDouble(numberInStringForm);
                 middlemanValue = m*MICROMETER_PER_METER;         //1000000
                 break;
             case "Centimeter":  //cm --> micrometer
-                Log.i(TAG, "createStartingmiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double cm = Double.parseDouble(numberInStringForm);
                 middlemanValue = cm*MICROMETER_PER_CENTIMETER;          //10000
                 break;
             case "Millimeter":  //mm --> micrometer
-                Log.i(TAG, "createStartingmiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double mm = Double.parseDouble(numberInStringForm);
                 middlemanValue = mm*MICROMETER_PER_MILLIMETER;           //1000
                 break;
             case "Nanometer":   //nm --> micrometer
-                Log.i(TAG, "createStartingmiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double nm = Double.parseDouble(numberInStringForm);
                 middlemanValue = nm/MICROMETER_PER_NANOMETER;           //1000
                 break;
             case "Knots":   //knots --> micrometer
-                Log.i(TAG, "createStartingmiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double knots = Double.parseDouble(numberInStringForm);
                 middlemanValue = knots * MICROMETER_PER_KNOT;    //1852000000
                 break;
             case "Mile":    //mile --> micrometer
-                Log.i(TAG, "createStartingmiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double mile = Double.parseDouble(numberInStringForm);
                 middlemanValue = mile * MICROMETER_PER_MILE;     //1609340000
                 break;
             case "Yard":    //yard --> micrometer
-                Log.i(TAG, "createStartingmiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double yard = Double.parseDouble(numberInStringForm);
                 middlemanValue = yard * MICROMETER_PER_YARD;         //914400
                 break;
             case "Feet":    //feet --> micrometer
-                Log.i(TAG, "createStartingmiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double feet = Double.parseDouble(numberInStringForm);
                 middlemanValue = feet * MICROMETER_PER_FEET;         //304800
                 break;
             case "Inch":    //inch --> micrometer
-                Log.i(TAG, "createStartingmiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Distance: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double inch = Double.parseDouble(numberInStringForm);
                 middlemanValue = inch * MICROMETER_PER_INCH;          //25400
                 break;
@@ -1561,171 +1584,167 @@ public class UnitFragment extends Fragment {
 
             //Temperature
             case "Fahrenheit":  //fahrenheit --> celsius
-                Log.i(TAG, "createStartingmiddlemanValue, Temperature: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Temperature: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double dFahr = Double.parseDouble(numberInStringForm);
                 middlemanValue = dFahr - 32.0;
                 middlemanValue *= 5.0;
                 middlemanValue /= 9.0;
                 break;
             case "Kelvin":  //kelvin --> celsius
-                Log.i(TAG, "createStartingmiddlemanValue, Temperature: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Temperature: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 Double kelvin = Double.parseDouble(numberInStringForm);
                 middlemanValue = kelvin - 273.15;
                 break;
             default: //If already in celsius, don't do anything
-                Log.i(TAG, "createStartingmiddlemanValue, Temperature: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
+                Log.i(TAG, "generateMiddlemanValue, Temperature: option = " + currentOptionA + ", numberInStringForm: " + numberInStringForm);
                 middlemanValue = Double.parseDouble(numberInStringForm);
                 break;
         }
-        Log.i(TAG, "createStartingmiddlemanValue, middlemanValue after: " + middlemanValue);
+        Log.i(TAG, "generateMiddlemanValue, middlemanValue after: " + middlemanValue);
         return middlemanValue;
 
     }
 
     /*
-        Generates the ending middlemanValue for ALL options, despite category
-        Aka I dumped all the categories into this method
-        May be a little bit insecure if currentOptionA and currentOptionB every have the wrong value
-
-        option: it's either going to be optionA or optionB.
-        The beauty of putting it inside the parameter ==> don't have to check inside whether it's optionA or optionB
-
-        middlemanValue: The middlemanValue generated from createStartingmiddlemanValue
+        Given the middleman value in the intermediate format, generates the ending value for ALL options, despite category
+        AKA,..
+        Case 1: common unit -> optionB
+        Case 2: common unit -> optionA
      */
-    public Double createEndingmiddlemanValue(String option, Double middlemanValue){
-        Log.i(TAG, "createEndingmiddlemanValue, middlemanValue before: " + middlemanValue);
+    public Double generateEndingValue(String option, Double middlemanValue){
+        Log.i(TAG, "generateEndingValue, middlemanValue before: " + middlemanValue);
         switch (option){
 
             //Weight
             case "Kilogram":        //microgram --> kg
-                Log.i(TAG, "createEndingmiddlemanValue, Weight: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Weight: OptionB = " + currentOptionB);
                 middlemanValue /= MICROGRAMS_PER_KILOGRAM;
                 break;
             case "Gram":            //microgram --> g
-                Log.i(TAG, "createEndingmiddlemanValue, Weight: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Weight: OptionB = " + currentOptionB);
                 middlemanValue /= MICROGRAMS_PER_GRAM;  //1000000
                 break;
             case "Milligram":       //microgram --> mg
-                Log.i(TAG, "createEndingmiddlemanValue, Weight: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Weight: OptionB = " + currentOptionB);
                 middlemanValue /= MICROGRAMS_PER_MILLIGRAM; //1000
                 break;
             case "Metric ton":      //microgram --> metric ton
-                Log.i(TAG, "createEndingmiddlemanValue, Weight: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Weight: OptionB = " + currentOptionB);
                 middlemanValue /= MICROGRAMS_PER_METRIC_TON;  //1000000000000.0
                 break;
             case "Stone":           //microgram --> stone
-                Log.i(TAG, "createEndingmiddlemanValue, Weight: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Weight: OptionB = " + currentOptionB);
                 middlemanValue /= MICROGRAMS_PER_STONE;   //6350290000.0
                 break;
             case "US Ton":          //microgram --> us ton
-                Log.i(TAG, "createEndingmiddlemanValue, Weight: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Weight: OptionB = " + currentOptionB);
                 middlemanValue /= MICROGRAMS_PER_US_TON;    //907185000000.0
                 break;
             case "Pound":          //microgram --> pound
-                Log.i(TAG, "createEndingmiddlemanValue, Weight: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Weight: OptionB = " + currentOptionB);
                 middlemanValue /= MICROGRAMS_PER_POUND;    //453592000
                 break;
             case "Ounce":           //microgram --> ounce
-                Log.i(TAG, "createEndingmiddlemanValue, Weight: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Weight: OptionB = " + currentOptionB);
                 middlemanValue /= MICROGRAMS_PER_OUNCE;     //28349500
                 break;
 //            default: break; //If already in microgram, just set text
 
             //Volume
             case "US gallon":       // mL --> US gallon
-                Log.i(TAG, "createEndingmiddlemanValue, Volume: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Volume: OptionB = " + currentOptionB);
                 middlemanValue /= ML_PER_US_GALLON;      //3785.41
                 break;
             case "US quart":       // mL --> US quart
-                Log.i(TAG, "createEndingmiddlemanValue, Volume: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Volume: OptionB = " + currentOptionB);
                 middlemanValue /= ML_PER_US_QUART;      //946.353
                 break;
             case "US pint":       //  mL --> US pint
-                Log.i(TAG, "createEndingmiddlemanValue, Volume: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Volume: OptionB = " + currentOptionB);
                 middlemanValue /= ML_PER_US_PINT;      //473.176
                 break;
             case "US cup":       //  mL --> US cup
-                Log.i(TAG, "createEndingmiddlemanValue, Volume: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Volume: OptionB = " + currentOptionB);
                 middlemanValue /= ML_PER_US_CUP;      //236.588
                 break;
             case "US fluid ounce":  //  mL --> S fluid ounce L
-                Log.i(TAG, "createEndingmiddlemanValue, Volume: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Volume: OptionB = " + currentOptionB);
                 middlemanValue /= ML_PER_US_FLUID_OUNCE;      //29.5735
                 break;
             case "US tbsp":       //  mL --> US tbsp
-                Log.i(TAG, "createEndingmiddlemanValue, Volume: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Volume: OptionB = " + currentOptionB);
                 middlemanValue /= ML_PER_US_TBSP;      //14.7868
                 break;
             case "US tsp":       //  mL --> US tsp
-                Log.i(TAG, "createEndingmiddlemanValue, Volume: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Volume: OptionB = " + currentOptionB);
                 middlemanValue /= ML_PER_US_TSP;      //4.92892
                 break;
             case "Liters":       //  mL --> Liters
-                Log.i(TAG, "createEndingmiddlemanValue, Volume: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Volume: OptionB = " + currentOptionB);
                 middlemanValue /= ML_PER_LITERS;         //1000
                 break;
 //            default: break; //If already in mL, just set text
 
             //Distance
             case "Kilometer":   //micrometer --> km
-                Log.i(TAG, "createEndingmiddlemanValue, Distance: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Distance: OptionB = " + currentOptionB);
                 middlemanValue /= MICROMETER_PER_KILOMETER;       //1000000000
                 break;
             case "Meter":       //micrometer --> m
-                Log.i(TAG, "createEndingmiddlemanValue, Distance: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Distance: OptionB = " + currentOptionB);
                 middlemanValue /= MICROMETER_PER_METER;          //1000000
                 break;
             case "Centimeter":  //micrometer --> cm
-                Log.i(TAG, "createEndingmiddlemanValue, Distance: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Distance: OptionB = " + currentOptionB);
                 middlemanValue /= MICROMETER_PER_CENTIMETER;            //10000
                 break;
             case "Millimeter":  //micrometer --> mm
-                Log.i(TAG, "createEndingmiddlemanValue, Distance: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Distance: OptionB = " + currentOptionB);
                 middlemanValue /= MICROMETER_PER_MILLIMETER;             //1000
                 break;
             case "Nanometer":   //micrometer --> nm
-                Log.i(TAG, "createEndingmiddlemanValue, Distance: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Distance: OptionB = " + currentOptionB);
                 middlemanValue *= MICROMETER_PER_NANOMETER;             //1000
                 break;
             case "Knots":       //micrometer --> knots
-                Log.i(TAG, "createEndingmiddlemanValue, Distance: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Distance: OptionB = " + currentOptionB);
                 middlemanValue /= MICROMETER_PER_KNOT;      //1852000000
                 break;
             case "Mile":        //micrometer --> mile
-                Log.i(TAG, "createEndingmiddlemanValue, Distance: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Distance: OptionB = " + currentOptionB);
                 middlemanValue /= MICROMETER_PER_MILE;      //1609340000
                 break;
             case "Yard":        //micrometer --> yard
-                Log.i(TAG, "createEndingmiddlemanValue, Distance: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Distance: OptionB = " + currentOptionB);
                 middlemanValue /= MICROMETER_PER_YARD;           //914400
                 break;
             case "Feet":        //micrometer --> feet
-                Log.i(TAG, "createEndingmiddlemanValue, Distance: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Distance: OptionB = " + currentOptionB);
                 middlemanValue /= MICROMETER_PER_FEET;           //304800
                 break;
             case "Inch":        //micrometer --> inch
-                Log.i(TAG, "createEndingmiddlemanValue, Distance: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Distance: OptionB = " + currentOptionB);
                 middlemanValue /= MICROMETER_PER_INCH;            //25400
                 break;
 //            default: break; //If already in nanometer, just set text
 
             //Temperature
             case "Fahrenheit":  //celsius --> fahrenheit
-                Log.i(TAG, "createEndingmiddlemanValue, Temperature: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Temperature: OptionB = " + currentOptionB);
                 middlemanValue *= 9.0;
                 middlemanValue /= 5.0;
                 middlemanValue += 32;
                 break;
             case "Kelvin":  //celsius to kelvin
-                Log.i(TAG, "createEndingmiddlemanValue, Temperature: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Temperature: OptionB = " + currentOptionB);
                 middlemanValue += 273.15;
                 break;
             default:
-                Log.i(TAG, "createEndingmiddlemanValue, Temperature: OptionB = " + currentOptionB);
+                Log.i(TAG, "generateEndingValue, Temperature: OptionB = " + currentOptionB);
                 break; //If already celsius, just set text
         }
 
-        Log.i(TAG, "createEndingmiddlemanValue, middlemanValue after: " + middlemanValue);
+        Log.i(TAG, "generateEndingValue, middlemanValue after: " + middlemanValue);
         return middlemanValue;
     }
 

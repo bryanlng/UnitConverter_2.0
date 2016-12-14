@@ -220,10 +220,11 @@ Problem:
    which we already have from UnitConverter 1.0
  */
  
- /* 2 Conversions
-	Common unit needs to be small, or else if converting from small form --> large form, it will become 0
-	optionA <==> common unit <==> optionB
-	Common units:
+/* 2 Conversions
+	In order to preserve accuracy, we need to convert to an intemediary unit first, before converting
+	to the desired unit.
+	AKA, optionA <==> common unit <==> optionB
+	Intermediate units for each category:
 	1. Weight:          microgram
 	2. Volume:          mL
 	3. Distance:        micrometer
@@ -231,7 +232,7 @@ Problem:
 
 	Updated:
 	Updated methods to consolidate code and not have to re-copy this entire thing again for optionB implementation
-	createStartingmiddlemanValue ==> gets the value from terms of unit A ==> common unit
-	createEndingmiddlemanValue ==> gets the value from terms of the common unit ==> unit B
+	generateMiddlemanValue ==> gets the value from terms of unit A ==> common unit
+	generateEndingValue ==> gets the value from terms of the common unit ==> unit B
 	truncateToNDecimalPlaces: truncates resulting number into only having 4 decimal places
 */
