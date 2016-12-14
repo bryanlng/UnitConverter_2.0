@@ -103,7 +103,7 @@ public class UnitFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.unit_fragment_layout, container, false);
         setRetainInstance(true);
 
-        /**********************First check if there was a configuration change. If there was, restore values**************************/
+        //First check if there was a configuration change. If there was, restore values
         if(savedInstanceState != null){
             optionACurrentSelection = savedInstanceState.getInt("optionACurrentSelection");
             optionBCurrentSelection = savedInstanceState.getInt("optionBCurrentSelection");
@@ -115,8 +115,8 @@ public class UnitFragment extends Fragment {
         Log.i(TAG, "optionBCurrentSelection before anything: " + optionBCurrentSelection);
 
 
-        /******************************************Instantiate UI elements of the View************************************************/
-        /****Default showing = Category = Weight, EditTexts have value 0, Option A = kg, Option B = lb*******************************/
+        //Instantiate UI elements of the View
+        //Default showing = Category = Weight, EditTexts have value 0, Option A = kg, Option B = lb
         //Initialize Options EditTexts.
         textA = (EditText)rootView.findViewById(R.id.optionAText);
         textB = (EditText)rootView.findViewById(R.id.optionBText);
@@ -203,18 +203,10 @@ public class UnitFragment extends Fragment {
                 Log.i(TAG, "optionACurrentSelection: " + optionACurrentSelection);
                 Log.i(TAG, "optionBCurrentSelection: " + optionBCurrentSelection);
 
-                /*ArrayOutofBoundsException error likely here
-                  Aka, if you're in a category where an option has 10 items and let's say you choose index 5,
-                  but then switch to another category that has only 3 options,
-                  when it tries to restore to an index 5 with only 3 options( index 0 -2)==> outofbounds
-
-                  Solution:
-                  Get the current size of the array that we put in
-                  If our current selection id >= size of the array ==> set optionACurrentSelection or optionBCurrentSelection back to 0
-                  depending on which one (or both) had bad indexes
-                  Else, proceed with <spinner>.setSelection(<spinner>CurrentSelection)
-
-                */
+                //Prevent ArrayOutofBoundsException error likely here
+                //Aka, if you're in a category where an option has 10 items and let's say you choose index 5,
+                //but then switch to another category that has only 3 options,
+                //when it tries to restore to an index 5 with only 3 options( index 0 -2)==> outofbounds
                 if(optionACurrentSelection >= currentArraySize || optionBCurrentSelection >= currentArraySize){
                     //Only optionsA has bad index
                     if(optionACurrentSelection >= currentArraySize && optionBCurrentSelection < currentArraySize){
@@ -234,7 +226,7 @@ public class UnitFragment extends Fragment {
 
                 }
 
-
+                //Update Spinner to show the selected item
                 optionSpinnerA.setSelection(optionACurrentSelection);
                 optionSpinnerB.setSelection(optionBCurrentSelection);
 
@@ -247,11 +239,10 @@ public class UnitFragment extends Fragment {
         });
 
 
-        //Make the default category shown at first glance the item at position 0
-
         // Set an setOnItemSelectedListener on the spinners
         optionSpinnerA.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+
                 Log.i(TAG, "optionA: picked item at position: " + pos);
                 currentOptionA = parent.getItemAtPosition(pos).toString();
                 optionSpinnerA.setPrompt(currentOptionA);
@@ -286,17 +277,14 @@ public class UnitFragment extends Fragment {
                 currentOptionB = parent.getItemAtPosition(pos).toString();
                 optionSpinnerB.setPrompt(currentOptionB);
 
-                //If it's hex, we need to change the keyboard from number (android:inputType = numberDecimal) to a keyboard with letters
+                //If the user is in hex mode, change the keyboard from number only to regular keypad
                 if(currentOptionB.equals("Hex")){
-                    textB.setInputType(InputType.TYPE_CLASS_TEXT);  //InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL
+                    textB.setInputType(InputType.TYPE_CLASS_TEXT);
                     optionBHexSet = true;
                 }
 
-                //Situation: User was on Hex before, so we had to set a new inputType. However, they're on any of the other
-                //ones right now, and they need the regular (number) keyboard
-                //android:inputType="numberDecimal" is equivalent to InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
+                //If user was on Hex mode before, and now they're not, change the keypad back to be number only
                 else{
-                    //only check if optionAHexSet is true, b/c it's redundant and wasteful to keep checking every time
                     if(optionBHexSet){
                         textB.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL );
                         optionBHexSet = false;
@@ -348,18 +336,23 @@ public class UnitFragment extends Fragment {
         Then, check for correct format in
      */
     public void computeResult(View v){
+        //Get text that the user inputted
         String optionA = textA.getText().toString();
         String optionB = textB.getText().toString();
         Log.i(TAG, "computeResult, where optionA: " + optionA + ", optionB: " + optionB);
+
+        //Case 1: If first textfield is filled out, and the other is empty
         if(!optionA.equals("") && optionB.equals("")){  //optionA has text in it, optionB has nothing in it
             Log.i(TAG, "computeResult, optionA = good, optionB = empty");
             computeResultHelper("optionA", optionA, optionB, v);
         }
 
-        //optionB has text in it, optionA has nothing in it. Code is pretty much a mirror of the above code, except instead of setting text onto optionB, set text onto optionA
+        //Case 2: If second textfield is filled out, and the other is empty
         else if(optionA.equals("") && !optionB.equals("")){
             computeResultHelper("optionB", optionA, optionB, v);
         }
+
+        //Bad cases --> pop up alert dialog
         else{
             if(optionA.equals("") && optionB.equals("")){
                 //both EditTexts are null
@@ -372,6 +365,10 @@ public class UnitFragment extends Fragment {
         }
     }
 
+    /*
+      Upon an error, pop this up to alert the user that they
+      tried to do something bad
+     */
     public void showAlertDialog(String message, View v){
         //pop open a window saying that you need to remove the thing
         Log.i(TAG, "showAlertDialog with message: " + message);
@@ -390,7 +387,7 @@ public class UnitFragment extends Fragment {
 
 
     /*
-        Checks the format of the inputs
+        Checks the format of the user inputs
         Returns true if good format, false if bad format
      */
     public boolean checkFormat(boolean isProgramming, String programmingInput, String programmingOutput ){
@@ -729,13 +726,7 @@ public class UnitFragment extends Fragment {
                     isGoodFormat = false;
                 }
             }
-
-
-
         }
-
-
-
         return isGoodFormat;
     }
 
@@ -757,7 +748,7 @@ public class UnitFragment extends Fragment {
     }
 
     /*
-        Created to re-use code
+        Converts a whole number into its binary form
      */
     public String decimalDoubleToBinaryString(Double middlemanValue){
         //Use old method from UnitConverter 1.0
@@ -815,8 +806,8 @@ public class UnitFragment extends Fragment {
     }
 
     /*
-    Created to re-use code
- */
+        Converts a whole number into its hexadecimal representation
+    */
     public String decimalDoubleToHexString(Double middlemanValue){
         long value = middlemanValue.longValue();    //this is okay b/c this method assumes the double has no decimal part
         Stack<String> mods = new Stack<>();
@@ -914,7 +905,9 @@ public class UnitFragment extends Fragment {
     }
 
 
-
+    /*
+        Gets the decimal value of a binary string
+     */
     public Double binaryToDecimal(String optionA){
         Double endValue = 0.0;
         //Need to check if it contains fractional binary (aka there's a period and there's stuff behind the period)
@@ -1018,13 +1011,13 @@ public class UnitFragment extends Fragment {
         return endValue;
     }
 
+    /*
+        Convert a hexadecimal value into its decimal value
+     */
     public Double hexToDecimal(String optionA){
         Double endValue = 0.0;
         //Use old UnitConverter method
         //here, we reverse the string and add on by
-//        if(optionA.contains("0x")){
-//            optionA = optionA.substring(2,optionA.length());
-//        }
         if(optionA.contains(".")){
             //Use old method copied from original UnitConverter
             //reverse the string
@@ -1038,11 +1031,6 @@ public class UnitFragment extends Fragment {
             }
 
             String fractionCopy = optionA.substring(periodIndex+1, optionA.length());
-//                                //Fractional part reversing string
-//                                StringBuilder fractionalCopy = new StringBuilder("");
-//                                for(int c = optionA.length() - 1; c > periodIndex; c--){
-//                                    fractionalCopy.append(optionA.charAt(c));
-//                                }
             Log.i(TAG, "reversed string regular part: " + regularCopy.toString());
             Log.i(TAG, "reversed string fractional part: " + fractionCopy);
 
@@ -1197,6 +1185,9 @@ public class UnitFragment extends Fragment {
         return endValue;
     }
 
+    /*
+        Gets the hexidecimal representation of a decimal value
+     */
     public String decimalToHex(String optionA){
         String ret = "";
         Double temp = Double.parseDouble(optionA);
@@ -1222,6 +1213,9 @@ public class UnitFragment extends Fragment {
 
     }
 
+    /*
+        Gets the binary representation of a decimal value
+     */
     public String decimalToBinary(String optionA){
         String ret = "";
         Double temp = Double.parseDouble(optionA);
@@ -1246,13 +1240,8 @@ public class UnitFragment extends Fragment {
     }
 
     /*
-        Problem:
-        On configuration change, categories inside optionA, optionB are not being saved and are being reverted back to the value at setSelection(0)
-        For some reason though, values inside the editTexts are being saved. Maybe b/c setRetainInstance(true)?
-        Save the items that were selected in optionA spinner and optionB spinner's onItemSelected method
-        More specifically, save the position they were so that on a configuration change ==> we can do setSelection(previous item #)
-
-
+        Saves the current state of our program, so that on restart,
+        we can restore the program to this state.
      */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
@@ -1266,44 +1255,37 @@ public class UnitFragment extends Fragment {
     }
 
     /*
-        Basically, I dumped all the code that was previously in computeResult here
-        so that it could be done for either situations 1) optionA != null, optionB == null and 2) optionA == null, optionB != null
-        Since the code was so long in the computeResult, doing it twice would not only make it harder to read, but also
-        waste a lot of code.
-        whichOption = which option is not null.
-            if whichOption.equals("optionA") ==> optionA != null, optionB == null
-            if whichOption.equals("optionB") ==> optionA == null, optionB != null
+        Helper method for computeResult. Calls other methods to do the actual computation.
+        Purpose =
 
-        parameter optionA:
+        1.optionA:
             the optionA string from the original computeResult method, which is really just textA.getText().toString();
 
-        parameter optionB:
+        2.optionB:
             the optionB string from the original computeResult method, which is really just textB.getText().toString();
 
-        parameter v:
+        3.v:
             the View v that was passed in from the original parameter, which was passed in from the onClick() in the compute button
             Not really efficient, but
      */
     public void computeResultHelper(String whichOption, String optionA, String optionB, View v){
-        Log.i(TAG, "computeResultHelper, whichOption: " + whichOption + ", optionA: " + optionA + ", optionB: " + optionB);
+
+        //Programming category
         if(currentCategory.equals("Programming")){
-            Log.i(TAG, "computeResultHelper, Programming");
             boolean correctFormat = checkFormat(true, currentOptionA, currentOptionB);
+
+            //If input is good
             if(correctFormat){
-                Log.i(TAG, "computeResultHelper, Programming GOOD FORMAT");
+
+                //If same format, prompt user to choose a different category
                 if(currentOptionA.equals(currentOptionB)){
-                    showAlertDialog(getResources().getString(R.string.same_category), v);    //"Same category, please choose a different category"
+                    showAlertDialog(getResources().getString(R.string.same_category), v);
                 }
                 else{
-                        /* Since there's only 3P2 permutations (aka 6 permutations), there doesn't need to be 2 conversions
-                           Also. since binary --> hex is really just (binary --> decimal, decimal --> hex), and
-                           hex --> binary is really also just (hex --> decimal, decimal --> binary),
-                           we just need to create functions for (binary --> decimal, decimal --> hex, hex --> decimal, decimal --> binary),
-                           which we already have from UnitConverter 1.0
-                         */
+                    //Case 1: Converting between Binary <----> Decimal
+                    if(currentOptionA.equals("Binary") && currentOptionB.equals("Decimal")){
 
-                    //1st Conversion: optionA ==> in decimal
-                    if(currentOptionA.equals("Binary") && currentOptionB.equals("Decimal")){    //binary -->
+                        //Case 1a: Convert Binary --> Decimal
                         if(whichOption.equals("optionA")){
                             Double value = binaryToDecimal(optionA);
                             textB.setText(""+truncateToNDecimalPlaces(value,4));
@@ -1314,9 +1296,10 @@ public class UnitFragment extends Fragment {
                         }
 
                     }
+
+                    //Case 2: Converting between Binary <----> Hex
                     else if(currentOptionA.equals("Binary") && currentOptionB.equals("Hex")){  //binary --> hex
                         //is really just binary --> decimal, then decimal --> hex
-//                        textB.setText(decimalToHex(String.valueOf(binaryToDecimal(optionA))));
                         if(whichOption.equals("optionA")){
                             textB.setText(decimalToHex(String.valueOf(binaryToDecimal(optionA))));
                         }
@@ -1325,8 +1308,9 @@ public class UnitFragment extends Fragment {
                             textA.setText(decimalToBinary(String.valueOf(hexToDecimal(optionB))));
                         }
                     }
+
+                    //Case 3: Converting between Decimal <----> Binary
                     else if(currentOptionA.equals("Decimal") && currentOptionB.equals("Binary")){ //decimal --> binary
-//                        textB.setText(decimalToBinary(optionA));
                         if(whichOption.equals("optionA")){
                             textB.setText(decimalToBinary(optionA));
                         }
@@ -1337,8 +1321,9 @@ public class UnitFragment extends Fragment {
                         }
 
                     }
+
+                    //Case 4: Converting between Decimal <----> Hex
                     else if(currentOptionA.equals("Decimal") && currentOptionB.equals("Hex")){ //decimal --> binary
-//                        textB.setText(decimalToHex(optionA));
                         if(whichOption.equals("optionA")){
                             textB.setText(decimalToHex(optionA));
                         }
@@ -1348,6 +1333,8 @@ public class UnitFragment extends Fragment {
                             textA.setText(""+truncateToNDecimalPlaces(value,4));
                         }
                     }
+
+                    //Case 5: Converting between Hex <----> Decimal
                     else if(currentOptionA.equals("Hex") && currentOptionB.equals("Decimal")){  //hex --> decimal
                         if(whichOption.equals("optionA")){
                             Double value = hexToDecimal(optionA);
@@ -1358,9 +1345,10 @@ public class UnitFragment extends Fragment {
                             textA.setText(decimalToHex(optionB));
                         }
                     }
+
+                    //Case 4: Converting between Hex <----> Binary
                     else{   //Hex --> binary
                         //is really just hex --> decimal, decimal --> binary
-//                        textB.setText(decimalToBinary(String.valueOf(hexToDecimal(optionA))));
                         if(whichOption.equals("optionA")){
                             textB.setText(decimalToBinary(String.valueOf(hexToDecimal(optionA))));
                         }
@@ -1382,7 +1370,7 @@ public class UnitFragment extends Fragment {
             boolean correctFormat = checkFormat(false, "", "");
             if(correctFormat){
                 Log.i(TAG, "computeResultHelper, General unit converter GOOD FORMAT");
-                if(currentOptionA.equals(currentOptionB)){
+                if(currentOptionA.equals(currentOptionB)) {
                     showAlertDialog(getResources().getString(R.string.same_category), v);    //"Same category, please choose a different category"
                 }
                 else{
@@ -1426,8 +1414,6 @@ public class UnitFragment extends Fragment {
         May be a little bit insecure if currentOptionA and currentOptionB every have the wrong value
 
         option: it's either going to be currentOptionA or currentOptionB.
-
-
      */
     public Double createStartingmiddlemanValue(String option, String numberInStringForm){
         Double middlemanValue = 0.0;

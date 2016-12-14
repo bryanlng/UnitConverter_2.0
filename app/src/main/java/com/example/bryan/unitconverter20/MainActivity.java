@@ -18,17 +18,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-//https://developer.android.com/training/implementing-navigation/nav-drawer.html
-//http://blog.teamtreehouse.com/add-navigation-drawer-android
 public class MainActivity extends ActionBarActivity {
     private static final String TAG = "UnitConverterTag";
     private String[] fragmentTitles;
     private DrawerLayout mDrawerlayout;
     private ListView mDrawerList;
-
     private UnitFragment unitFragment;
     private DaysUntilFragment daysUntilFragment;
-
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
@@ -39,6 +35,8 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //Restore previous state if there was one
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null){
             isUnitCurrentFragment = savedInstanceState.getBoolean("isUnitCurrentFragment");
@@ -48,6 +46,7 @@ public class MainActivity extends ActionBarActivity {
             setTitle(fragmentTitles[selectItemCurrentPosition]);
         }
 
+        //Initialize elements
         setContentView(R.layout.activity_main);
         Log.i(TAG, "Entered onCreate()");
         fragmentTitles = getResources().getStringArray(R.array.fragmentTitles);
@@ -67,6 +66,8 @@ public class MainActivity extends ActionBarActivity {
                 selectItem(position);
             }
         });
+
+        //Set DrawerList's default item to be the
         mDrawerList.setSelection(0);
 
         // enable ActionBar app icon to behave as action to toggle nav drawer
@@ -110,10 +111,15 @@ public class MainActivity extends ActionBarActivity {
         Log.i(TAG, "Entered selectItem() with position: " + position);
         Log.i(TAG, "BEFORE OPERATION: isUnitCurrentFragment: " + isUnitCurrentFragment + " ,isDaysUntilFragment:" + isDaysUntilFragment);
         selectItemCurrentPosition = position;
+
+        //Initialize Fragment stuff
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        //Create the 2 Fragments
         unitFragment = new UnitFragment();
         daysUntilFragment = new DaysUntilFragment();
+
         if(position == 0){  //user selected unit fragment/ desires to open Unit Fragment
             if(!isUnitCurrentFragment && !isDaysUntilFragment){
                 //First time, user hasn't opened either the Unit Fragment or DaysUntil fragment yet.
@@ -137,12 +143,8 @@ public class MainActivity extends ActionBarActivity {
                     fragmentManager.executePendingTransactions();
 
                 }
-
                 isUnitCurrentFragment = true;
                 isDaysUntilFragment = false;
-
-
-
             }
 
             else if(isUnitCurrentFragment){
@@ -160,18 +162,13 @@ public class MainActivity extends ActionBarActivity {
             if(!isUnitCurrentFragment && !isDaysUntilFragment){
                 //First time, user hasn't opened either the Unit Fragment or DaysUntil fragment yet.
                 isDaysUntilFragment = true;
-
                 fragmentTransaction.add(R.id.content_frame, daysUntilFragment).commit();
-
             }
 
             else if(!isDaysUntilFragment && isUnitCurrentFragment ){
                 //User previously opened and is currently on Unit fragment, now wants to open daysUntil Fragment
-
-
                 if(previousFragmentAction.equals("Replaced daysUntilFragment with unitFragment")){
                     //that means the user previously was on daysUntilFragment ==> then switched to unitFragment ==> and is now trying to switch to daysUntilFragment
-                    //http://stackoverflow.com/questions/17793249/how-do-popbackstack-and-replace-operations-differ
                     fragmentManager.popBackStack();
                 }
                 else{
@@ -180,13 +177,9 @@ public class MainActivity extends ActionBarActivity {
                             .addToBackStack(null)
                             .commit();
                     fragmentManager.executePendingTransactions();
-
                 }
-
                 isDaysUntilFragment = true;
                 isUnitCurrentFragment = false;
-
-
             }
 
             else if(isDaysUntilFragment){
@@ -222,7 +215,6 @@ public class MainActivity extends ActionBarActivity {
      * onPostCreate() and onConfigurationChanged()...
      * This allows the animated gif above the icon to sync better with the drawer
      */
-
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);

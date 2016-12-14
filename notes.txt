@@ -1,6 +1,16 @@
+//https://developer.android.com/training/implementing-navigation/nav-drawer.html
+//http://blog.teamtreehouse.com/add-navigation-drawer-android
+
+//http://stackoverflow.com/questions/17793249/how-do-popbackstack-and-replace-operations-differ
+
 If it's hex, we need to change the keyboard from number (android:inputType = numberDecimal), to a keyboard with letters
 http://stackoverflow.com/questions/2586301/set-inputtype-for-an-edittext
 https://developer.android.com/reference/android/widget/TextView.html#attr_android%3ainputType
+
+Situation: User was on Hex before, so we had to set a new inputType. However, they're on any of the other
+ones right now, and they need the regular (number) keyboard
+android:inputType="numberDecimal" is equivalent to InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL
+
 
 Open up a new AlertDialog, which has Spinners for Day, Month, Year, save button, and cancel button
 Once user presses save button ==> exit menu and save the date
@@ -175,6 +185,53 @@ Feb -> March non leap year:
  */
 
 
+/*
+Problem:
+	On configuration change, categories inside optionA, optionB are not being saved and are being reverted back to the value at setSelection(0)
+	For some reason though, values inside the editTexts are being saved. Maybe b/c setRetainInstance(true)?
+	Save the items that were selected in optionA spinner and optionB spinner's onItemSelected method
+	More specifically, save the position they were so that on a configuration change ==> we can do setSelection(previous item #)
+*/
 
+/*
+	Basically, I dumped all the code that was previously in computeResult here
+	so that it could be done for either situations 1) optionA != null, optionB == null and 2) optionA == null, optionB != null
+	Since the code was so long in the computeResult, doing it twice would not only make it harder to read, but also
+	waste a lot of code.
+	whichOption = which option is not null.
+		if whichOption.equals("optionA") ==> optionA != null, optionB == null
+		if whichOption.equals("optionB") ==> optionA == null, optionB != null
 
-				
+	parameter optionA:
+		the optionA string from the original computeResult method, which is really just textA.getText().toString();
+
+	parameter optionB:
+		the optionB string from the original computeResult method, which is really just textB.getText().toString();
+
+	parameter v:
+		the View v that was passed in from the original parameter, which was passed in from the onClick() in the compute button
+		Not really efficient, but
+*/
+	
+/* Since there's only 3P2 permutations (aka 6 permutations), there doesn't need to be 2 conversions
+   Also. since binary --> hex is really just (binary --> decimal, decimal --> hex), and
+   hex --> binary is really also just (hex --> decimal, decimal --> binary),
+   we just need to create functions for (binary --> decimal, decimal --> hex, hex --> decimal, decimal --> binary),
+   which we already have from UnitConverter 1.0
+ */
+ 
+ /* 2 Conversions
+	Common unit needs to be small, or else if converting from small form --> large form, it will become 0
+	optionA <==> common unit <==> optionB
+	Common units:
+	1. Weight:          microgram
+	2. Volume:          mL
+	3. Distance:        micrometer
+	4. Temperature:     Celsius
+
+	Updated:
+	Updated methods to consolidate code and not have to re-copy this entire thing again for optionB implementation
+	createStartingmiddlemanValue ==> gets the value from terms of unit A ==> common unit
+	createEndingmiddlemanValue ==> gets the value from terms of the common unit ==> unit B
+	truncateToNDecimalPlaces: truncates resulting number into only having 4 decimal places
+*/
