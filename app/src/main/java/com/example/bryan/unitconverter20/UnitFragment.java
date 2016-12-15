@@ -123,6 +123,10 @@ public class UnitFragment extends Fragment {
             optionBCurrentSelection = savedInstanceState.getInt("optionBCurrentSelection");
             optionAHexSet = savedInstanceState.getBoolean("optionAHexSet");
             optionBHexSet = savedInstanceState.getBoolean("optionBHexSet");
+
+            //Set the text that was previously floating on the EditTexts
+            textA.setText(savedInstanceState.getString("optionAText"));
+            textB.setText(savedInstanceState.getString("optionBText"));
         }
 
         Log.i(TAG, "optionACurrentSelection before anything: " + optionACurrentSelection);
@@ -1264,7 +1268,8 @@ public class UnitFragment extends Fragment {
         savedInstanceState.putInt("optionBCurrentSelection", optionBCurrentSelection);
         savedInstanceState.putBoolean("optionAHexSet", optionAHexSet);
         savedInstanceState.putBoolean("optionBHexSet", optionBHexSet);
-
+        savedInstanceState.putString("optionAText", textA.getText().toString());
+        savedInstanceState.putString("optionBText", textB.getText().toString());
 
         //Create a copy of the bundle to be put inside Utilties
         Utilities.setBundleFromUnitFragment((Bundle) savedInstanceState.clone());
@@ -1282,6 +1287,8 @@ public class UnitFragment extends Fragment {
         onPauseBundle.putInt("optionBCurrentSelection", optionBCurrentSelection);
         onPauseBundle.putBoolean("optionAHexSet", optionAHexSet);
         onPauseBundle.putBoolean("optionBHexSet", optionBHexSet);
+        onPauseBundle.putString("optionAText", textA.getText().toString());
+        onPauseBundle.putString("optionBText", textB.getText().toString());
 
         //Create a copy of the bundle to be put inside Utilties
         Utilities.setBundleFromUnitFragment((Bundle)onPauseBundle.clone());
