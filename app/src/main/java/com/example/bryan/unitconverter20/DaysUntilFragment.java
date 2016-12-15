@@ -559,49 +559,52 @@ public class DaysUntilFragment extends Fragment {
                 //Set AlertDialog.Builder's content view to be the view
                 builder.setView(alertDialogCustomView_ending);
 
-                /*
-                  Exact same thing as startingDay dialog
-                */
-
+                //Initialize Years, Months, Day spinners
                 ending_years_spinner = (Spinner)alertDialogCustomView_ending.findViewById(R.id.alert_dialog_years);
                 ending_month_spinner = (Spinner)alertDialogCustomView_ending.findViewById(R.id.alert_dialog_months);
                 ending_days_spinner = (Spinner)alertDialogCustomView_ending.findViewById(R.id.alert_dialog_days);
 
-                //3. Years
+                //1. Years
+                //Set the adapter, the current item on the year, and the OnItemSelectedListener
                 ArrayAdapter<String> yearsAdapter = new ArrayAdapter<String>(
                         alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_years));
                 yearsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 ending_years_spinner.setAdapter(yearsAdapter);  //set the Adapter
                 ending_years_spinner.setSelection(yearsAdapter.getPosition(alert_dialog_ending_current_year));  //set initial default value to be the current year, or the year it was on before the configuration change. -1 b/c setSelection(0) is the first element
                 ending_years_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    /*
-                        1. Set the year
-                        2. Check if it's a leap year and if the month is 2. If it is,
-                     */
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        Log.i(TAG, "AlertDialog endingDay: years spinner");
+
+                        //Get the year, month, day from the currentDay text field
                         alert_dialog_ending_current_year = parent.getItemAtPosition(position).toString();
                         int year = Integer.parseInt(alert_dialog_ending_current_year);
                         int month = convertWordMonth(alert_dialog_ending_current_month);
                         int day = Integer.parseInt(alert_dialog_ending_current_day);
+
+                        //Case 1: Current year is a leap year, and month is february
                         GregorianCalendar gcal = new GregorianCalendar(year,month,day);
                         if(gcal.isLeapYear(year) && month == FEBRUARY){
-                            //load days_29 into day spinner
-                            //but first, clear the spinner of all entries
+
+                            //1. Set the days spinner's adapter to be null, to ensure correctness
                             ending_days_spinner.setAdapter(null);
 
+                            //2. Set a new adapter (with 29 days) to be the days spinner's adapter
                             ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
                                     alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, days_29);
                             daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                             ending_days_spinner.setAdapter(daysAdapter);  //set the Adapter
 
+                            //3. Check that day field isn't greater than the max amount of days in this type of month,
+                            //   as it may have been allowed in other types of months.
                             if(day > 29){
                                 //if day is over 29, fix it
                                 alert_dialog_ending_current_day = "29";
                             }
+
+                            //4. Reset the current item showing on the days_spinner
                             ending_days_spinner.setSelection(Integer.parseInt(alert_dialog_ending_current_day) - 1); //-1 because setSelection(0) gets the first entry, and the first entry is "01"
 
+                            //5. Make a note that the current days adapter has been changed
                             isDaysAdapterSet_ending = true;    //notify that the days adapter has been set, so we don't have to reset it later
                         }
                     }
@@ -613,68 +616,86 @@ public class DaysUntilFragment extends Fragment {
                 });
 
                 //2. Months
-
+                //Set the adapter, the current item on the year, and the OnItemSelectedListener
                 ArrayAdapter<String> monthAdapter = new ArrayAdapter<String>(
                         alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.alert_dialog_months));
                 monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 ending_month_spinner.setAdapter(monthAdapter);  //set the Adapter
                 ending_month_spinner.setSelection(convertWordMonth(alert_dialog_ending_current_month) - 1);  //set initial default value to be the current month, or the month it was on before the configuration change. -1 b/c setSelection(0) is the first element
                 ending_month_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    /*
-                        1. Set the month
-                        2. For that month, load the correct # of days into the days adapter
-                     */
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        Log.i(TAG, "AlertDialog endingDay: months spinner");
+
+                        //Get the month, day from the currentDay text field
                         alert_dialog_ending_current_month= parent.getItemAtPosition(position).toString();
                         int month = convertWordMonth(alert_dialog_ending_current_month);
                         int day = Integer.parseInt(alert_dialog_ending_current_day);
 
-                        //but first, clear the spinner of all entries
+                        //Before anything, clear the spinner's adapter, to ensure correctness
                         ending_days_spinner.setAdapter(null);
 
+                        //Case 1: Months with 30 days, also includes Feb, which has 28 days
                         if(month == FEBRUARY || month == APRIL || month == JUNE || month == SEPTEMBER || month == NOVEMBER){  //months with only 30 days
-                            if(month == FEBRUARY){
-                                //regularly, february only has 28 days
 
+                            //Case 1a: February, which only has 28 dayss
+                            if(month == FEBRUARY){
+
+                                //1. Set a new adapter (with 28 days) to be the days spinner's adapter
                                 ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
                                         alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, days_28);
                                 daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                                ending_days_spinner.setAdapter(daysAdapter);  //set the
+                                ending_days_spinner.setAdapter(daysAdapter);
 
-                                //now, we set the current day and fix it if necessary
+                                //2. Check that day field isn't greater than the max amount of days in this type of month,
+                                //   as it may have been allowed in other types of months.
                                 if(day > 28){
                                     //if day is over 29, fix it
                                     alert_dialog_ending_current_day = "28";
                                 }
+
+                                //3. Reset the current item showing on the days_spinner
+                                //-1 because setSelection(0) gets the first entry, and the first entry is "01"
                                 ending_days_spinner.setSelection(Integer.parseInt(alert_dialog_ending_current_day) - 1); //-1 because setSelection(0) gets the first entry, and the first entry is "01"
                             }
+
+                            //Case 1b: All other months (with 30 days)
                             else{
+
+                                //1. Set a new adapter (with 30 days) to be the days spinner's adapter
                                 ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
                                         alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, days_30);
                                 daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                 ending_days_spinner.setAdapter(daysAdapter);  //set the Adapter
 
-                                //now, we set the current day and fix it if necessary
+                                //2. Check that day field isn't greater than the max amount of days in this type of month,
+                                //   as it may have been allowed in other types of months
                                 if(day > 30){
                                     //if day is over 29, fix it
                                     alert_dialog_ending_current_day = "30";
                                 }
+
                                 ending_days_spinner.setSelection(Integer.parseInt(alert_dialog_ending_current_day) - 1); //-1 because setSelection(0) gets the first entry, and the first entry is "01"
                             }
 
 
                         }
-                        else{   //months with 31 days
+
+                        //Case 3: months with 31 days
+                        else{
+
+                            //1. Set a new adapter (with 1 days) to be the days spinner's adapter
                             ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(
                                     alertDialogCustomView_ending.getContext(), R.layout.dropdown_item, days_31);
                             daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                             ending_days_spinner.setAdapter(daysAdapter);  //set the Adapter
+
+                            //2. Reset the current item showing on the days_spinner
+                            //-1 because setSelection(0) gets the first entry, and the first entry is "01"
                             ending_days_spinner.setSelection(Integer.parseInt(alert_dialog_ending_current_day) - 1); //-1 because setSelection(0) gets the first entry, and the first entry is "01"
 
                         }
 
+                        //Regardless of the case, make a note that the current days adapter has been changed
                         isDaysAdapterSet_ending = true;    //notify that the days adapter has been set, so we don't have to reset it later
                     }
 
@@ -684,7 +705,7 @@ public class DaysUntilFragment extends Fragment {
                     }
                 });
 
-                //1. Days
+                //2. Days
                 //If days adapter hasn't been already set by either month or year, set the array adapter for days
                 if(!isDaysAdapterSet_ending){
                     Log.i(TAG, "AlertDialog startingDay: days spinner, hasn't been set before");
@@ -694,6 +715,8 @@ public class DaysUntilFragment extends Fragment {
                     ending_days_spinner.setAdapter(daysAdapter);  //set the Adapter
                     ending_days_spinner.setSelection(Integer.parseInt(alert_dialog_ending_current_day)-1);  //set initial default value to be the current day, or the day it was on before the configuration change. -1 b/c setSelection(0) is the first element
                 }
+
+                //Set the ending days spinner's OnItemSelectedListener
                 ending_days_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -744,28 +767,25 @@ public class DaysUntilFragment extends Fragment {
             }
         });
 
-        //ending day
-        //need to use rootView.getContext() instead of getActivity().getApplicationContext()
+        //Set the ending date's DatePickerDialog, which pops up upon clicking the current day's ImageButton
         calendar2datePickerDialog = new DatePickerDialog(rootView.getContext(), new DatePickerDialog.OnDateSetListener() {
-            /*
-                1. set Calendar object endingDate to be the new data
-                2. set textview to have the appropriate values
-                3. Set ending AlertDialog values so they can be updated ==> thus saved later in onSaveInstance()
-             */
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+
+                //1. Set Calendar object endingDate to be the new data
                 endingDate.set(year, monthOfYear, dayOfMonth);
+
+                //2. Set textview to have the appropriate values
                 ending_day.setText(dateFormatter.format(endingDate.getTime()));
+
+                //3. Set ending AlertDialog values so they can be updated ==> thus saved later in onSaveInstance()
                 alert_dialog_ending_current_year = ""+year;
                 alert_dialog_ending_current_month= convertnumberMonthWord(monthOfYear+1);
                 alert_dialog_ending_current_day  = ""+dayOfMonth;
-                Log.i(TAG, "New date on endingDate, year: " + endingDate.get(Calendar.YEAR));
-                Log.i(TAG, "New date on endingDate, month: " + endingDate.get(Calendar.MONTH));
-                Log.i(TAG, "New date on endingDate, day: " + endingDate.get(Calendar.DAY_OF_MONTH));
-                Log.i(TAG, "New date on ending_day, in milliseconds: " + endingDate.getTimeInMillis());
             }
         }, endingDate.get(Calendar.YEAR), endingDate.get(Calendar.MONTH), endingDate.get(Calendar.DAY_OF_MONTH));
 
+        //Initialize the ending day's ImageButton and the Calendar associated with it
         calendar2 = (ImageButton)rootView.findViewById(R.id.calendar2);
         calendar2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -987,16 +1007,16 @@ public class DaysUntilFragment extends Fragment {
 
         double[] data = new double[5];
         double temp = Math.abs(new Long(diff).doubleValue()); //convert long to a double value, then get the abs value of it
-        //extract total days (if we didn't try to extract years,months)
-        //86400000 milliseconds in a year (1000*60*60*24)
-        double totalDays = Math.floor(temp / MILLISECONDS_PER_DAY);   //to truncate the decimal, we use Math.floor();
+
+        //1. Extract total days (if we didn't try to extract years,months).
+        //   If the checkbox to include an extra day is checked, increment day
+        double totalDays = Math.floor(temp / MILLISECONDS_PER_DAY);   //86400000 milliseconds in a year (1000*60*60*24), then truncate
         if(isChecked){
             ++totalDays;
         }
         data[0] = totalDays;
 
-        //extract years
-        //31536000000 milliseconds in a year (1000*60*60*24*365)
+        //2. Extract years,  31536000000 milliseconds in a year (1000*60*60*24*365)
         double years = Math.floor(temp / MILLISECONDS_PER_YEAR);
         data[1] = years;
         Log.i(TAG, "years: " + years);
@@ -1008,6 +1028,7 @@ public class DaysUntilFragment extends Fragment {
         double weeks = 0.0;
         double days = 0.0;
 
+        //Case 1: Starting date is past the ending date
         if(!isStartingDatePastEndingDate){
             Log.i(TAG, "NORMAL: startingDate is before endingDate");
             //Normal date: Starting date is before the ending date
@@ -1019,30 +1040,30 @@ public class DaysUntilFragment extends Fragment {
             //Now,extract months. See steps at http://pastebin.com/XWBgWZBm
             /*
                 1. First, take starting date, clone it, and move the clone forwards to the next closest month
-                    a) Case 1: Clone date and ending date are in the SAME month.
+                    a) Case 1a: Clone date and ending date are in the SAME month.
                         If this is the case, then DON'T move it forwards to the next closest month, and instead calculate difference in days,
                         from which we can extract weeks and days from
-                    b) Case 2: Clone date and ending date are in different months.
+                    b) Case 1b: Clone date and ending date are in different months.
                         Proceed with moving it forwards to the next closest month
              */
 
-            //If Clone date and ending date are in the SAME month.
+            //Case 1a: If Clone date and ending date are in the SAME month.
             if(adjust.get(Calendar.MONTH) == endingDate.get(Calendar.MONTH)){
                 Log.i(TAG, "adjust's month == endingDate's month, aka months = 0");
                 //# milliseconds in a week: 1000*60*60*24*7 = 604800000
                 //# milliseconds in a day: 1000*60*60*24    = 86400000
                 Log.i(TAG, "months: " + months);    //should be 0
 
-                //extract weeks, then take them out of total milliseconds
+                //1. extract weeks, then take them out of total milliseconds
                 weeks = Math.floor(temp / MILLISECONDS_PER_WEEK);
                 Log.i(TAG, "weeks: " + weeks);
                 temp -= (weeks*MILLISECONDS_PER_WEEK);
 
-                //extract weeks, then take them out of total milliseconds
+                //2. extract weeks, then take them out of total milliseconds
                 days = Math.floor(temp / MILLISECONDS_PER_DAY);
                 Log.i(TAG, "days: " + days);
 
-                //check if checkbox was set, and rebalance values if necessary
+                //3. check if checkbox was set, and rebalance values if necessary
                 if(isChecked){
                     ++days;
                     if(days == 7.0){    //if day value is now 7, increment week and make days 0
@@ -1062,7 +1083,7 @@ public class DaysUntilFragment extends Fragment {
 
             }
 
-            //If Clone date and ending date are in different months.
+            //Case 1b: If Clone date and ending date are in different months.
             else{
                 Log.i(TAG, "adjust's month < endingDate's month, so we have to first move forward to the first day of tne next month");
                 /*
@@ -1095,16 +1116,16 @@ public class DaysUntilFragment extends Fragment {
                 //# milliseconds in a day: 1000*60*60*24    = 86400000
                 Log.i(TAG, "months: " + months);    //should be 0
 
-                //extract weeks, then take them out of total milliseconds
+                //1. extract weeks, then take them out of total milliseconds
                 weeks = Math.floor(temp / MILLISECONDS_PER_WEEK);
                 Log.i(TAG, "total weeks: " + weeks);
                 temp -= (weeks*604800000.0);
 
-                //extract weeks, then take them out of total milliseconds
+                //2. extract weeks, then take them out of total milliseconds
                 days = Math.floor(temp / MILLISECONDS_PER_DAY);
                 Log.i(TAG, "total days: " + days);
 
-                //check if checkbox was set, and rebalance values if necessary
+                //3. check if checkbox was set, and rebalance values if necessary
                 if(isChecked){
                     ++days;
                     if(days == 7.0){    //if day value is now 7, increment week and make days 0
@@ -1125,6 +1146,7 @@ public class DaysUntilFragment extends Fragment {
 
         }
 
+        //Case 2: Starting date is before the ending date
         else{
             Log.i(TAG, "SPECIAL: startingDate is past endingDate");
             //Starting date is past the ending date
@@ -1149,12 +1171,14 @@ public class DaysUntilFragment extends Fragment {
             //Now,extract months. See steps at http://pastebin.com/XWBgWZBm
             /*
                 1. First, take starting date, clone it, and move the clone forwards to the next closest month
-                    a) Case 1: Clone date and ending date are in the SAME month.
+                    a) Case 2a: Clone date and ending date are in the SAME month.
                         If this is the case, then DON'T move it forwards to the next closest month, and instead calculate difference in days,
                         from which we can extract weeks and days from
-                    b) Case 2: Clone date and ending date are in different months.
+                    b) Case 2b: Clone date and ending date are in different months.
                         Proceed with moving it forwards to the next closest month
              */
+
+            //Case 2a: Clone date and ending date are in the SAME month
             if(adjust.get(Calendar.MONTH) == startingDate.get(Calendar.MONTH)){
                 Log.i(TAG, "adjust's month == statingDate's month, aka months = 0");
                 //# milliseconds in a week: 1000*60*60*24*7 = 604800000
@@ -1187,6 +1211,8 @@ public class DaysUntilFragment extends Fragment {
                 data[4] = days;
 
             }
+
+            // Case 2b: Clone date and ending date are in different months.
             else{
                 Log.i(TAG, "adjust's month < statingDate's month, so we have to first move forward to the first day of tne next month");
                 /*
@@ -1246,11 +1272,7 @@ public class DaysUntilFragment extends Fragment {
                 data[4] = days;
 
             }
-
-
-
         }
-
         return data;
     }
 
