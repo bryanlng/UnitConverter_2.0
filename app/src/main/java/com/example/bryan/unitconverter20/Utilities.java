@@ -13,8 +13,15 @@ import android.os.Bundle;
 
 
 public class Utilities {
+    public static Bundle unitFragmentBundleCopy = null;
     public static Bundle daysUntilFragmentBundleCopy = null;
 
+    public static Bundle getBundleFromUnitFragment(){
+        return unitFragmentBundleCopy;
+    }
+    public static void setBundleFromUnitFragment(Bundle b){
+        unitFragmentBundleCopy = b;
+    }
     public static Bundle getBundleFromDaysUntilFragment(){
         return daysUntilFragmentBundleCopy;
     }

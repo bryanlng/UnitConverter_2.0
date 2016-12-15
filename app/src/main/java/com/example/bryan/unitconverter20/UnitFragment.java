@@ -104,7 +104,21 @@ public class UnitFragment extends Fragment {
         setRetainInstance(true);
 
         //First check if there was a configuration change. If there was, restore values
-        if(savedInstanceState != null){
+        Bundle utilitiesBundle = Utilities.getBundleFromUnitFragment();
+        if( savedInstanceState != null || utilitiesBundle != null) {
+            //In the case where a fragment change back to UnitFragment, meaning that values are not null, but savedInstanceState == null
+            //Case 1: Fragment change, but there was no configuration change. Thus, grab saved state from Utilities
+            if (savedInstanceState == null && utilitiesBundle != null) {
+                //get the bundle from the Utilities class ==> make it to be savedInstanceState
+                Log.i(TAG, "savedInstanceState == null, so we must get from Utilities, then restore");
+                savedInstanceState = Utilities.getBundleFromUnitFragment();
+            }
+
+            //Case 2: Configuration change, no fragment change.
+            else {
+                Log.i(TAG, "savedInstanceState != null, not getting from Utilities, so we must restore");
+            }
+
             optionACurrentSelection = savedInstanceState.getInt("optionACurrentSelection");
             optionBCurrentSelection = savedInstanceState.getInt("optionBCurrentSelection");
             optionAHexSet = savedInstanceState.getBoolean("optionAHexSet");
@@ -1251,7 +1265,28 @@ public class UnitFragment extends Fragment {
         savedInstanceState.putBoolean("optionAHexSet", optionAHexSet);
         savedInstanceState.putBoolean("optionBHexSet", optionBHexSet);
 
+
+        //Create a copy of the bundle to be put inside Utilties
+        Utilities.setBundleFromUnitFragment((Bundle) savedInstanceState.clone());
+
+        //Lastly, call the parent class's equivalent method
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onPause(){
+        Bundle onPauseBundle = new Bundle();
+        //Save stuff here
+
+        onPauseBundle.putInt("optionACurrentSelection", optionACurrentSelection);
+        onPauseBundle.putInt("optionBCurrentSelection", optionBCurrentSelection);
+        onPauseBundle.putBoolean("optionAHexSet", optionAHexSet);
+        onPauseBundle.putBoolean("optionBHexSet", optionBHexSet);
+
+        //Create a copy of the bundle to be put inside Utilties
+        Utilities.setBundleFromUnitFragment((Bundle)onPauseBundle.clone());
+
+        super.onPause();
     }
 
     /*
