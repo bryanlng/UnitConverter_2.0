@@ -236,3 +236,117 @@ Problem:
 	generateEndingValue ==> gets the value from terms of the common unit ==> unit B
 	truncateToNDecimalPlaces: truncates resulting number into only having 4 decimal places
 */
+
+/* Problem
+	DaysUntilFragment loaded ==> then fragment change to UnitFragment ==> then fragment change back to daysUntilFragment
+	Means that values are not null, but savedInstanceState == null
+
+	Solution:
+	Make a Utilities class that houses a global variable
+	And our new if conditional will be: if(savedInstanceState != null || <some condition on the global variable>)
+*/
+
+//Why is it showing up as 8/5/16 instead of 9/5/16 (correct date)?
+//https://developer.android.com/reference/java/util/Calendar.html#MONTH
+/* Aka, in Android calendar, January is stored as "0" ==> thus all months are -1
+  Thus we need to internally, we need to do this on (calendar_object).set(year,month-1,day) instead
+ */
+Log.i(TAG, "Before anything: startingDate's year: " + startingDate.get(Calendar.YEAR));
+Log.i(TAG,"Before anything: startingDate's month: " + startingDate.get(Calendar.MONTH));
+Log.i(TAG, "Before anything: startingDate's day: " + startingDate.get(Calendar.DAY_OF_MONTH));
+Log.i(TAG, "Before anything: endingDate's year: " + endingDate.get(Calendar.YEAR));
+Log.i(TAG,"Before anything: endingDate's month: " + endingDate.get(Calendar.MONTH));
+Log.i(TAG, "Before anything: endingDate's day: " + endingDate.get(Calendar.DAY_OF_MONTH));
+
+//Debug: print out current status of variables
+Log.i(TAG,"Before anything: alert_dialog_starting_current_day: " + alert_dialog_starting_current_day);
+Log.i(TAG,"Before anything: alert_dialog_starting_current_month: " + alert_dialog_starting_current_month);
+Log.i(TAG,"Before anything: alert_dialog_starting_current_year: " + alert_dialog_starting_current_year);
+
+//need to use rootView.getContext() instead of getActivity().getApplicationContext()
+		
+Log.i(TAG, "New date on startingDate, year: " + startingDate.get(Calendar.YEAR));
+Log.i(TAG, "New date on startingDate, month: " + startingDate.get(Calendar.MONTH));
+Log.i(TAG, "New date on startingDate, day: " + startingDate.get(Calendar.DAY_OF_MONTH));
+Log.i(TAG, "New date on startingDay, in milliseconds: " + startingDate.getTimeInMillis());
+
+//Open up a new menu with a CalendarView inside it. Also have a save button
+//Once user presses save button ==> exit menu and save the date
+//http://androidopentutorials.com/android-datepickerdialog-on-edittext-click-event/
+//Use a DatePickerDialog instead. May have to implement onSaveInstanceState
+//Use constructor
+// DatePickerDialog(Context context, DatePickerDialog.OnDateSetListener listener, int year, int month, int dayOfMonth)
+
+//First, print out current status of variables
+Log.i(TAG,"Before anything: alert_dialog_ending_current_day: " + alert_dialog_ending_current_day);
+Log.i(TAG,"Before anything: alert_dialog_ending_current_month: " + alert_dialog_ending_current_month);
+Log.i(TAG,"Before anything: alert_dialog_ending_current_year: " + alert_dialog_ending_current_year);
+
+Log.i(TAG, "startingDate's year: " + startingDate.get(Calendar.YEAR));
+Log.i(TAG,"startingDate's month: " + startingDate.get(Calendar.MONTH));
+Log.i(TAG, "startingDate's day: " + startingDate.get(Calendar.DAY_OF_MONTH));
+Log.i(TAG, "copy's year: " + adjust.get(Calendar.YEAR));
+Log.i(TAG,"copy's month: " + adjust.get(Calendar.MONTH));
+Log.i(TAG, "copy's day: " + adjust.get(Calendar.DAY_OF_MONTH));
+
+       //Debug for when I was implementing configuration save states: Checking if stuff is empty
+//        if(days_28.isEmpty()){
+//            Log.i(TAG, "days_28 is empty");
+//        }
+//        else{
+//            Log.i(TAG, "days_28 is NOT empty");
+//        }
+//        if(days_29.isEmpty()){
+//            Log.i(TAG, "days_29 is empty");
+//        }
+//        else{
+//            Log.i(TAG, "days_29 is NOT empty");
+//        }
+//        if(days_30.isEmpty()){
+//            Log.i(TAG, "days_30 is empty");
+//        }
+//        else{
+//            Log.i(TAG, "days_30 is NOT empty");
+//        }
+//        if(days_31.isEmpty()){
+//            Log.i(TAG, "days_31 is empty");
+//        }
+//        else{
+//            Log.i(TAG, "days_31 is NOT empty");
+//        }
+//        if(days_spinner != null){
+//            Log.i(TAG, "days spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "days spinner is null");
+//        }
+//        if(month_spinner != null){
+//            Log.i(TAG, "month spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "month spinner is null");
+//        }
+//        if(years_spinner != null){
+//            Log.i(TAG, "years spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "years spinner is null");
+//        }
+//        if(ending_days_spinner != null){
+//            Log.i(TAG, "e days spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "e days spinner is null");
+//        }
+//        if(ending_month_spinner != null){
+//            Log.i(TAG, "e month spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "e month spinner is null");
+//        }
+//        if(ending_years_spinner != null){
+//            Log.i(TAG, "e year spinner is not null");
+//        }
+//        else{
+//            Log.i(TAG, "e year spinner is null");
+//        }
