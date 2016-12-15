@@ -138,6 +138,7 @@ public class DaysUntilFragment extends Fragment {
         }
 
         if( savedInstanceState != null || utilitiesBundle != null){
+
             //In the case where a fragment change back to daysUntilFragment, meaning that values are not null, but savedInstanceState == null
             //Case 1: Fragment change, but there was no configuration change. Thus, grab saved state from Utilities
             if(savedInstanceState == null && utilitiesBundle != null){
@@ -1482,7 +1483,7 @@ public class DaysUntilFragment extends Fragment {
         savedInstanceState.putBoolean("isChecked", isChecked);
 
         //Create a copy of the bundle to be put inside Utilties
-        Utilities.setBundleFromDaysUntilFragment((Bundle) savedInstanceState.clone());
+        Utilities.setBundleFromDaysUntilFragment(savedInstanceState);
 
         //Lastly, call the parent class's equivalent method
         super.onSaveInstanceState(savedInstanceState);
@@ -1527,7 +1528,7 @@ public class DaysUntilFragment extends Fragment {
         onPauseBundle.putString("result_text_details", result_text_details.getText().toString());
 
         //Create a copy of the bundle to be put inside Utilties
-        Utilities.setBundleFromDaysUntilFragment((Bundle)onPauseBundle.clone());
+        Utilities.setBundleFromDaysUntilFragment(onPauseBundle);
 
         super.onPause();
     }

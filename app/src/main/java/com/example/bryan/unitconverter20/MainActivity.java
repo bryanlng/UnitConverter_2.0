@@ -55,7 +55,7 @@ public class MainActivity extends ActionBarActivity {
         mDrawerList = (ListView)findViewById(R.id.left_drawer);
         selectItemCurrentPosition = 0;
 
-        //Set the adapter for the ListVIew, which will be an ArrayAdapter
+        //Set the adapter for the ListView, which will be an ArrayAdapter
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
                 R.layout.drawer_list_item,fragmentTitles));
 
@@ -114,7 +114,7 @@ public class MainActivity extends ActionBarActivity {
         selectItemCurrentPosition = position;
 
         //Initialize Fragment stuff
-//        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getFragmentManager();
 //        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         //Create the 3 Fragments
@@ -122,6 +122,7 @@ public class MainActivity extends ActionBarActivity {
         daysUntilFragment = new DaysUntilFragment();
         currencyFragment = new CurrencyFragment();
 
+        //Case 1: Want to go to Unit Fragment
         if(position == 0){
             // Add the fragment to the activity, pushing this transaction
             // on to the back stack.
@@ -129,85 +130,26 @@ public class MainActivity extends ActionBarActivity {
             ft.replace(R.id.content_frame, unitFragment);
             ft.addToBackStack(null);
             ft.commit();
+            fragmentManager.executePendingTransactions();
         }
-        else{
+
+        //Case 2: Want to go to DaysUntil Fragment
+        else if(position == 1){
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.replace(R.id.content_frame, daysUntilFragment);
             ft.addToBackStack(null);
             ft.commit();
+            fragmentManager.executePendingTransactions();
         }
-//        if(position == 0){  //user selected unit fragment/ desires to open Unit Fragment
-//            if(!isUnitCurrentFragment && !isDaysUntilFragment){
-//                //First time, user hasn't opened either the Unit Fragment or DaysUntil fragment yet.
-//                fragmentTransaction.add(R.id.content_frame, unitFragment).commit();
-//                isUnitCurrentFragment = true;
-//
-//            }
-//            else if(!isUnitCurrentFragment && isDaysUntilFragment){
-//                //User previously opened and is currently on daysUntil fragment, now wants to open Unit Fragment
-//                //Determine if i
-//
-//                if(previousFragmentAction.equals("Replaced unitFragment with daysUntilFragment")){
-//                    //http://stackoverflow.com/questions/17793249/how-do-popbackstack-and-replace-operations-differ
-//                    fragmentManager.popBackStack();
-//                }
-//                else{
-//                    previousFragmentAction = "Replaced daysUntilFragment with unitFragment";
-//                    fragmentTransaction.replace(R.id.content_frame, unitFragment)
-//                            .addToBackStack(null)
-//                            .commit();
-//                    fragmentManager.executePendingTransactions();
-//
-//                }
-//                isUnitCurrentFragment = true;
-//                isDaysUntilFragment = false;
-//            }
-//
-//            else if(isUnitCurrentFragment){
-//                //do nothing
-//                Log.i(TAG, "Pressed unitFragment while inside unitFragment, isUnitCurrentFragment: " + isUnitCurrentFragment + "<==(this should be true)");
-//            }
-//            else{
-//                Log.i(TAG, "should not go to here, for unitFragment");
-//                Log.i(TAG, "isUnitCurrentFragment: " + isUnitCurrentFragment + " ,isDaysUntilFragment:" + isDaysUntilFragment);
-//            }
-//        }
-//
-//        //position = 1
-//        else{   //user selected daysUntil fragment/ desires to open daysUntil Fragment
-//            if(!isUnitCurrentFragment && !isDaysUntilFragment){
-//                //First time, user hasn't opened either the Unit Fragment or DaysUntil fragment yet.
-//                isDaysUntilFragment = true;
-//                fragmentTransaction.add(R.id.content_frame, daysUntilFragment).commit();
-//            }
-//
-//            else if(!isDaysUntilFragment && isUnitCurrentFragment ){
-//                //User previously opened and is currently on Unit fragment, now wants to open daysUntil Fragment
-//                if(previousFragmentAction.equals("Replaced daysUntilFragment with unitFragment")){
-//                    //that means the user previously was on daysUntilFragment ==> then switched to unitFragment ==> and is now trying to switch to daysUntilFragment
-//                    fragmentManager.popBackStack();
-//                }
-//                else{
-//                    previousFragmentAction = "Replaced unitFragment with daysUntilFragment";
-//                    fragmentTransaction.replace(R.id.content_frame, daysUntilFragment)
-//                            .addToBackStack(null)
-//                            .commit();
-//                    fragmentManager.executePendingTransactions();
-//                }
-//                isDaysUntilFragment = true;
-//                isUnitCurrentFragment = false;
-//            }
-//
-//            else if(isDaysUntilFragment){
-//                //do nothing
-//                Log.i(TAG, "Pressed daysUntilFragment while inside daysUntilFragment, isDaysUntilFragment: " + isDaysUntilFragment + "<==(this should be true)");
-//            }
-//            else{
-//                Log.i(TAG, "should not go to here, for daysUntilFragment");
-//                Log.i(TAG, "isUnitCurrentFragment: " + isUnitCurrentFragment + " ,isDaysUntilFragment:" + isDaysUntilFragment);
-//            }
-//
-//        }
+
+        //Case 3: Want to go to Currency Fragment
+        else{
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.replace(R.id.content_frame, currencyFragment);
+            ft.addToBackStack(null);
+            ft.commit();
+            fragmentManager.executePendingTransactions();
+        }
 
         // update selected item and title, then close the drawer
         mDrawerList.setItemChecked(position, true);

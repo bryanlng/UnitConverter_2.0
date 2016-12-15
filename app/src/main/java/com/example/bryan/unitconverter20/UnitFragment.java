@@ -103,15 +103,22 @@ public class UnitFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.unit_fragment_layout, container, false);
         setRetainInstance(true);
 
+        //Instantiate UI elements of the View
+        //Default showing = Category = Weight, EditTexts have value 0, Option A = kg, Option B = lb
+        //Initialize Options EditTexts.
+        textA = (EditText)rootView.findViewById(R.id.optionAText);
+        textB = (EditText)rootView.findViewById(R.id.optionBText);
+
         //First check if there was a configuration change. If there was, restore values
         Bundle utilitiesBundle = Utilities.getBundleFromUnitFragment();
         if( savedInstanceState != null || utilitiesBundle != null) {
             //In the case where a fragment change back to UnitFragment, meaning that values are not null, but savedInstanceState == null
+
             //Case 1: Fragment change, but there was no configuration change. Thus, grab saved state from Utilities
             if (savedInstanceState == null && utilitiesBundle != null) {
                 //get the bundle from the Utilities class ==> make it to be savedInstanceState
                 Log.i(TAG, "savedInstanceState == null, so we must get from Utilities, then restore");
-                savedInstanceState = Utilities.getBundleFromUnitFragment();
+                savedInstanceState = utilitiesBundle;
             }
 
             //Case 2: Configuration change, no fragment change.
@@ -127,17 +134,12 @@ public class UnitFragment extends Fragment {
             //Set the text that was previously floating on the EditTexts
             textA.setText(savedInstanceState.getString("optionAText"));
             textB.setText(savedInstanceState.getString("optionBText"));
+
+
         }
 
         Log.i(TAG, "optionACurrentSelection before anything: " + optionACurrentSelection);
         Log.i(TAG, "optionBCurrentSelection before anything: " + optionBCurrentSelection);
-
-
-        //Instantiate UI elements of the View
-        //Default showing = Category = Weight, EditTexts have value 0, Option A = kg, Option B = lb
-        //Initialize Options EditTexts.
-        textA = (EditText)rootView.findViewById(R.id.optionAText);
-        textB = (EditText)rootView.findViewById(R.id.optionBText);
 
         //Check to see if hex was set (as values from savedInstanceState might have been brought back)
         //If it is true, set the keyboard to be the regular keyboard with alphabet
@@ -1268,11 +1270,12 @@ public class UnitFragment extends Fragment {
         savedInstanceState.putInt("optionBCurrentSelection", optionBCurrentSelection);
         savedInstanceState.putBoolean("optionAHexSet", optionAHexSet);
         savedInstanceState.putBoolean("optionBHexSet", optionBHexSet);
+
         savedInstanceState.putString("optionAText", textA.getText().toString());
         savedInstanceState.putString("optionBText", textB.getText().toString());
 
         //Create a copy of the bundle to be put inside Utilties
-        Utilities.setBundleFromUnitFragment((Bundle) savedInstanceState.clone());
+        Utilities.setBundleFromUnitFragment(savedInstanceState);
 
         //Lastly, call the parent class's equivalent method
         super.onSaveInstanceState(savedInstanceState);
@@ -1291,7 +1294,7 @@ public class UnitFragment extends Fragment {
         onPauseBundle.putString("optionBText", textB.getText().toString());
 
         //Create a copy of the bundle to be put inside Utilties
-        Utilities.setBundleFromUnitFragment((Bundle)onPauseBundle.clone());
+        Utilities.setBundleFromUnitFragment(onPauseBundle);
 
         super.onPause();
     }

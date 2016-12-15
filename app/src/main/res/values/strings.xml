@@ -6,6 +6,7 @@
     <string-array name="fragmentTitles">
         <item>General Unit Converter</item>
         <item>Date Calculator</item>
+        <item>Currency Converter</item>
     </string-array>
     <string name="display">a;lkdjfalksdjfl;adsjflk;js</string>
     <string name="category_prompt">Choose a category</string>

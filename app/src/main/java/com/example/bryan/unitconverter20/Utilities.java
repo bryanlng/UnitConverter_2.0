@@ -1,6 +1,7 @@
 package com.example.bryan.unitconverter20;
 
 import android.os.Bundle;
+import android.util.Log;
 
 /**
  * Class created for the purpose of creating global variables
@@ -13,13 +14,20 @@ import android.os.Bundle;
 
 
 public class Utilities {
+    private static final String TAG = "UnitConverterTag";
     public static Bundle unitFragmentBundleCopy = null;
     public static Bundle daysUntilFragmentBundleCopy = null;
 
     public static Bundle getBundleFromUnitFragment(){
+        Log.i(TAG, "Utilities: getBundleFromUnitFragment()");
+        if(unitFragmentBundleCopy == null) Log.i(TAG, "Utilities: getBundleFromUnitFragment() bundle is null");
+        else Log.i(TAG, "Utilities: getBundleFromUnitFragment() bundle is NOT NULL");
         return unitFragmentBundleCopy;
     }
     public static void setBundleFromUnitFragment(Bundle b){
+        Log.i(TAG, "Utilities: setBundleFromUnitFragment()");
+        if(unitFragmentBundleCopy == null) Log.i(TAG, "Utilities: setBundleFromUnitFragment() bundle is currently null");
+        else Log.i(TAG, "Utilities: setBundleFromUnitFragment() bundle is currently NOT NULL");
         unitFragmentBundleCopy = b;
     }
     public static Bundle getBundleFromDaysUntilFragment(){
