@@ -138,15 +138,6 @@ public class DaysUntilFragment extends Fragment {
         }
 
         if( savedInstanceState != null || utilitiesBundle != null){
-            /* Problem
-               DaysUntilFragment loaded ==> then fragment change to UnitFragment ==> then fragment change back to daysUntilFragment
-               Means that values are not null, but savedInstanceState == null
-
-               Solution:
-               Make a Utilities class that houses a global variable
-               And our new if conditional will be: if(savedInstanceState != null || <some condition on the global variable>)
-             */
-
             //In the case where a fragment change back to daysUntilFragment, meaning that values are not null, but savedInstanceState == null
             //Case 1: Fragment change, but there was no configuration change. Thus, grab saved state from Utilities
             if(savedInstanceState == null && utilitiesBundle != null){
