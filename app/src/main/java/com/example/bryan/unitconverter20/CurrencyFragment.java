@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 
 public class CurrencyFragment extends Fragment {
+    private static final String TAG = "UnitConverterTag";
 
     public CurrencyFragment() {
         // Required empty public constructor
@@ -21,10 +23,6 @@ public class CurrencyFragment extends Fragment {
         // Inflate the layout for this fragment
         setRetainInstance(true);
         View rootView = inflater.inflate(R.layout.currency_fragment_layout, container, false);
-
-
-
-
 
 
         return rootView;
@@ -39,7 +37,7 @@ public class CurrencyFragment extends Fragment {
 
     @Override
     public void onPause(){
-
+        super.onPause();
     }
 
 }
