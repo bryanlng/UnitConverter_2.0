@@ -1,0 +1,46 @@
+http://stackoverflow.com/questions/12744848/typing-to-two-edittext-fields-at-same-time
+import android.text.Editable;
+import android.text.TextWatcher;
+firstedittext.addTextChangedListener(new TextWatcher() {
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            secondedittext.setText(firstedittext.getText() + "");
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count,
+                int after) {                
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
+    });
+
+While first text is being edited:
+1. If good format ==> show output on 2nd edittext
+2. If bad format ==> show message "bad format"
+
+Overall changes:
+1. Delete compute button
+	-every time text is changed ==> call computeResult
+2. Delete clear buttons
+3. Less uses for alertDialog, now
+
+Inside textwatchers for each editText:
+1. call computeResult==> returns the string to display
+2. Set the text field
+
+
+Methods to change:
+1. computeResult
+	-only error check now = if 
+	-still, call computeResultHelper
+2. computeResultHelper
+	-Should return a string now
+	-SHouldn't set the EditText's anymore
+	-That way, we only have to take in 2 inputs, and we don't have to check for which text field we're editing
+
+	
+	

@@ -30,8 +30,6 @@ public class MainActivity extends ActionBarActivity {
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private String previousFragmentAction = "";
-    private boolean isUnitCurrentFragment = false;
-    private boolean isDaysUntilFragment = false;
     private int selectItemCurrentPosition;
 
     @Override
@@ -40,8 +38,6 @@ public class MainActivity extends ActionBarActivity {
         //Restore previous state if there was one
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null){
-            isUnitCurrentFragment = savedInstanceState.getBoolean("isUnitCurrentFragment");
-            isDaysUntilFragment = savedInstanceState.getBoolean("isDaysUntilFragment");
             fragmentTitles = savedInstanceState.getStringArray("fragmentTitles");
             selectItemCurrentPosition = savedInstanceState.getInt("selectItemCurrentPosition");
             setTitle(fragmentTitles[selectItemCurrentPosition]);
@@ -110,7 +106,6 @@ public class MainActivity extends ActionBarActivity {
     /**Swaps fragments in the main content View**/
     private void selectItem(int position){
         Log.i(TAG, "Entered selectItem() with position: " + position);
-        Log.i(TAG, "BEFORE OPERATION: isUnitCurrentFragment: " + isUnitCurrentFragment + " ,isDaysUntilFragment:" + isDaysUntilFragment);
         selectItemCurrentPosition = position;
 
         //Initialize Fragment stuff
@@ -200,11 +195,6 @@ public class MainActivity extends ActionBarActivity {
      */
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-
-        savedInstanceState.putBoolean("isUnitCurrentFragment",
-                isUnitCurrentFragment);
-        savedInstanceState.putBoolean("isDaysUntilFragment",
-                isDaysUntilFragment);
         savedInstanceState.putInt("selectItemCurrentPosition", selectItemCurrentPosition);
         savedInstanceState.putStringArray("fragmentTitles",fragmentTitles);
         super.onSaveInstanceState(savedInstanceState);

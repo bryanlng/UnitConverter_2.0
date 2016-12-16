@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,12 +97,15 @@ public class UnitFragment extends Fragment {
     private final double MICROMETER_PER_FEET = 304800;
     private final double MICROMETER_PER_INCH = 25400;
 
+    private View currentView = null;
+
     public UnitFragment(){
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.unit_fragment_layout, container, false);
+        currentView = rootView;
         setRetainInstance(true);
 
         //Instantiate UI elements of the View
@@ -318,6 +323,27 @@ public class UnitFragment extends Fragment {
             }
         });
 
+        //TextWatcher for both EditTexts
+        //http://stackoverflow.com/questions/20278382/differences-between-textwatcher-s-ontextchanged-beforetextchanged-and-aftertex
+        textA.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // runs during the text changing.
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // runs the instant before the text is changed.
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                //runs immediately after the text is changed.
+                String result = computeResult("optionA");
+                textB.setText(result);
+            }
+        });
+
         //Set the Clear Buttons
         clearA = (Button)rootView.findViewById(R.id.clearA);
         clearA.setOnClickListener(new View.OnClickListener() {
@@ -337,12 +363,12 @@ public class UnitFragment extends Fragment {
 
         //Compute Button
         compute = (Button)rootView.findViewById(R.id.compute_button);
-        compute.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                computeResult(v);
-            }
-        });
+//        compute.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                computeResult(v);
+//            }
+//        });
         return rootView;
 //        return inflater.inflate(R.layout.unit_fragment_layout, container, false);
     }
@@ -355,34 +381,43 @@ public class UnitFragment extends Fragment {
         First check that only one textbook has text in it. If not, then show an alert dialog
         Then, check for correct format in
      */
-    public void computeResult(View v){
+    public String computeResult(String whichOption){
         //Get text that the user inputted
         String optionA = textA.getText().toString();
         String optionB = textB.getText().toString();
         Log.i(TAG, "computeResult, where optionA: " + optionA + ", optionB: " + optionB);
 
-        //Case 1: If first textfield is filled out, and the other is empty
-        if(!optionA.equals("") && optionB.equals("")){  //optionA has text in it, optionB has nothing in it
-            Log.i(TAG, "computeResult, optionA = good, optionB = empty");
-            computeResultHelper("optionA", optionA, optionB, v);
+        //If user is trying to convert to the same category, STOP THEM
+        if(currentOptionA.equals(currentOptionB)){
+            showAlertDialog(getResources().getString(R.string.same_category), getCurrentView());
         }
-
-        //Case 2: If second textfield is filled out, and the other is empty
-        else if(optionA.equals("") && !optionB.equals("")){
-            computeResultHelper("optionB", optionA, optionB, v);
-        }
-
-        //Bad cases --> pop up alert dialog
         else{
-            if(optionA.equals("") && optionB.equals("")){
-                //both EditTexts are null
-                showAlertDialog("Please input text into one of the text fields!", v);
+            //Case 1: Filling in TextA, want the result in TextB
+            if(whichOption.equals("optionA")){  //optionA has text in it, optionB has nothing in it
+
+                if(optionA.equals(""))
+                    return "No text entered";
+                else{
+                    Log.i(TAG, "computeResult, optionA = good and not empty");
+                    String result = computeResultHelper("optionA", optionA, optionB);
+                    return result;
+                }
+
             }
-            if(!optionA.equals("") && !optionB.equals("")){
-                //both EditTexts are full
-                showAlertDialog("Need to clear one of the text fields!", v);
+
+            //Case 2: Filling in TextB, want the result in TextA
+            else {
+                if(optionB.equals(""))
+                    return "No text entered";
+                else {
+                    Log.i(TAG, "computeResult, optionA = good and not empty");
+                    String result = computeResultHelper("optionB", optionA, optionB);
+                    return result;
+                }
             }
         }
+
+        return "error";
     }
 
     /*
@@ -1313,7 +1348,7 @@ public class UnitFragment extends Fragment {
             the View v that was passed in from the original parameter, which was passed in from the onClick() in the compute button
             Not really efficient, but
      */
-    public void computeResultHelper(String whichOption, String optionA, String optionB, View v){
+    public String computeResultHelper(String whichOption, String optionA, String optionB){
 
         //Programming category
         if(currentCategory.equals("Programming")){
@@ -1321,10 +1356,10 @@ public class UnitFragment extends Fragment {
 
             //If input is good
             if(correctFormat){
-
                 //If same format, prompt user to choose a different category
                 if(currentOptionA.equals(currentOptionB)){
-                    showAlertDialog(getResources().getString(R.string.same_category), v);
+//                    showAlertDialog(getResources().getString(R.string.same_category), v);
+                    return "Error: Same Category";
                 }
                 else{
                     //Case 1: Converting between Binary <----> Decimal
@@ -1333,13 +1368,15 @@ public class UnitFragment extends Fragment {
                         //Case 1a: Convert Binary --> Decimal, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
                             Double value = binaryToDecimal(optionA);
-                            textB.setText(""+truncateToNDecimalPlaces(value,4));
+//                            textB.setText(""+truncateToNDecimalPlaces(value,4));
+                            return "" +truncateToNDecimalPlaces(value,4);
                         }
 
                         //Case 1b: Convert Decimal --> Binary, where optionB has input, optionA has nothing
                         else{
                             //decimal --> binary
-                            textA.setText(decimalToBinary(optionB));
+//                            textA.setText(decimalToBinary(optionB));
+                            return decimalToBinary(optionB);
                         }
 
                     }
@@ -1349,13 +1386,15 @@ public class UnitFragment extends Fragment {
 
                         //Case 2a: Convert Binary --> Decimal --> Hex, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
-                            textB.setText(decimalToHex(String.valueOf(binaryToDecimal(optionA))));
+//                            textB.setText(decimalToHex(String.valueOf(binaryToDecimal(optionA))));
+                            return decimalToHex(String.valueOf(binaryToDecimal(optionA)));
                         }
 
                         //Case 2b: Convert Hex --> Decimal --> Binary, where optionB has input, optionA has nothing
                         else{
                             //hex --> binary
-                            textA.setText(decimalToBinary(String.valueOf(hexToDecimal(optionB))));
+//                            textA.setText(decimalToBinary(String.valueOf(hexToDecimal(optionB))));
+                            return decimalToBinary(String.valueOf(hexToDecimal(optionB)));
                         }
                     }
 
@@ -1364,13 +1403,15 @@ public class UnitFragment extends Fragment {
 
                         //Case 3a: Convert Decimal --> Binary, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
-                            textB.setText(decimalToBinary(optionA));
+//                            textB.setText(decimalToBinary(optionA));
+                            return decimalToBinary(optionA);
                         }
 
                         //Case 3b: Convert Binary --> Decimal, where optionB has input, optionA has nothing
                         else{
                             Double value = binaryToDecimal(optionB);
-                            textA.setText(""+truncateToNDecimalPlaces(value,4));
+//                            textA.setText(""+truncateToNDecimalPlaces(value,4));
+                            return ""+truncateToNDecimalPlaces(value,4);
                         }
 
                     }
@@ -1380,13 +1421,15 @@ public class UnitFragment extends Fragment {
 
                         //Case 4a: Convert Decimal --> Hex, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
-                            textB.setText(decimalToHex(optionA));
+//                            textB.setText(decimalToHex(optionA));
+                            return decimalToHex(optionA);
                         }
 
                         //Case 4b: Convert Hex --> Decimal, where optionB has input, optionA has nothing
                         else{
                             Double value = hexToDecimal(optionB);
-                            textA.setText(""+truncateToNDecimalPlaces(value,4));
+//                            textA.setText(""+truncateToNDecimalPlaces(value,4));
+                            return ""+truncateToNDecimalPlaces(value,4);
                         }
                     }
 
@@ -1396,13 +1439,15 @@ public class UnitFragment extends Fragment {
                         //Case 5a: Convert Hex --> Decimal, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
                             Double value = hexToDecimal(optionA);
-                            textB.setText(""+truncateToNDecimalPlaces(value,4));
+//                            textB.setText(""+truncateToNDecimalPlaces(value,4));
+                            return ""+truncateToNDecimalPlaces(value,4);
                         }
 
                         //Case 5b: Convert Decimal --> Hex, where optionB has input, optionA has nothing
                         else{
                             //decimal --> hex
-                            textA.setText(decimalToHex(optionB));
+//                            textA.setText(decimalToHex(optionB));
+                            return decimalToHex(optionB);
                         }
                     }
 
@@ -1411,12 +1456,14 @@ public class UnitFragment extends Fragment {
 
                         //Case 6a: Convert Hex --> Decimal --> Binary, where optionA has input, optionB has nothing
                         if(whichOption.equals("optionA")){
-                            textB.setText(decimalToBinary(String.valueOf(hexToDecimal(optionA))));
+//                            textB.setText(decimalToBinary(String.valueOf(hexToDecimal(optionA))));
+                            return decimalToBinary(String.valueOf(hexToDecimal(optionA)));
                         }
 
                         //Case 6b: Convert Binary --> Decimal --> Hex, where optionB has input, optionA has nothing
                         else{
-                            textA.setText(decimalToHex(String.valueOf(binaryToDecimal(optionB))));
+//                            textA.setText(decimalToHex(String.valueOf(binaryToDecimal(optionB))));
+                            return decimalToHex(String.valueOf(binaryToDecimal(optionB)));
                         }
                     }
 
@@ -1424,7 +1471,8 @@ public class UnitFragment extends Fragment {
             }
             else{
                 //catch bad error cases
-                showAlertDialog(getResources().getString(R.string.incorrect_format), v);    //"Incorrect format"
+//                showAlertDialog(getResources().getString(R.string.incorrect_format), v);    //"Incorrect format"
+                return "Error: Bad Format";
             }
         }
 
@@ -1437,7 +1485,8 @@ public class UnitFragment extends Fragment {
 
                 //If same format, prompt user to choose a different category
                 if(currentOptionA.equals(currentOptionB)) {
-                    showAlertDialog(getResources().getString(R.string.same_category), v);    //"Same category, please choose a different category"
+//                    showAlertDialog(getResources().getString(R.string.same_category), v);    //"Same category, please choose a different category"
+                    return "Error: Same Category";
                 }
                 else{
                         /* 2 Conversions
@@ -1459,20 +1508,23 @@ public class UnitFragment extends Fragment {
                       if(whichOption.equals("optionA")){
                           mmvalue = generateMiddlemanValue(currentOptionA, optionA);
                           mmvalue = generateEndingValue(currentOptionB, mmvalue);
-                          textB.setText(""+truncateToNDecimalPlaces(mmvalue,4));
+//                          textB.setText(""+truncateToNDecimalPlaces(mmvalue,4));
                       }
 
                       //Case 2: optionB has input, optionA has nothing
                       else{
                           mmvalue = generateMiddlemanValue(currentOptionB, optionB);
                           mmvalue = generateEndingValue(currentOptionA, mmvalue);
-                          textA.setText(""+truncateToNDecimalPlaces(mmvalue,4));
+//                          textA.setText(""+truncateToNDecimalPlaces(mmvalue,4));
                       }
+
+                      return ""+truncateToNDecimalPlaces(mmvalue,4);
                 }
             }
             else{
                 //Incorrect format
-                showAlertDialog(getResources().getString(R.string.incorrect_format), v);
+//                showAlertDialog(getResources().getString(R.string.incorrect_format), v);
+                return "Error: Bad format";
             }
         }
     }
@@ -1793,8 +1845,8 @@ public class UnitFragment extends Fragment {
         return middlemanValue;
     }
 
-
-
-
+    public View getCurrentView(){
+        return currentView;
+    }
 
 }
