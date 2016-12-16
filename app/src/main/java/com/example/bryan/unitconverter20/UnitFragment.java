@@ -445,16 +445,23 @@ public class UnitFragment extends Fragment {
         Checks the format of the user inputs
         Returns true if good format, false if bad format
      */
-    public boolean checkFormat(boolean isProgramming, String programmingInput, String programmingOutput ){
+    public boolean checkFormat(boolean isProgramming, String whichOption, String programmingInput, String programmingOutput ){
+        Log.i(TAG, "checkFormat(): isProgramming: " + isProgramming);
+        Log.i(TAG, "checkFormat(): programmingInput: " + programmingInput);
+        Log.i(TAG, "checkFormat(): programmingOutput: " + programmingOutput);
+
         boolean isNegative = false;
         boolean isGoodFormat = true;
         if(isProgramming){
             //Have to check both optionA's text and optionB's text
             String optionAcheck = textA.getText().toString();
             String optionBcheck = textB.getText().toString();
+            Log.i(TAG, "checkFormat(): optionAcheck: " + optionAcheck);
+            Log.i(TAG, "checkFormat(): optionBcheck: " + optionBcheck);
+
             /***********************************************Check optionA text**/
             Log.i(TAG, "Check optionA text");
-            if(!optionAcheck.equals("") && optionBcheck.equals("")){    //If there's only text in optionA and no text in optionB
+            if(whichOption.equals("optionA")){    //optionA
                 optionAcheck = optionAcheck.trim();
                 if(programmingInput.equals("Decimal")){
                     int i = 0;
@@ -493,13 +500,15 @@ public class UnitFragment extends Fragment {
                     }
                 }
                 else if(programmingInput.equals("Binary")){
+                    Log.i(TAG, "checking binary");
                     int i = 0;
                     boolean containsBadCharacter = false;
                     while(i < optionAcheck.length() && !containsBadCharacter){
                         int ascii = (int)optionAcheck.charAt(i);
+                        Log.i(TAG, "curr");
                         if(i == 0){
                             //checking for a "-" at the beginning. This is the only time where - is acceptable
-                            if(ascii == ASCII_DECIMAL_0 || ascii <= ASCII_DECIMAL_1 || ascii == ASCII_DECIMAL_DECIMAL_DOT || ascii == ASCII_DECIMAL_HYPHEN){
+                            if(ascii == ASCII_DECIMAL_0 || ascii == ASCII_DECIMAL_1 || ascii == ASCII_DECIMAL_DECIMAL_DOT || ascii == ASCII_DECIMAL_HYPHEN){
                                 //if it's in range
                                 Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
                             }
@@ -510,7 +519,7 @@ public class UnitFragment extends Fragment {
                             }
                         }
                         else{
-                            if(ascii == ASCII_DECIMAL_0 || ascii <= ASCII_DECIMAL_1 || ascii == ASCII_DECIMAL_DECIMAL_DOT){
+                            if(ascii == ASCII_DECIMAL_0 || ascii == ASCII_DECIMAL_1 || ascii == ASCII_DECIMAL_DECIMAL_DOT){
                                 //if it's in range
                                 Log.i(TAG, "checkFormat: " + optionAcheck.charAt(i) + " is in range");
                             }
@@ -572,10 +581,9 @@ public class UnitFragment extends Fragment {
             }
 
             /***********************************************Check optionB text. This is a mirror copy of the code above pretty much*/
-            Log.i(TAG, "checkFormat: Check optionB text");
-            if(optionAcheck.equals("") && !optionBcheck.equals("")){    //If there's only text in optionB and no text in optionA
+            else{   // if(whichOption.equals("optionB")
                 optionBcheck = optionBcheck.trim();
-                if(programmingOutput.equals("decimal")){
+                if(programmingOutput.equals("Decimal")){
                     int i = 0;
                     boolean containsBadCharacter = false;
                     while(i < optionBcheck.length() && !containsBadCharacter){
@@ -610,7 +618,7 @@ public class UnitFragment extends Fragment {
                         isGoodFormat = false;
                     }
                 }
-                else if(programmingOutput.equals("binary")){
+                else if(programmingOutput.equals("Binary")){
                     int i = 0;
                     boolean containsBadCharacter = false;
                     while(i < optionBcheck.length() && !containsBadCharacter){
@@ -703,7 +711,7 @@ public class UnitFragment extends Fragment {
             String optionBcheck = textB.getText().toString();
 
             Log.i(TAG, "checkFormat: Check optionA text");
-            if(!optionAcheck.equals("") && optionBcheck.equals("")){    //If there's only text in optionA and no text in optionB
+            if(whichOption.equals("optionA")){  //optionA
                 //Check optionAtext
                 optionAcheck = optionAcheck.trim();
                 int i = 0;
@@ -742,9 +750,7 @@ public class UnitFragment extends Fragment {
                 }
             }
 
-            Log.i(TAG, "Check optionB text");
-            if(optionAcheck.equals("") && !optionBcheck.equals("")){    //If there's only text in optionB and no text in optionA
-                //Check optionBtext
+            else { //if(whichOption.equals("optionB")), aka check optionBtext
                 optionBcheck = optionAcheck.trim();
                 int k = 0;
                 boolean containsBadCharacter2 = false;
@@ -1352,7 +1358,7 @@ public class UnitFragment extends Fragment {
 
         //Programming category
         if(currentCategory.equals("Programming")){
-            boolean correctFormat = checkFormat(true, currentOptionA, currentOptionB);
+            boolean correctFormat = checkFormat(true, whichOption, currentOptionA, currentOptionB);
 
             //If input is good
             if(correctFormat){
@@ -1478,7 +1484,7 @@ public class UnitFragment extends Fragment {
 
         //Non-programming: General unit converter
         else{
-            boolean correctFormat = checkFormat(false, "", "");
+            boolean correctFormat = checkFormat(false, whichOption,"", "");
 
             //If input is good
             if(correctFormat){

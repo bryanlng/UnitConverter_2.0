@@ -42,5 +42,10 @@ Methods to change:
 	-SHouldn't set the EditText's anymore
 	-That way, we only have to take in 2 inputs, and we don't have to check for which text field we're editing
 
-	
+Change checkFormat:
+boolean correctFormat = checkFormat(true, currentOptionA, currentOptionB);
+boolean correctFormat = checkFormat(false, "", "");
+
+So that it only checks one field, not both.
+
 	
