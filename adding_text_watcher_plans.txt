@@ -45,7 +45,15 @@ Methods to change:
 Change checkFormat:
 boolean correctFormat = checkFormat(true, currentOptionA, currentOptionB);
 boolean correctFormat = checkFormat(false, "", "");
+So that it only checks one field (either optionA or optionB), not both.
 
-So that it only checks one field, not both.
+Solving the infinite loop problem:
+1. How to tell difference between (A is editing right now --> which edits B as a result), vs (User is editing B right now)????
+Infinite loop because editing text A --> edits textB --> which edits Text A
+We can make it so that we don't edit text B, but we're still calling A --> B a million times. why not make it so that B never calls A again?
+
+Solution: Unregister B's addTextChangedListener while we're editing A
+But the problem is, this requires unregistering B in A. But B can't have been initialized first, because in B, we need to unregister A. 
+So impossible to do.
 
 	

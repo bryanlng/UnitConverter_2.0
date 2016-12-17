@@ -99,6 +99,9 @@ public class UnitFragment extends Fragment {
 
     private View currentView = null;
 
+    private boolean textAeditingNow = false;
+    private boolean textBeditingNow = false;
+
     public UnitFragment(){
     }
 
@@ -325,6 +328,7 @@ public class UnitFragment extends Fragment {
 
         //TextWatcher for both EditTexts
         //http://stackoverflow.com/questions/20278382/differences-between-textwatcher-s-ontextchanged-beforetextchanged-and-aftertex
+        //http://stackoverflow.com/questions/19615373/how-to-disable-textwatcher-on-setting-data-to-edittext
         textA.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -338,11 +342,41 @@ public class UnitFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                //runs immediately after the text is changed.
-                String result = computeResult("optionA");
-                textB.setText(result);
+                if(!textBeditingNow){
+                    //runs immediately after the text is changed.
+                    textAeditingNow = true;                         //set to true, so that B can't edit while A is ==> infinite loop
+                    String result = computeResult("optionA");
+                    textB.setText(result);
+                    textAeditingNow = false;                        //set back to false, so that B can edit again
+                }
             }
         });
+
+        textB.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // runs during the text changing.
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // runs the instant before the text is changed.
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!textAeditingNow){
+                    //runs immediately after the text is changed.
+                    textBeditingNow = true;                         //set to true, so that A can't edit while B is ==> infinite loop
+                    String result = computeResult("optionB");
+                    textA.setText(result);
+                    textBeditingNow = false;                        //set back to false, so that A can edit again
+                }
+
+            }
+        });
+
+
 
         //Set the Clear Buttons
         clearA = (Button)rootView.findViewById(R.id.clearA);
@@ -395,8 +429,10 @@ public class UnitFragment extends Fragment {
             //Case 1: Filling in TextA, want the result in TextB
             if(whichOption.equals("optionA")){  //optionA has text in it, optionB has nothing in it
 
-                if(optionA.equals(""))
-                    return "No text entered";
+                if(optionA.equals("")){
+                    showAlertDialog("No text entered", getCurrentView());
+                    return "";
+                }
                 else{
                     Log.i(TAG, "computeResult, optionA = good and not empty");
                     String result = computeResultHelper("optionA", optionA, optionB);
@@ -407,8 +443,10 @@ public class UnitFragment extends Fragment {
 
             //Case 2: Filling in TextB, want the result in TextA
             else {
-                if(optionB.equals(""))
-                    return "No text entered";
+                if(optionB.equals("")){
+                    showAlertDialog("No text entered", getCurrentView());
+                    return "";
+                }
                 else {
                     Log.i(TAG, "computeResult, optionA = good and not empty");
                     String result = computeResultHelper("optionB", optionA, optionB);
@@ -416,8 +454,8 @@ public class UnitFragment extends Fragment {
                 }
             }
         }
-
-        return "error";
+        showAlertDialog("Unknown error encountered", getCurrentView());
+        return "";
     }
 
     /*
@@ -1364,8 +1402,8 @@ public class UnitFragment extends Fragment {
             if(correctFormat){
                 //If same format, prompt user to choose a different category
                 if(currentOptionA.equals(currentOptionB)){
-//                    showAlertDialog(getResources().getString(R.string.same_category), v);
-                    return "Error: Same Category";
+                    showAlertDialog(getResources().getString(R.string.same_category), getCurrentView());
+                    return "";
                 }
                 else{
                     //Case 1: Converting between Binary <----> Decimal
@@ -1477,8 +1515,8 @@ public class UnitFragment extends Fragment {
             }
             else{
                 //catch bad error cases
-//                showAlertDialog(getResources().getString(R.string.incorrect_format), v);    //"Incorrect format"
-                return "Error: Bad Format";
+                showAlertDialog("Error: Bad format", getCurrentView());
+                return "";
             }
         }
 
@@ -1491,8 +1529,8 @@ public class UnitFragment extends Fragment {
 
                 //If same format, prompt user to choose a different category
                 if(currentOptionA.equals(currentOptionB)) {
-//                    showAlertDialog(getResources().getString(R.string.same_category), v);    //"Same category, please choose a different category"
-                    return "Error: Same Category";
+                    showAlertDialog(getResources().getString(R.string.same_category), getCurrentView());
+                    return "";
                 }
                 else{
                         /* 2 Conversions
@@ -1529,8 +1567,8 @@ public class UnitFragment extends Fragment {
             }
             else{
                 //Incorrect format
-//                showAlertDialog(getResources().getString(R.string.incorrect_format), v);
-                return "Error: Bad format";
+                showAlertDialog("Error: Bad format", getCurrentView());
+                return "";
             }
         }
     }
