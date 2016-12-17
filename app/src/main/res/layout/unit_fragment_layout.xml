@@ -6,10 +6,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/category"
-        android:layout_alignEnd="@+id/clearA"
         android:entries="@array/categories"
         android:prompt="@string/category_prompt"
-        />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,47 +24,19 @@
         android:layout_height="wrap_content"
         android:id="@+id/optionBText"
         android:hint="@string/optionsHint"
-        android:layout_alignBaseline="@+id/clearB"
-        android:layout_alignBottom="@+id/clearB"
-        android:layout_toStartOf="@+id/compute_button"
         android:inputType="numberDecimal"
-        />
+        android:layout_alignTop="@+id/optionsB"
+        android:layout_alignParentStart="true" />
     <Spinner
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/optionsA"
-        android:layout_above="@+id/optionBText"
-        android:layout_alignStart="@+id/compute_button"
-        android:layout_toStartOf="@+id/clearA"
-        android:layout_below="@+id/category" />
+        android:layout_alignTop="@+id/optionAText"
+        android:layout_toEndOf="@+id/optionAText" />
     <Spinner
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/optionsB"
         android:layout_below="@+id/optionsA"
-        android:layout_alignStart="@+id/optionsA"
-        android:layout_toStartOf="@+id/clearB"
-        android:layout_alignBottom="@+id/clearB" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/clearA"
-        android:text="@string/clear"
-        android:layout_alignBottom="@+id/optionAText"
-        android:layout_alignParentEnd="true" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/clearB"
-        android:text="@string/clear"
-        android:layout_below="@+id/clearA"
-        android:layout_alignParentEnd="true" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/compute_button"
-        android:text="@string/compute"
-        android:layout_below="@+id/clearB"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="35dp" />
-</RelativeLayout>
+        android:layout_alignStart="@+id/optionsA" />
+ </RelativeLayout>

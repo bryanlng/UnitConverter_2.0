@@ -34,13 +34,9 @@ public class UnitFragment extends Fragment {
 
     private EditText textA;
     private Spinner optionSpinnerA;
-    private Button clearA;
 
     private EditText textB;
     private Spinner optionSpinnerB;
-    private Button clearB;
-
-    private Button compute;
 
     //Data to store into save instance
     private String currentCategory = "";
@@ -376,33 +372,6 @@ public class UnitFragment extends Fragment {
             }
         });
 
-
-
-        //Set the Clear Buttons
-        clearA = (Button)rootView.findViewById(R.id.clearA);
-        clearA.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textA.setText("");
-            }
-        });
-
-        clearB = (Button)rootView.findViewById(R.id.clearB);
-        clearB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textB.setText("");
-            }
-        });
-
-        //Compute Button
-        compute = (Button)rootView.findViewById(R.id.compute_button);
-//        compute.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                computeResult(v);
-//            }
-//        });
         return rootView;
 //        return inflater.inflate(R.layout.unit_fragment_layout, container, false);
     }
