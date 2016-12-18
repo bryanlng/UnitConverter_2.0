@@ -1,4 +1,6 @@
 http://stackoverflow.com/questions/12744848/typing-to-two-edittext-fields-at-same-time
+http://stackoverflow.com/questions/20278382/differences-between-textwatcher-s-ontextchanged-beforetextchanged-and-aftertex
+http://stackoverflow.com/questions/19615373/how-to-disable-textwatcher-on-setting-data-to-edittext
 import android.text.Editable;
 import android.text.TextWatcher;
 firstedittext.addTextChangedListener(new TextWatcher() {

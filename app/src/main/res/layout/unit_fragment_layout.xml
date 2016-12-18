@@ -16,7 +16,6 @@
         android:id="@+id/optionAText"
         android:hint="@string/optionsHint"
         android:layout_below="@+id/category"
-        android:layout_toStartOf="@+id/compute_button"
         android:inputType="numberDecimal"
         />
     <EditText

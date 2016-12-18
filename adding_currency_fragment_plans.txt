@@ -1,0 +1,18 @@
+Research:
+Most traded currencies:
+http://www.investopedia.com/articles/forex/11/popular-currencies-and-why-theyre-traded.asp?lgl=bt1tn-no-widget
+1. US dollar
+2. Euro
+3. Japanese Yen
+4. British pound
+5. Swiss franc
+6. Canadian Dollar
+
+
+Features to include inside app:
+1. Convert between Currency A <--> Currency B
+2. Show currency conversions between Currency A <--> 5-6 frequently traded currencies
+3. Ability to set your 5-6 favorite currencies
+
+Specific stuff:
+

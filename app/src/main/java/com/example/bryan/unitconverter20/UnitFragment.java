@@ -93,9 +93,9 @@ public class UnitFragment extends Fragment {
     private final double MICROMETER_PER_FEET = 304800;
     private final double MICROMETER_PER_INCH = 25400;
 
-    private View currentView = null;
+    private View currentView = null;    //used for getting the currentView, used for showing error messages
 
-    private boolean textAeditingNow = false;
+    private boolean textAeditingNow = false;    //Used to coordinate access between TextWatchers
     private boolean textBeditingNow = false;
 
     public UnitFragment(){
@@ -323,8 +323,6 @@ public class UnitFragment extends Fragment {
         });
 
         //TextWatcher for both EditTexts
-        //http://stackoverflow.com/questions/20278382/differences-between-textwatcher-s-ontextchanged-beforetextchanged-and-aftertex
-        //http://stackoverflow.com/questions/19615373/how-to-disable-textwatcher-on-setting-data-to-edittext
         textA.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
