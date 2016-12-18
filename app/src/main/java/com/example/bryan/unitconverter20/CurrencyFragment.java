@@ -1,7 +1,9 @@
 package com.example.bryan.unitconverter20;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
@@ -12,6 +14,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 
 public class CurrencyFragment extends Fragment {
@@ -107,13 +116,23 @@ public class CurrencyFragment extends Fragment {
             }
         });
 
-
+        convert("a");
 
 
 
         return rootView;
 //        return inflater.inflate(R.layout.currency_fragment_layout, container, false);
     }
+
+    public void convert(String whichOption){
+        Log.i(TAG, "entered convert");
+//        DataRetriever k = new DataRetriever();
+        new DataRetriever().execute();
+//        startActivity(new Intent(CurrencyFragment.this.getActivity(),
+//                DataRetriever.class));
+    }
+
+
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
@@ -125,5 +144,56 @@ public class CurrencyFragment extends Fragment {
     public void onPause(){
         super.onPause();
     }
+
+    public View getCurrentView(){
+        return currentView;
+    }
+
+//    /**
+//     * Created by Bryan on 12/17/2016.
+//     * http://stackoverflow.com/questions/29465996/how-to-get-json-object-using-httpurlconnection-instead-of-volley
+//     */
+//    private class DataRetriever extends AsyncTask<Void, Void, String> {
+//        private static final String TAG = "UnitConverterTag";
+//        private String BASE_URL = "http://api.fixer.io/latest?base=";
+//        private String SYMBOLS_URL = "http://api.fixer.io/latest?symbols=USD,GBP";
+//        private HttpURLConnection urlConnection;
+////    HashMap<String, Double>
+//
+//        @Override
+//        protected String doInBackground (Void... params){
+//            Log.i(TAG, "entered doInBackground");
+//            Log.i(TAG, "BASE_URL + USD: " + BASE_URL + "USD");
+//            StringBuilder builder = new StringBuilder();
+//            try{
+//                URL url = new URL("https://docs.oracle.com/javase/tutorial/networking/urls/readingWriting.html");
+//                urlConnection = (HttpURLConnection) url.openConnection();
+//                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+//
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//
+//                String line;
+//                while((line = reader.readLine()) != null){
+//                    builder.append(line);
+//                }
+//
+//            }
+//            catch(Exception e){
+//                e.printStackTrace();
+//            }
+//            finally {
+//                urlConnection.disconnect();
+//            }
+//
+//            Log.i(TAG, "doInBackground output: \n" + builder.toString());
+//            return builder.toString();
+//
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String result){
+//            Log.i(TAG, "onPostExecute output: \n" + result);
+//        }
+//    }
 
 }
