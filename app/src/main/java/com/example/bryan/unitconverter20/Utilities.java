@@ -37,4 +37,6 @@ public class Utilities {
         daysUntilFragmentBundleCopy = b;
     }
 
+
+
 }
