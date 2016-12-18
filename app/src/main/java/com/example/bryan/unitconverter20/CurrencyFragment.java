@@ -161,7 +161,7 @@ public class CurrencyFragment extends Fragment {
      * http://stackoverflow.com/questions/29465996/how-to-get-json-object-using-httpurlconnection-instead-of-volley
      */
 
-    private class DataRetriever extends AsyncTask<String, Void, String> {
+    public class DataRetriever extends AsyncTask<String, Void, String> {
         private static final String TAG = "UnitConverterTag";
         private static final String LATEST_URL = "http://api.fixer.io/latest";
         private static final String BASE_URL = "http://api.fixer.io/latest?base=";
