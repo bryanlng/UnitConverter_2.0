@@ -42,14 +42,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/clearA"
-        android:text="@string/clear"
-        android:layout_above="@+id/currency_optionB"
+        android:text="@string/clearA"
+        android:layout_alignTop="@+id/compute_button"
         android:layout_alignParentEnd="true" />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/clearB"
-        android:text="@string/clear"
+        android:text="@string/clearB"
         android:layout_below="@+id/clearA"
         android:layout_alignEnd="@+id/currency_optionA" />
 

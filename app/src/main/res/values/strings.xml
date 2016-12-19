@@ -65,6 +65,8 @@
         <item>Decimal</item>
     </string-array>
     <string name="clear">Clear</string>
+    <string name="clearA">Clear A</string>
+    <string name="clearB">Clear B</string>
     <string name="compute">Compute</string>
     <string name="same_category">Same category, please choose a different category</string>
     <string name="no_text_entered">No text entered</string>
@@ -142,16 +144,16 @@
         <item>2021</item>
     </string-array>
     <string-array name="currencies_all">
-        <item>USD</item>
-        <item>EUR</item>
-        <item>JPY</item>
-        <item>GBP</item>
-        <item>CAD</item>
-        <item>CHF</item>
-        <item>AUD</item>
-        <item>BGN</item>
-        <item>BRL</item>
-        <item>CNY</item>
+        <item>USD (US Dollar)</item>
+        <item>EUR (Euro)</item>
+        <item>JPY (Japanese Yen)</item>
+        <item>GBP (British Pound)</item>
+        <item>CAD (Canadian)</item>
+        <item>CHF (Swiss Franc)</item>
+        <item>AUD (Australian Dollar)</item>
+        <item>BGN (Bulgarian Lev)</item>
+        <item>BRL (Brazilian Real)</item>
+        <item>CNY (Chinese Yuan)</item>
         <item>CZK</item>
         <item>DKK</item>
         <item>HKD</item>
