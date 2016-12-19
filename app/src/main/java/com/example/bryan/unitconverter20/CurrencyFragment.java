@@ -28,10 +28,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -47,6 +49,8 @@ public class CurrencyFragment extends Fragment {
     private Spinner optionSpinnerB;
 
     private Button compute_button;
+    private Button clearA;
+    private Button clearB;
 
     private View currentView = null;    //used for getting the currentView, used for showing error messages
     private boolean textAeditingNow = false;    //Used to coordinate access between TextWatchers
@@ -150,6 +154,25 @@ public class CurrencyFragment extends Fragment {
             }
         });
 
+        //Clear buttons
+        clearA = (Button) rootView.findViewById(R.id.clearA);
+        clearB = (Button) rootView.findViewById(R.id.clearB);
+
+        clearA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textA.setText("");
+            }
+        });
+
+        clearB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textB.setText("");
+            }
+        });
+
+
 
 
 //        retrieveAndCompute("optionA");
@@ -177,7 +200,19 @@ public class CurrencyFragment extends Fragment {
                 B) Else
                     -We currently have the most updated data
                     -Thus, no need to update. Compute the inverse.
-                    Ex: Trying to go from HKD --> US
+                    Ex:
+                        -Trying to go from HKD --> USD.
+                        -We have all the data for USD --> other currencies
+                        -Thus, we need to find the USD mapping, then reverse it
+                        -Ex: Convert 700 HKD --> ?? USD
+                        -1 USD = 7.7624 HKD
+                        -Thus, do 700 / 7.7624 ==> 90.178
+            4. Else
+                -We don't currently have the data for the currencies we want to convert
+                -Ex:
+                    -Have USD --> other currencies
+                    -But want to compute HKD --> JPY
+                -Thus, we need to update, then also compute
 
      */
     public void compute(View v){
@@ -201,12 +236,11 @@ public class CurrencyFragment extends Fragment {
                     }
 
                     else{
-                        Double result = convert("optionA");
+                        Double new_currency_multiplier = convert_from("optionA");
                         Double curr_value = Double.parseDouble(textA.getText().toString());
-                        textA.setText("" + curr_value);
-                        textB.setText("" + curr_value * result);
-                        currentOptionAText = "" + curr_value;
-                        currentOptionBText = "" + curr_value * result;
+                        String result = truncateToNDecimalPlaces(curr_value * new_currency_multiplier, 2);
+                        textB.setText(result);
+                        currentOptionBText = result;
                     }
                 }
                 else if(current_base.equals(currentOptionB)){
@@ -216,29 +250,71 @@ public class CurrencyFragment extends Fragment {
                     }
 
                     else{
-                        Double result = convert("optionA");
+                        Double new_currency_multiplier = convert_from("optionA");
                         Double curr_value = Double.parseDouble(textA.getText().toString());
-                        textA.setText("" + curr_value);
-                        textB.setText("" + curr_value * result);
-                        currentOptionAText = "" + curr_value;
-                        currentOptionBText = "" + curr_value * result;
+                        String result = truncateToNDecimalPlaces(curr_value / new_currency_multiplier, 2);
+                        textB.setText(result);
+                        currentOptionBText = result;
                     }
                 }
                 else{
-
+                    retrieveAndCompute("optionA", currentOptionA);
                 }
             }
 
             //Case 2: EditText B filled with text, EditText A empty
+            //Same code as above, except we do it to EditText A
             else if(!optionB.equals("") && optionA.equals("")){
+                if(currencies.isEmpty()){
+                    retrieveAndCompute("optionB", currentOptionB);
+                }
+                else if(current_base.equals(currentOptionB)){
+                    long currentTime = System.currentTimeMillis();
+                    if(hasTwelveHoursElapsed(lastTimeUpdated,currentTime)){
+                        retrieveAndCompute("optionB", currentOptionB);
+                    }
 
+                    else{
+                        Double new_currency_multiplier = convert_from("optionB");
+                        Double curr_value = Double.parseDouble(textB.getText().toString());
+                        String result = truncateToNDecimalPlaces(curr_value * new_currency_multiplier, 2);
+                        textA.setText(result);
+                        currentOptionAText = result;
+                    }
+                }
+                else if(current_base.equals(currentOptionA)){
+                    long currentTime = System.currentTimeMillis();
+                    if(hasTwelveHoursElapsed(lastTimeUpdated,currentTime)){
+                        retrieveAndCompute("optionB", currentOptionB);
+                    }
+
+                    else{
+                        Double new_currency_multiplier = convert_from("optionB");
+                        Double curr_value = Double.parseDouble(textB.getText().toString());
+                        String result = truncateToNDecimalPlaces(curr_value / new_currency_multiplier, 2);
+                        textA.setText(result);
+                        currentOptionAText = result;
+                    }
+                }
+                else{
+                    retrieveAndCompute("optionB", currentOptionB);
+                }
             }
 
-            //Bad Case, where both EditTexts are empty
+            //Bad Cases,
             else{
+                //where both EditTexts are empty
                 if(optionA.equals("") && optionB.equals("")){
                     showAlertDialog(getResources().getString(R.string.no_text_entered),v);
                 }
+
+                //where both are full
+                else if(!optionA.equals("") && !optionB.equals("")){
+                    showAlertDialog(getResources().getString(R.string.both_entered),v);
+                }
+
+
+
             }
         }
 
@@ -250,9 +326,12 @@ public class CurrencyFragment extends Fragment {
          the appropriate textfields
      */
     public void retrieveAndCompute(String whichOption, String startingCurrency){
-        Log.i(TAG, "entered convert");
-        Log.i(TAG, "convert, current thread: " + Thread.currentThread().getName());
+        Log.i(TAG, "entered retrieveAndCompute");
+        Log.i(TAG, "retrieveAndCompute, current thread: " + Thread.currentThread().getName());
         long start = System.currentTimeMillis();
+
+        currencies.clear();     //Flush our HashMap, so that we don't have any of the old values
+
         DataRetriever k = new DataRetriever();
         k.execute(whichOption,startingCurrency);
 //        startActivity(new Intent(CurrencyFragment.this.getActivity(),
@@ -267,7 +346,7 @@ public class CurrencyFragment extends Fragment {
 
            Precondition: Values have been updated and are in the Hashmap
      */
-    public Double convert(String whichOption){
+    public Double convert_from(String whichOption){
         if(whichOption.equals("optionA"))
             return currencies.get(currentOptionB);
         else{
@@ -295,6 +374,23 @@ public class CurrencyFragment extends Fragment {
         if(end - start >= day)
             return true;
         return false;
+    }
+
+    /*
+        http://stackoverflow.com/questions/153724/how-to-round-a-number-to-n-decimal-places-in-java
+        Truncates the number to n decimal places
+     */
+    public String truncateToNDecimalPlaces(Double val, int n){
+        //Create the string to be used in decimal format
+        StringBuilder base = new StringBuilder("#.");
+        for(int i = 0; i < n; i++){
+            base.append("#");
+        }
+
+        //Operation
+        DecimalFormat df = new DecimalFormat(base.toString());
+        df.setRoundingMode(RoundingMode.CEILING);
+        return df.format(val);
     }
 
     public View getCurrentView(){
@@ -419,7 +515,7 @@ public class CurrencyFragment extends Fragment {
             Log.i(TAG, "onPostExecute output: " + paramFromDoInBackground);
             //4. Perform conversion, then fill in values for the EditTexts, ListView values
             //Have to set text here, because you can only touch Views in the main Thread
-            Double result = convert(paramFromDoInBackground);
+            Double result = convert_from(paramFromDoInBackground);
             Double curr_value = 0.0;
 
             //Case 1: Have text in textA, want a result in textB
@@ -440,7 +536,8 @@ public class CurrencyFragment extends Fragment {
                 currentOptionAText = "" + curr_value*result;
             }
 
-            //5.
+            //5. Update the time that we last updated to be NOW
+            lastTimeUpdated = System.currentTimeMillis();
         }
     }
 

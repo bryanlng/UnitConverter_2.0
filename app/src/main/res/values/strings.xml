@@ -68,6 +68,7 @@
     <string name="compute">Compute</string>
     <string name="same_category">Same category, please choose a different category</string>
     <string name="no_text_entered">No text entered</string>
+    <string name="both_entered">Please clear 1 text field</string>
     <string name="incorrect_format">Incorrect format/Bad input</string>
     <string name="from">From</string>
     <string name="to">To</string>

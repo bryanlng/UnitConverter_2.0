@@ -38,5 +38,19 @@
         android:text="@string/compute"
         android:layout_below="@+id/currency_optionB"
         android:layout_alignStart="@+id/currency_optionB" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/clearA"
+        android:text="@string/clear"
+        android:layout_above="@+id/currency_optionB"
+        android:layout_alignParentEnd="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/clearB"
+        android:text="@string/clear"
+        android:layout_below="@+id/clearA"
+        android:layout_alignEnd="@+id/currency_optionA" />
 
 </RelativeLayout>
