@@ -515,25 +515,24 @@ public class CurrencyFragment extends Fragment {
             Log.i(TAG, "onPostExecute output: " + paramFromDoInBackground);
             //4. Perform conversion, then fill in values for the EditTexts, ListView values
             //Have to set text here, because you can only touch Views in the main Thread
-            Double result = convert_from(paramFromDoInBackground);
+            Double new_currency_multiplier = convert_from(paramFromDoInBackground);
             Double curr_value = 0.0;
+            String result = "";
 
             //Case 1: Have text in textA, want a result in textB
             if(paramFromDoInBackground.equals("optionA")){
                 curr_value = Double.parseDouble(textA.getText().toString());
-                textA.setText("" + curr_value);
-                textB.setText("" + curr_value*result);
-                currentOptionAText = "" + curr_value;
-                currentOptionBText = "" + curr_value*result;
+                result = truncateToNDecimalPlaces(curr_value * new_currency_multiplier, 2);
+                textB.setText(result);
+                currentOptionBText = result;
             }
 
             //Case 2: Have text in textB, want a result in textA
             else{
                 curr_value = Double.parseDouble(textB.getText().toString());
-                textB.setText("" + curr_value);
-                textA.setText("" + curr_value*result);
-                currentOptionBText = "" + curr_value;
-                currentOptionAText = "" + curr_value*result;
+                result = truncateToNDecimalPlaces(curr_value * new_currency_multiplier, 2);
+                textA.setText(result);
+                currentOptionAText = result;
             }
 
             //5. Update the time that we last updated to be NOW
