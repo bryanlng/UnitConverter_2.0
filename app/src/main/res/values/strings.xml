@@ -154,6 +154,39 @@
         <item>BGN (Bulgarian Lev)</item>
         <item>BRL (Brazilian Real)</item>
         <item>CNY (Chinese Yuan)</item>
+        <item>CZK (Czech Koruna)</item>
+        <item>DKK (Danish Krone)</item>
+        <item>HKD (Hong Kong Dollar)</item>
+        <item>HUF (Hungarian Forint)</item>
+        <item>IDR (Indonesian Rupiah)</item>
+        <item>ILS (Israeli Shekel)</item>
+        <item>INR (Indian Rupee)</item>
+        <item>KRW (South Korean Won)</item>
+        <item>MXN (Mexican Peso)</item>
+        <item>MYR (Malaysian Ringgit)</item>
+        <item>NOK (Norwegian Krone)</item>
+        <item>NZD (New Zealand Dollar)</item>
+        <item>PHP (Philippine Peso)</item>
+        <item>PLN (Polish Zloty)</item>
+        <item>RON (Romanian Leu)</item>
+        <item>RUB (Russian Ruble)</item>
+        <item>SEK (Swedish Krona)</item>
+        <item>SGD (Singapore Dollar)</item>
+        <item>THB (Thai Baht)</item>
+        <item>TRY (Turkish Lira)</item>
+        <item>ZAR (South African Rand)</item>
+    </string-array>
+    <string-array name="currencies_abbrev">
+        <item>USD</item>
+        <item>EUR</item>
+        <item>JPY</item>
+        <item>GBP</item>
+        <item>CAD</item>
+        <item>CHF</item>
+        <item>AUD</item>
+        <item>BGN</item>
+        <item>BRL</item>
+        <item>CNY</item>
         <item>CZK</item>
         <item>DKK</item>
         <item>HKD</item>

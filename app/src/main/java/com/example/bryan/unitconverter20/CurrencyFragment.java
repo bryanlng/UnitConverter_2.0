@@ -101,6 +101,7 @@ public class CurrencyFragment extends Fragment {
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         optionSpinnerA.setAdapter(adapter1);
         optionSpinnerA.setSelection(0);
+        currentOptionA = "USD";
 
         //2. optionB Spinner
         ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(
@@ -108,6 +109,7 @@ public class CurrencyFragment extends Fragment {
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         optionSpinnerB.setAdapter(adapter2);
         optionSpinnerB.setSelection(0);
+        currentOptionB = "USD";
 
         //Set an setOnItemSelectedListener on each of the Spinners
         //1. optionA Spinner
@@ -345,12 +347,15 @@ public class CurrencyFragment extends Fragment {
            If we were given optionA, then we would convert from USD --> HKD
 
            Precondition: Values have been updated and are in the Hashmap
+
+           Only take the first 3 letters
+           Ex: USD (US Dollar) --> take the "USD" part of it
      */
-    public Double convert_from(String whichOption){
+    public double convert_from(String whichOption){
         if(whichOption.equals("optionA"))
-            return currencies.get(currentOptionB);
+            return currencies.get(currentOptionB.substring(0,3));
         else{
-            return currencies.get(currentOptionA);
+            return currencies.get(currentOptionA.substring(0,3));
         }
     }
 
@@ -380,7 +385,7 @@ public class CurrencyFragment extends Fragment {
         http://stackoverflow.com/questions/153724/how-to-round-a-number-to-n-decimal-places-in-java
         Truncates the number to n decimal places
      */
-    public String truncateToNDecimalPlaces(Double val, int n){
+    public String truncateToNDecimalPlaces(double val, int n){
         //Create the string to be used in decimal format
         StringBuilder base = new StringBuilder("#.");
         for(int i = 0; i < n; i++){
@@ -445,12 +450,12 @@ public class CurrencyFragment extends Fragment {
         @Override
         protected String doInBackground (String... params){
             Log.i(TAG, "doInBackground, current thread: " + Thread.currentThread().getName());
-            Log.i(TAG, "DataRetriever doInBackground(), params: " + params[0]);
+            Log.i(TAG, "DataRetriever doInBackground(), params: " + params[0] + "," + params[1]);
             StringBuilder builder = new StringBuilder();
             try{
 
                 //1. Establish connection, put URL's inputstream --> BufferedReader
-                URL url = new URL(BASE_URL + params[1]);
+                URL url = new URL(BASE_URL + params[1].substring(0,3));     //only take first 3 letters
                 urlConnection = (HttpURLConnection) url.openConnection();
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -474,7 +479,7 @@ public class CurrencyFragment extends Fragment {
                 JSONObject rates = start.getJSONObject("rates");
                 String[] curr = getResources().getStringArray(R.array.currencies_all);
                 for(int i = 0; i < curr.length; i++){
-                    String currency = curr[i];
+                    String currency = curr[i].substring(0,3);
                     if(!currency.equals(base)){
                         //because we don't want to get the base currency, b/c it'll just be 1
                         Double worth = rates.getDouble(currency);
@@ -515,10 +520,11 @@ public class CurrencyFragment extends Fragment {
             Log.i(TAG, "onPostExecute output: " + paramFromDoInBackground);
             //4. Perform conversion, then fill in values for the EditTexts, ListView values
             //Have to set text here, because you can only touch Views in the main Thread
-            Double new_currency_multiplier = convert_from(paramFromDoInBackground);
-            Double curr_value = 0.0;
+            double new_currency_multiplier = convert_from(paramFromDoInBackground);
+            double curr_value = 0.0;
             String result = "";
 
+            //5. Set EditTexts
             //Case 1: Have text in textA, want a result in textB
             if(paramFromDoInBackground.equals("optionA")){
                 curr_value = Double.parseDouble(textA.getText().toString());
