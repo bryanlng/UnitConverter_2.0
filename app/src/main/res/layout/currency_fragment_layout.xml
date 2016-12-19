@@ -31,5 +31,12 @@
         android:id="@+id/currency_optionB"
         android:layout_below="@+id/currency_optionAText"
         android:layout_toEndOf="@+id/currency_optionAText" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/compute_button"
+        android:text="@string/compute"
+        android:layout_below="@+id/currency_optionB"
+        android:layout_alignStart="@+id/currency_optionB" />
 
 </RelativeLayout>

@@ -397,7 +397,7 @@ public class UnitFragment extends Fragment {
             if(whichOption.equals("optionA")){  //optionA has text in it, optionB has nothing in it
 
                 if(optionA.equals("")){
-                    showAlertDialog("No text entered", getCurrentView());
+                    showAlertDialog(getResources().getString(R.string.no_text_entered), getCurrentView());
                     return "";
                 }
                 else{
@@ -411,7 +411,7 @@ public class UnitFragment extends Fragment {
             //Case 2: Filling in TextB, want the result in TextA
             else {
                 if(optionB.equals("")){
-                    showAlertDialog("No text entered", getCurrentView());
+                    showAlertDialog(getResources().getString(R.string.no_text_entered), getCurrentView());
                     return "";
                 }
                 else {
