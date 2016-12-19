@@ -16,3 +16,94 @@ Features to include inside app:
 
 Specific stuff:
 
+JSON arrays and objects:
+https://www.tutorialspoint.com/android/android_json_parser.htm
+http://api.androidhive.info/contacts/
+http://stackoverflow.com/questions/12764208/javascript-objects-vs-arrays-vs-json
+
+1. JSON array
+	-denoted by "[]"
+	-[1,2,3]
+2. JSON object:
+	- key-value pairs
+		-Key: String
+		-Value: String, integer, double
+	-denoted by "{}"
+	-{"foo":"bar"}
+	
+3. JSON array of JSON objects
+	[
+	  {"record_id":1,"name":"Frank"},
+	  {"record_id":2,"name":"Sally"}
+	]
+4. JSON object containing other arrays and objects
+	{
+	  "countries": 
+		[
+		  {"id":1,"name":"Canada"},
+		  {"id":2,"name":"Mexico"}
+		],
+	  "states":
+		[
+		  {"id":1,"name":"Maine"},
+		  {"id":2,"name":"Alaska"}
+		]
+	}
+	
+Ex: http://api.fixer.io/latest
+{
+    "base": "EUR",
+    "date": "2016-12-16",
+    "rates": {
+        "AUD": 1.4239,
+        "BGN": 1.9558,
+        "BRL": 3.5081,
+        "CAD": 1.396,
+        "CHF": 1.0751,
+        "CNY": 7.2635,
+        "CZK": 27.021,
+        "DKK": 7.434,
+        "GBP": 0.8389,
+        "HKD": 8.1032,
+        "HRK": 7.536,
+        "HUF": 312.45,
+        "IDR": 13977.82,
+        "ILS": 4.0425,
+        "INR": 70.7765,
+        "JPY": 123.38,
+        "KRW": 1239.53,
+        "MXN": 21.2528,
+        "MYR": 4.6715,
+        "NOK": 9.0623,
+        "NZD": 1.4892, 
+        "PHP": 52.193,
+        "PLN": 4.42,
+        "RON": 4.5165,
+        "RUB": 64.3017,
+        "SEK": 9.789,
+        "SGD": 1.5065,
+        "THB": 37.413,
+        "TRY": 3.6601,
+        "USD": 1.0439,
+        "ZAR": 14.5876
+    }
+}
+
+Steps:
+1. { 
+	-It's a JSONObject, so use JSONObject jsonObject = new JSONObject(full_string);
+2. "base":
+	-Is a key whose value holds a String --> thus, use jsonObject.getString("base")
+3. "date":
+	-Is a key whose value holds a String--> thus, use jsonObject.getString("date")
+4. "rates":
+	-Is a key followed by a { --> thus, it's a JSON object within the one we have
+	-Thus, use JSONObject rates = jsonObject.getJSONObject("rates");
+5. "AUD":
+	-Is a key whose value holds a double --> thus, use rates.getDouble("AUD")
+6. "BGN":
+	-Is a key whose value holds a double --> thus, use rates.getDouble("BGN")
+
+	And so on...
+	
+

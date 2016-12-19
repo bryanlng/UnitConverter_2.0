@@ -139,7 +139,7 @@
         <item>2020</item>
         <item>2021</item>
     </string-array>
-    <string-array name="currencies">
+    <string-array name="currencies_all">
         <item>USD</item>
         <item>EUR</item>
         <item>JPY</item>
