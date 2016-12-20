@@ -17,6 +17,8 @@ public class Utilities {
     private static final String TAG = "UnitConverterTag";
     public static Bundle unitFragmentBundleCopy = null;
     public static Bundle daysUntilFragmentBundleCopy = null;
+    public static Bundle currencyFragmentBundleCopy = null;
+
 
     public static Bundle getBundleFromUnitFragment(){
         Log.i(TAG, "Utilities: getBundleFromUnitFragment()");
@@ -35,6 +37,18 @@ public class Utilities {
     }
     public static void setBundleFromDaysUntilFragment(Bundle b){
         daysUntilFragmentBundleCopy = b;
+    }
+    public static Bundle getBundleFromCurrencyFragment(){
+        Log.i(TAG, "Utilities: getBundleFromUnitFragment()");
+        if(currencyFragmentBundleCopy == null) Log.i(TAG, "Utilities: getBundleFromUnitFragment() bundle is null");
+        else Log.i(TAG, "Utilities: getBundleFromUnitFragment() bundle is NOT NULL");
+        return currencyFragmentBundleCopy;
+    }
+    public static void setBundleFromCurrencyFragment(Bundle b){
+        Log.i(TAG, "Utilities: setBundleFromUnitFragment()");
+        if(currencyFragmentBundleCopy == null) Log.i(TAG, "Utilities: setBundleFromUnitFragment() bundle is currently null");
+        else Log.i(TAG, "Utilities: setBundleFromUnitFragment() bundle is currently NOT NULL");
+        currencyFragmentBundleCopy = b;
     }
 
 

@@ -34,9 +34,11 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 
 public class CurrencyFragment extends Fragment {
@@ -90,6 +92,48 @@ public class CurrencyFragment extends Fragment {
         textA = (EditText) rootView.findViewById(R.id.currency_optionAText);
         textB = (EditText) rootView.findViewById(R.id.currency_optionBText);
 
+        //First check if there was a configuration change. If there was, restore values
+        Bundle utilitiesBundle = Utilities.getBundleFromCurrencyFragment();
+        if( savedInstanceState != null || utilitiesBundle != null) {
+            //In the case where a fragment change back to UnitFragment, meaning that values are not null, but savedInstanceState == null
+
+            //Case 1: Fragment change, but there was no configuration change. Thus, grab saved state from Utilities
+            if (savedInstanceState == null && utilitiesBundle != null) {
+                //get the bundle from the Utilities class ==> make it to be savedInstanceState
+                Log.i(TAG, "savedInstanceState == null, so we must get from Utilities, then restore");
+                savedInstanceState = utilitiesBundle;
+            }
+
+            //Case 2: Configuration change, no fragment change.
+            else {
+                Log.i(TAG, "savedInstanceState != null, not getting from Utilities, so we must restore");
+            }
+            currentOptionA = savedInstanceState.getString("currentOptionA");
+            currentOptionB = savedInstanceState.getString("currentOptionB");
+            optionACurrentSelection = savedInstanceState.getInt("optionACurrentSelection");
+            optionBCurrentSelection = savedInstanceState.getInt("optionBCurrentSelection");
+
+            //Set the text that was previously floating on the EditTexts
+            textA.setText(savedInstanceState.getString("currentOptionAText"));
+            textB.setText(savedInstanceState.getString("currentOptionBText"));
+
+            //Set Currency Fragment stuff
+            current_base = savedInstanceState.getString("current_base");
+            textAeditingNow = savedInstanceState.getBoolean("textAeditingNow");
+            textBeditingNow = savedInstanceState.getBoolean("textBeditingNow");
+            lastTimeUpdated = savedInstanceState.getLong("lastTimeUpdated");
+
+            //Restore previous state of hashmap
+            String[] keys = savedInstanceState.getStringArray("keys");
+            double[] values = savedInstanceState.getDoubleArray("values");
+
+            for(int i = 0; i < keys.length; i++){
+                currencies.put(keys[i],values[i]);
+            }
+        }
+
+        printHashMap();
+
         //Initialize Spinners
         optionSpinnerA = (Spinner) rootView.findViewById(R.id.currency_optionA);
         optionSpinnerB = (Spinner) rootView.findViewById(R.id.currency_optionB);
@@ -100,7 +144,7 @@ public class CurrencyFragment extends Fragment {
                 getActivity().getApplicationContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.currencies_all));
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         optionSpinnerA.setAdapter(adapter1);
-        optionSpinnerA.setSelection(0);
+        optionSpinnerA.setSelection(optionACurrentSelection);   //default = 0, the first item
         currentOptionA = "USD";
 
         //2. optionB Spinner
@@ -108,7 +152,7 @@ public class CurrencyFragment extends Fragment {
                 getActivity().getApplicationContext(), R.layout.dropdown_item, getResources().getStringArray(R.array.currencies_all));
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         optionSpinnerB.setAdapter(adapter2);
-        optionSpinnerB.setSelection(0);
+        optionSpinnerB.setSelection(optionBCurrentSelection);   //default = 0, the first item
         currentOptionB = "USD";
 
         //Set an setOnItemSelectedListener on each of the Spinners
@@ -242,7 +286,10 @@ public class CurrencyFragment extends Fragment {
                         Double curr_value = Double.parseDouble(textA.getText().toString());
                         String result = truncateToNDecimalPlaces(curr_value * new_currency_multiplier, 2);
                         textB.setText(result);
+
+                        //Update fields
                         currentOptionBText = result;
+                        currentOptionAText = textA.getText().toString();
                     }
                 }
                 else if(current_base.equals(currentOptionB)){
@@ -256,7 +303,10 @@ public class CurrencyFragment extends Fragment {
                         Double curr_value = Double.parseDouble(textA.getText().toString());
                         String result = truncateToNDecimalPlaces(curr_value / new_currency_multiplier, 2);
                         textB.setText(result);
+
+                        //Update fields
                         currentOptionBText = result;
+                        currentOptionAText = textA.getText().toString();
                     }
                 }
                 else{
@@ -281,7 +331,10 @@ public class CurrencyFragment extends Fragment {
                         Double curr_value = Double.parseDouble(textB.getText().toString());
                         String result = truncateToNDecimalPlaces(curr_value * new_currency_multiplier, 2);
                         textA.setText(result);
+
+                        //Update fields
                         currentOptionAText = result;
+                        currentOptionBText = textB.getText().toString();
                     }
                 }
                 else if(current_base.equals(currentOptionA)){
@@ -295,7 +348,10 @@ public class CurrencyFragment extends Fragment {
                         Double curr_value = Double.parseDouble(textB.getText().toString());
                         String result = truncateToNDecimalPlaces(curr_value / new_currency_multiplier, 2);
                         textA.setText(result);
+
+                        //Update fields
                         currentOptionAText = result;
+                        currentOptionBText = textB.getText().toString();
                     }
                 }
                 else{
@@ -359,18 +415,97 @@ public class CurrencyFragment extends Fragment {
         }
     }
 
-
-
-
-
+    /*
+        Things to save:
+        1. currentOptionA, currentOptionAText, currentOptionB, currentOptionBText
+        2. textAeditingNow, textBeditingNow, current_base, lastTimeUpdated, currencies
+     */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
+        savedInstanceState.putString("currentOptionA", currentOptionA);
+        savedInstanceState.putString("currentOptionAText" ,currentOptionAText);
+        savedInstanceState.putString("currentOptionB", currentOptionB);
+        savedInstanceState.putString("currentOptionBText" ,currentOptionBText);
+        savedInstanceState.putInt("optionACurrentSelection", optionACurrentSelection);
+        savedInstanceState.putInt("optionBCurrentSelection", optionBCurrentSelection);
 
+        savedInstanceState.putString("current_base" ,current_base);
+        savedInstanceState.putBoolean("textAeditingNow", textAeditingNow);
+        savedInstanceState.putBoolean("textBeditingNow",textBeditingNow);
+        savedInstanceState.putLong("lastTimeUpdated", lastTimeUpdated);
+
+        //Putting data from curriences HashMap into
+        //Save keys into string array, values into double array
+        //Indexes are pairs. Ex: (string array[0], double array[0]) is a pair
+        //http://stackoverflow.com/questions/46898/how-to-efficiently-iterate-over-each-entry-in-a-map
+        String[] keys = new String[currencies.keySet().size()];
+        double[] values = new double[currencies.values().size()];
+        int i = 0;
+        if(!currencies.isEmpty()){
+            for(Map.Entry<String, Double> entry : currencies.entrySet()){
+                Log.i(TAG, "(" + entry.getKey() + "," + entry.getValue() + ")");
+                keys[i] = entry.getKey();
+                values[i] = entry.getValue();
+                i++;
+            }
+            Log.i(TAG, "Size of hashmap is " + currencies.size() + ", should be 30");
+
+        }
+
+        savedInstanceState.putStringArray("keys", keys);
+        savedInstanceState.putDoubleArray("values", values);
+
+        //Create a copy of the bundle to be put inside Utilties
+        Utilities.setBundleFromCurrencyFragment(savedInstanceState);
+
+        //Lastly, call the parent class's equivalent method
+        super.onSaveInstanceState(savedInstanceState);
     }
 
 
     @Override
     public void onPause(){
+        Bundle onPauseBundle = new Bundle();
+        //Save stuff here
+        //Basically do what we did in onSaveInstanceState
+
+        onPauseBundle.putString("currentOptionA", currentOptionA);
+        onPauseBundle.putString("currentOptionAText" ,currentOptionAText);
+        onPauseBundle.putString("currentOptionB", currentOptionB);
+        onPauseBundle.putString("currentOptionBText" ,currentOptionBText);
+        onPauseBundle.putInt("optionACurrentSelection", optionACurrentSelection);
+        onPauseBundle.putInt("optionBCurrentSelection", optionBCurrentSelection);
+
+        onPauseBundle.putString("current_base" ,current_base);
+        onPauseBundle.putBoolean("textAeditingNow", textAeditingNow);
+        onPauseBundle.putBoolean("textBeditingNow",textBeditingNow);
+        onPauseBundle.putLong("lastTimeUpdated", lastTimeUpdated);
+
+        //Putting data from curriences HashMap into
+        //Save keys into string array, values into double array
+        //Indexes are pairs. Ex: (string array[0], double array[0]) is a pair
+        //http://stackoverflow.com/questions/46898/how-to-efficiently-iterate-over-each-entry-in-a-map
+        String[] keys = new String[currencies.keySet().size()];
+        double[] values = new double[currencies.values().size()];
+        int i = 0;
+        if(!currencies.isEmpty()){
+            for(Map.Entry<String, Double> entry : currencies.entrySet()){
+                Log.i(TAG, "(" + entry.getKey() + "," + entry.getValue() + ")");
+                keys[i] = entry.getKey();
+                values[i] = entry.getValue();
+            }
+            Log.i(TAG, "Size of hashmap is " + currencies.size() + ", should be 30");
+        }
+
+        onPauseBundle.putStringArray("keys", keys);
+        onPauseBundle.putDoubleArray("values", values);
+
+        //Create a copy of the bundle to be put inside Utilties
+        Utilities.setBundleFromCurrencyFragment(onPauseBundle);
+
+        //Lastly, call the parent class's equivalent method
+        super.onSaveInstanceState(onPauseBundle);
+
         super.onPause();
     }
 
@@ -409,6 +544,10 @@ public class CurrencyFragment extends Fragment {
                 Log.i(TAG, "(" + entry.getKey() + "," + entry.getValue() + ")");
             }
             Log.i(TAG, "Size of hashmap is " + currencies.size() + ", should be 30");
+        }
+
+        else{
+            Log.i(TAG, "Size of hashmap is 0");
         }
 
     }
@@ -530,7 +669,10 @@ public class CurrencyFragment extends Fragment {
                 curr_value = Double.parseDouble(textA.getText().toString());
                 result = truncateToNDecimalPlaces(curr_value * new_currency_multiplier, 2);
                 textB.setText(result);
+
+                //Update fields
                 currentOptionBText = result;
+                currentOptionAText = textA.getText().toString();
             }
 
             //Case 2: Have text in textB, want a result in textA
@@ -538,11 +680,15 @@ public class CurrencyFragment extends Fragment {
                 curr_value = Double.parseDouble(textB.getText().toString());
                 result = truncateToNDecimalPlaces(curr_value * new_currency_multiplier, 2);
                 textA.setText(result);
+
+                //Update fields
                 currentOptionAText = result;
+                currentOptionBText = textB.getText().toString();
             }
 
             //5. Update the time that we last updated to be NOW
             lastTimeUpdated = System.currentTimeMillis();
+            printHashMap();
         }
     }
 
